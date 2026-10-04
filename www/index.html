@@ -9,15 +9,14 @@
 </head>
 <body class="dark-love-theme">
 
-  <!-- စာသား Copy / Select မရအောင် ပိတ်ထားသည့် Container -->
   <div id="app" class="no-select">
 
-    <!-- ၁။ လုံခြုံရေး PIN Code Screen -->
+    <!-- ၁။ လုံခြုံရေး PIN Code Screen (Direct Action Click စနစ်သုံးထားသည်) -->
     <div id="pin-overlay" class="pin-overlay">
       <div class="pin-card">
-        <div class="pin-heart-icon">💖</div>
-        <h2 id="pin-title">Enter Passcode</h2>
-        <p id="pin-subtitle">လုံခြုံရေး PIN နံပါတ် ရိုက်ထည့်ပါ</p>
+        <div class="pin-heart-icon" onclick="resetPinSetup()">💖</div>
+        <h2 id="pin-title">New Passcode</h2>
+        <p id="pin-subtitle">PIN အသစ် သတ်မှတ်ပါ (ဂဏန်း ၄ လုံး)</p>
         
         <div class="pin-dots">
           <span class="dot" id="dot-0"></span>
@@ -27,23 +26,23 @@
         </div>
 
         <div class="pin-keypad">
-          <button class="pin-key" data-key="1">1</button>
-          <button class="pin-key" data-key="2">2</button>
-          <button class="pin-key" data-key="3">3</button>
-          <button class="pin-key" data-key="4">4</button>
-          <button class="pin-key" data-key="5">5</button>
-          <button class="pin-key" data-key="6">6</button>
-          <button class="pin-key" data-key="7">7</button>
-          <button class="pin-key" data-key="8">8</button>
-          <button class="pin-key" data-key="9">9</button>
-          <button class="pin-key action" id="pin-bio-btn"><i class="fa-solid fa-fingerprint"></i></button>
-          <button class="pin-key" data-key="0">0</button>
-          <button class="pin-key action" id="pin-del-btn"><i class="fa-solid fa-delete-left"></i></button>
+          <button type="button" class="pin-key" onclick="pressPin('1')">1</button>
+          <button type="button" class="pin-key" onclick="pressPin('2')">2</button>
+          <button type="button" class="pin-key" onclick="pressPin('3')">3</button>
+          <button type="button" class="pin-key" onclick="pressPin('4')">4</button>
+          <button type="button" class="pin-key" onclick="pressPin('5')">5</button>
+          <button type="button" class="pin-key" onclick="pressPin('6')">6</button>
+          <button type="button" class="pin-key" onclick="pressPin('7')">7</button>
+          <button type="button" class="pin-key" onclick="pressPin('8')">8</button>
+          <button type="button" class="pin-key" onclick="pressPin('9')">9</button>
+          <button type="button" class="pin-key action" onclick="bypassPin()"><i class="fa-solid fa-fingerprint"></i></button>
+          <button type="button" class="pin-key" onclick="pressPin('0')">0</button>
+          <button type="button" class="pin-key action" onclick="deletePin()"><i class="fa-solid fa-delete-left"></i></button>
         </div>
       </div>
     </div>
 
-    <!-- ၂။ စက္ကူလေယာဉ် ပျံသန်းသည့် Animation Container -->
+    <!-- ၂။ စက္ကူလေယာဉ် ပျံသန်းသည့် Layer -->
     <div id="plane-animation-layer" class="plane-layer">
       <div id="paper-plane" class="paper-plane">✈️</div>
     </div>
@@ -64,7 +63,6 @@
       <!-- TAB 1: Couple / Solo Page -->
       <section id="tab-couple" class="tab-pane active">
         
-        <!-- Profile Card -->
         <div class="card glass-card profile-box">
           <button class="edit-pill-btn" id="edit-profiles-btn">
             <i class="fa-solid fa-pen"></i> Edit
@@ -89,7 +87,6 @@
           </div>
         </div>
 
-        <!-- Relationship / Solo Days Counter -->
         <div class="card glass-card counter-box">
           <h3 id="counter-title">တို့နှစ်ယောက် ချစ်သက်တမ်း</h3>
           <div class="big-counter">
@@ -117,7 +114,6 @@
           </div>
         </div>
 
-        <!-- Partner / Solo Live Screen -->
         <div class="card glass-card live-screen-box">
           <div class="box-header">
             <h4><i class="fa-regular fa-envelope"></i> <span id="live-screen-title">Partner Live Screen</span></h4>
@@ -147,10 +143,7 @@
             <span class="count-tag" id="family-count-tag">2 ယောက်</span>
           </div>
 
-          <!-- Circular Member Avatars List + Circular Add Button -->
-          <div class="members-horizontal-list" id="family-members-container">
-            <!-- အဖွဲ့ဝင်များ JS ဖြင့် ထွက်ပေါ်လာမည် -->
-          </div>
+          <div class="members-horizontal-list" id="family-members-container"></div>
         </div>
 
         <div class="card glass-card fridge-board">
@@ -173,10 +166,7 @@
             <span class="count-tag" id="friends-count-tag">2 ယောက်</span>
           </div>
 
-          <!-- Circular Member Avatars List + Circular Add Button -->
-          <div class="members-horizontal-list" id="friends-members-container">
-            <!-- အဖွဲ့ဝင်များ JS ဖြင့် ထွက်ပေါ်လာမည် -->
-          </div>
+          <div class="members-horizontal-list" id="friends-members-container"></div>
         </div>
 
         <div class="card glass-card squad-hub">
@@ -246,9 +236,7 @@
       </button>
     </nav>
 
-    <!-- ၆။ Modals (Popups) -->
-
-    <!-- Note အသစ်ထည့်ရန် Popup (Date & Time ပါဝင်သည်) -->
+    <!-- ၆။ Modals -->
     <div id="note-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="note-modal-title">မှတ်စုအသစ် ရေးပါ</h4>
@@ -272,7 +260,6 @@
       </div>
     </div>
 
-    <!-- ပုံဆွဲရန် Canvas Popup -->
     <div id="canvas-modal" class="modal-backdrop">
       <div class="modal-card canvas-card">
         <div class="modal-header-row">
@@ -302,7 +289,6 @@
       </div>
     </div>
 
-    <!-- Member အသစ်ထည့်ရန် Popup -->
     <div id="member-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="member-modal-title">အဖွဲ့ဝင် အသစ်ထည့်မည်</h4>
@@ -327,7 +313,6 @@
       </div>
     </div>
 
-    <!-- Profile Edit Popup (Couple Mode အတွက်) -->
     <div id="profile-edit-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4>ပရိုဖိုင် အမည် & Emoji ပြင်ဆင်ရန်</h4>
