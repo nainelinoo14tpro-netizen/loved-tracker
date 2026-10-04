@@ -1,0 +1,22 @@
+{
+  "name": "loved-tracker",
+  "version": "1.0.0",
+  "description": "Couple and Loved Ones Tracker App",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "couple",
+    "tracker",
+    "capacitor"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/android": "^6.2.2",
+    "@capacitor/cli": "^6.2.2",
+    "@capacitor/core": "^6.2.2",
+    "@capacitor/local-notifications": "^6.0.0"
+  }
+}
