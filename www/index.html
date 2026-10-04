@@ -83,7 +83,7 @@
       font-weight: 600;
     }
 
-    /* Scroll Content Area */
+    /* Scroll Area */
     .content-scroll {
       flex: 1;
       overflow-y: auto;
@@ -111,7 +111,7 @@
       position: relative;
     }
 
-    /* 3:4 Profile Frames */
+    /* 3:4 Profile Frame Header */
     .profile-box-header {
       display: flex;
       justify-content: space-between;
@@ -414,6 +414,80 @@
 
     .btn-block {
       width: 100%;
+    }
+
+    /* Couple Memories / Special Date Cards */
+    .special-note-card {
+      background: rgba(36, 22, 44, 0.9);
+      border: 1px solid rgba(255, 75, 139, 0.35);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .special-note-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .special-note-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--pink-soft);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .special-countdown-badge {
+      font-size: 11px;
+      background: rgba(255, 75, 139, 0.18);
+      color: var(--pink-primary);
+      border: 1px solid var(--pink-primary);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .special-note-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .special-note-desc {
+      font-size: 12px;
+      color: var(--text-main);
+      line-height: 1.4;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    /* Quick Preset Buttons */
+    .quick-tag-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .quick-tag-btn {
+      background: rgba(255, 75, 139, 0.15);
+      border: 1px solid rgba(255, 75, 139, 0.3);
+      color: var(--pink-soft);
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .quick-tag-btn:hover {
+      background: var(--pink-primary);
+      color: #fff;
     }
 
     /* Members */
@@ -1008,7 +1082,7 @@
 
   <div id="app" class="no-select">
 
-    <!-- ၁။ လုံခြုံရေး PIN Code Screen (Decoy Skip & Old PIN Verification) -->
+    <!-- ၁။ လုံခြုံရေး PIN Screen -->
     <div id="pin-overlay" class="pin-overlay">
       <div class="pin-card">
         <div class="pin-heart-icon" onclick="resetPinSetup()">💖</div>
@@ -1037,7 +1111,6 @@
           <button type="button" class="pin-key action" onclick="deletePin()"><i class="fa-solid fa-delete-left"></i></button>
         </div>
 
-        <!-- Zero Data / Day 0 Decoy Login -->
         <button type="button" class="pin-skip-btn" onclick="pressDecoySkip()">လောလောဆယ် ကျော်မည် (Skip)</button>
       </div>
     </div>
@@ -1050,7 +1123,7 @@
       </svg>
     </div>
 
-    <!-- ၃။ Header Bar (Alone Mode ခလုတ် အပြီးတိုင် ဖယ်ရှားပြီးဖြစ်သည်) -->
+    <!-- ၃။ Header Bar -->
     <header class="top-nav">
       <div class="app-brand">
         <span>💖</span> Loved Tracker
@@ -1073,7 +1146,6 @@
           </div>
 
           <div class="profiles-wrapper">
-            <!-- 3:4 Frame Me -->
             <div class="avatar-col">
               <div class="profile-card-34" id="avatar-me">
                 <span class="placeholder-emoji">🥰</span>
@@ -1088,12 +1160,11 @@
               <span class="tap-hint">Tap me!</span>
             </div>
 
-            <!-- 3:4 Frame You -->
             <div class="avatar-col">
               <div class="profile-card-34" id="avatar-partner">
                 <span class="placeholder-emoji">😘</span>
               </div>
-              <span class="avatar-name" id="name-partner">You</span>
+              <span class="avatar-name" id="name-partner">Bae</span>
             </div>
           </div>
         </div>
@@ -1123,6 +1194,20 @@
           <div class="voice-alert-badge">
             <i class="fa-solid fa-bell"></i> Real-time Widget Ready
           </div>
+        </div>
+
+        <!-- 💍 COUPLE SPECIAL DATES & MEMORIES NOTES (အသစ်ဖြည့်စွက်ထားသောအပိုင်း) -->
+        <div class="card glass-card couple-special-box">
+          <div class="section-title-row">
+            <h4>💍 အမှတ်တရ ရက်စွဲနှင့် Note များ</h4>
+            <span class="count-tag" id="couple-notes-count">0 ခု</span>
+          </div>
+
+          <div id="couple-notes-list"></div>
+
+          <button class="btn-outline-dashed" onclick="openCoupleNoteModal()" style="margin-top: 8px;">
+            + Anniversary / Birthday / Note အသစ်ထည့်မည်
+          </button>
         </div>
 
         <div class="card glass-card live-screen-box">
@@ -1195,7 +1280,6 @@
       <!-- TAB 4: Codes / Settings Page -->
       <section id="tab-codes" class="tab-pane">
         
-        <!-- ကတ် (၁) - 🔐 PIN Security သီးသန့် ကတ် -->
         <div class="card glass-card">
           <h3>🔐 App Security (Passcode)</h3>
           <p class="card-desc">App ဖွင့်ချိန် လုံခြုံရေးအတွက် PIN သတ်မှတ်ပါ</p>
@@ -1213,7 +1297,6 @@
           </div>
         </div>
 
-        <!-- ကတ် (၂) - 💑 Couple Room Sync -->
         <div class="card glass-card sync-card">
           <h3>💑 Couple Room Sync</h3>
           <p class="card-desc">ချစ်သူနှင့် နှစ်ယောက်သီးသန့် ချိတ်ဆက်ရန် အခန်း</p>
@@ -1238,7 +1321,6 @@
           </div>
         </div>
 
-        <!-- ကတ် (၃) - 🏡 Family Room Sync -->
         <div class="card glass-card sync-card">
           <h3>🏡 Family Room Sync</h3>
           <p class="card-desc">မိသားစုဝင်များ သီးသန့် ချိတ်ဆက်ရန် အခန်း</p>
@@ -1263,7 +1345,6 @@
           </div>
         </div>
 
-        <!-- ကတ် (၄) - ✨ Friends Room Sync -->
         <div class="card glass-card sync-card">
           <h3>✨ Friends Squad Room</h3>
           <p class="card-desc">သူငယ်ချင်းများ Group ချိတ်ဆက်ရန် အခန်း</p>
@@ -1312,7 +1393,36 @@
       </button>
     </nav>
 
-    <!-- Modals -->
+    <!-- ၆။ MODALS -->
+
+    <!-- COUPLE SPECIAL NOTE MODAL (အသစ်) -->
+    <div id="couple-note-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <h4>💍 အမှတ်တရ ရက်စွဲ / Note အသစ်</h4>
+
+        <div class="quick-tag-row">
+          <button type="button" class="quick-tag-btn" onclick="setCouplePreset('💍 Couple Anniversary Day')">💍 Anniversary</button>
+          <button type="button" class="quick-tag-btn" onclick="setCouplePreset('🎂 My Love Birthday')">🎂 Birthday</button>
+          <button type="button" class="quick-tag-btn" onclick="setCouplePreset('🌹 First Date Memory')">🌹 First Date</button>
+        </div>
+
+        <input type="text" id="couple-note-title-input" placeholder="ခေါင်းစဉ် (ဥပမာ - Anniversary, Birthday)" class="dark-text-input">
+
+        <div class="input-field" style="display: flex; flex-direction: column; gap: 4px;">
+          <label style="font-size: 11px; color: var(--text-muted);">ရက်စွဲ ရွေးချယ်ပါ</label>
+          <input type="date" id="couple-note-date-input" class="dark-input-date" style="width: 100%;">
+        </div>
+
+        <textarea id="couple-note-desc-input" placeholder="အမှတ်တရ စကား သို့မဟုတ် Note မှတ်ရန်..." rows="3" class="dark-textarea"></textarea>
+
+        <div class="modal-actions">
+          <button class="btn btn-cancel" onclick="closeModal('couple-note-modal')">Cancel</button>
+          <button class="btn btn-pink" onclick="saveCoupleNote()">သိမ်းဆည်းမည်</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STICKY NOTE MODAL -->
     <div id="note-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="note-modal-title">မှတ်စုအသစ် ရေးပါ</h4>
@@ -1336,6 +1446,7 @@
       </div>
     </div>
 
+    <!-- CANVAS MODAL -->
     <div id="canvas-modal" class="modal-backdrop">
       <div class="modal-card canvas-card">
         <div class="modal-header-row">
@@ -1365,6 +1476,7 @@
       </div>
     </div>
 
+    <!-- MEMBER MODAL -->
     <div id="member-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="member-modal-title">အဖွဲ့ဝင် အသစ်ထည့်မည်</h4>
@@ -1395,6 +1507,7 @@
       </div>
     </div>
 
+    <!-- PROFILE EDIT MODAL -->
     <div id="profile-edit-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4>Profile Frame ဓာတ်ပုံ ပြင်ဆင်ရန်</h4>
@@ -1418,11 +1531,11 @@
         </div>
 
         <div class="profile-edit-section" style="margin-top: 10px;">
-          <h5>You (ချစ်သူ့အချက်အလက်)</h5>
-          <input type="text" id="edit-partner-name" value="You" class="dark-text-input">
+          <h5>Bae (ချစ်သူ့အချက်အလက်)</h5>
+          <input type="text" id="edit-partner-name" value="Bae" class="dark-text-input">
           <div class="photo-upload-section" style="margin-top: 6px;">
             <label class="btn-file-label">
-              <i class="fa-solid fa-camera"></i> You အတွက် ဓာတ်ပုံတင်မည်
+              <i class="fa-solid fa-camera"></i> Bae အတွက် ဓာတ်ပုံတင်မည်
               <input type="file" id="partner-photo-input" accept="image/*" style="display: none;" onchange="handleProfilePhoto(this, 'partner')">
             </label>
             <img id="partner-photo-preview" class="preview-thumb" alt="Preview">
@@ -1474,7 +1587,7 @@
       }
     }
 
-    // Web Audio Synthesizer (Chime & Pop Effect)
+    // Web Audio Synthesizer (Chime Sound Effect)
     function playHeartChimeSound() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1537,7 +1650,11 @@
 
     // APP DATA STATE
     const defaultData = {
-      couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'You', partnerAvatar: '😘', startDate: '' },
+      couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'Bae', partnerAvatar: '😘', startDate: '2026-05-18' },
+      coupleNotes: [
+        { id: 1, title: '💍 Couple Anniversary Day', date: '2027-05-18', desc: 'တို့နှစ်ယောက်ရဲ့ ၁ နှစ်ပြည့် အမှတ်တရနေ့' },
+        { id: 2, title: '🎂 My Love Birthday', date: '2026-11-20', desc: 'ချစ်ရသူလေး မွေးနေ့ဆုတောင်းနှင့် လက်ဆောင်ပေးရန်' }
+      ],
       familyMembers: [{ id: 1, name: 'Family 1', avatar: '😊' }, { id: 2, name: 'Family 2', avatar: '🌸' }],
       familyNotes: [{ id: 1, text: 'ညနေစာ အတူတူစားကြမယ်နော် 🍲', date: '2026-10-04', time: '18:30' }],
       friendsMembers: [{ id: 1, name: 'Friend 1', avatar: '😎' }, { id: 2, name: 'Friend 2', avatar: '🥳' }],
@@ -1547,7 +1664,8 @@
     };
 
     const decoyData = {
-      couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'You', partnerAvatar: '😘', startDate: '' },
+      couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'Bae', partnerAvatar: '😘', startDate: '' },
+      coupleNotes: [],
       familyMembers: [],
       familyNotes: [],
       friendsMembers: [],
@@ -1569,6 +1687,7 @@
         if (s) {
           const parsed = JSON.parse(s);
           parsed.rooms = Object.assign({ couple: 'LOVE-7892', family: 'HOME-3321', friends: 'SQUAD-9904' }, parsed.rooms || {});
+          if (!parsed.coupleNotes) parsed.coupleNotes = defaultData.coupleNotes;
           return Object.assign({}, defaultData, parsed);
         }
       } catch (e) {}
@@ -1646,7 +1765,6 @@
       updatePinDots();
     }
 
-    // Decoy Login
     function pressDecoySkip() {
       isDecoyMode = true;
       appData = JSON.parse(JSON.stringify(decoyData));
@@ -1783,12 +1901,12 @@
       }
     }
 
-    // REAL-TIME ACCURATE DATE & WIDGET SYNC
+    // ACCURATE DATE & WIDGET SYNC
     function onDateChange(val) {
       appData.couple.startDate = val;
       saveAppData();
       renderCounter();
-      syncToAndroidWidget(); // Native Widget Real-time Sync
+      syncToAndroidWidget();
     }
 
     function renderCounter() {
@@ -1851,6 +1969,92 @@
       if (progressEl) progressEl.style.width = `${percentage}%`;
     }
 
+    // 💍 COUPLE SPECIAL NOTES & COUNTDOWN LOGIC
+    function openCoupleNoteModal() {
+      document.getElementById('couple-note-title-input').value = '';
+      document.getElementById('couple-note-date-input').value = '';
+      document.getElementById('couple-note-desc-input').value = '';
+      document.getElementById('couple-note-modal').classList.add('active');
+    }
+
+    function setCouplePreset(title) {
+      document.getElementById('couple-note-title-input').value = title;
+    }
+
+    function calculateDaysRemaining(targetDateStr) {
+      if (!targetDateStr) return '';
+      const target = new Date(targetDateStr);
+      const now = new Date();
+      target.setHours(0, 0, 0, 0);
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      const diffTime = target - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) return 'ဒီနေ့ရောက်ပါပြီ 🎉';
+      if (diffDays > 0) return `${diffDays} ရက်လို`;
+      return `${Math.abs(diffDays)} ရက်လွန်ခဲ့`;
+    }
+
+    function saveCoupleNote() {
+      const title = document.getElementById('couple-note-title-input').value.trim();
+      const date = document.getElementById('couple-note-date-input').value;
+      const desc = document.getElementById('couple-note-desc-input').value.trim();
+
+      if (!title) {
+        alert('ခေါင်းစဉ် ရိုက်ထည့်ပေးပါ!');
+        return;
+      }
+
+      if (!appData.coupleNotes) appData.coupleNotes = [];
+      const item = { id: Date.now(), title, date, desc };
+      appData.coupleNotes.unshift(item);
+      saveAppData();
+      closeModal('couple-note-modal');
+      renderCoupleNotes();
+      playHeartChimeSound();
+    }
+
+    function delCoupleNote(id) {
+      if (confirm('ဤမှတ်စုကို ဖျက်မည်မှာ သေချာပါသလား?')) {
+        appData.coupleNotes = appData.coupleNotes.filter(n => n.id !== id);
+        saveAppData();
+        renderCoupleNotes();
+      }
+    }
+
+    function renderCoupleNotes() {
+      const listEl = document.getElementById('couple-notes-list');
+      const countEl = document.getElementById('couple-notes-count');
+      if (!listEl) return;
+
+      const notes = appData.coupleNotes || [];
+      if (countEl) countEl.textContent = `${notes.length} ခု`;
+
+      if (notes.length === 0) {
+        listEl.innerHTML = '<p class="placeholder-text" style="padding: 10px 0;">Anniversary သို့မဟုတ် Birthday ရက်စွဲများ မထည့်ရသေးပါ...</p>';
+        return;
+      }
+
+      listEl.innerHTML = '';
+      notes.forEach(n => {
+        const remaining = n.date ? calculateDaysRemaining(n.date) : '';
+        listEl.innerHTML += `
+          <div class="special-note-card">
+            <div class="special-note-top">
+              <span class="special-note-title">${n.title}</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                ${remaining ? `<span class="special-countdown-badge">${remaining}</span>` : ''}
+                <button class="note-del-btn" onclick="delCoupleNote(${n.id})">&times;</button>
+              </div>
+            </div>
+            ${n.date ? `<div class="special-note-date"><i class="fa-regular fa-calendar-heart"></i> ${n.date}</div>` : ''}
+            ${n.desc ? `<div class="special-note-desc">${n.desc}</div>` : ''}
+          </div>
+        `;
+      });
+    }
+
     // PROFILES & 3:4 FRAMES
     function openProfileModal() {
       document.getElementById('edit-my-name').value = appData.couple.meName;
@@ -1895,7 +2099,7 @@
 
     function saveProfiles() {
       appData.couple.meName = document.getElementById('edit-my-name').value.trim() || 'Me';
-      appData.couple.partnerName = document.getElementById('edit-partner-name').value.trim() || 'You';
+      appData.couple.partnerName = document.getElementById('edit-partner-name').value.trim() || 'Bae';
       appData.couple.meAvatar = chosenAvatarMe;
       appData.couple.partnerAvatar = chosenAvatarPartner;
       saveAppData();
@@ -1929,7 +2133,7 @@
         input.value = '';
         renderBoard();
         playHeartChimeSound();
-        syncToAndroidWidget(); // Widget ပေါ် စာသား Real-time လိုက်ပြောင်းစေရန်
+        syncToAndroidWidget();
       });
     }
 
@@ -2253,11 +2457,12 @@
     function refreshAllUi() {
       renderProfiles();
       renderCounter();
+      renderCoupleNotes();
       renderBoard();
       renderMembers();
       renderNotes();
       renderRoomCodes();
-      syncToAndroidWidget(); // App ဖွင့်ချိန်တွင်လည်း Widget ကို Real-time Update လှမ်းလုပ်ခြင်း
+      syncToAndroidWidget();
     }
 
     // INITIAL LOAD
