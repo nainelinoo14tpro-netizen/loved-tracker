@@ -1,4 +1,4 @@
-package com.lovedtracker.app; // <-- သင့် MainActivity.java ထိပ်ဆုံးက package name အတိုင်း ထားပါ
+package com.lovedones.tracker;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
