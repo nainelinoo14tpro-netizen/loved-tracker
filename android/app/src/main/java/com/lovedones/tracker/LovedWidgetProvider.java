@@ -9,9 +9,35 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class LovedWidgetProvider extends AppWidgetProvider {
 
-    public static final String ACTION_UPDATE_WIDGET = "com.lovedones.tracker.UPDATE_WIDGET";
+    public static final String PREFS_NAME = "LovedTrackerPrefs";
+    public static final String KEY_START_DATE = "loved_start_date";
+    public static final String KEY_MESSAGE = "loved_partner_msg";
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+
+        // App ထဲမှ Broadcast ပို့လိုက်ပါက ချက်ချင်း လက်ခံ Update လုပ်ခြင်း
+        if ("com.lovedones.tracker.UPDATE_WIDGET".equals(intent.getAction())) {
+            if (intent.hasExtra("start_date")) {
+                String d = intent.getStringExtra("start_date");
+                context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                        .edit().putString(KEY_START_DATE, d).apply();
+            }
+            if (intent.hasExtra("partner_msg")) {
+                String m = intent.getStringExtra("partner_msg");
+                context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                        .edit().putString(KEY_MESSAGE, m).apply();
+            }
+            updateAllWidgets(context);
+        }
+    }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -20,44 +46,45 @@ public class LovedWidgetProvider extends AppWidgetProvider {
         }
     }
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.loved_widget_layout);
+    public static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String startDateStr = prefs.getString(KEY_START_DATE, "");
+        String partnerMsg = prefs.getString(KEY_MESSAGE, "MY LOVE");
 
-        // Read saved data from SharedPreferences
-        SharedPreferences prefs = context.getSharedPreferences("CapacitorStorage", Context.MODE_PRIVATE);
-        String days = prefs.getString("widget_days", "139");
-        String title = prefs.getString("widget_title", "တို့နှစ်ယောက် ချစ်သက်တမ်း");
-        String liveText = prefs.getString("widget_live_text", "MY LOVE");
-
-        // Update Widget UI elements
-        views.setTextViewText(R.id.widget_title, title);
-        views.setTextViewText(R.id.widget_days, days);
-        views.setTextViewText(R.id.widget_live_text, liveText);
-
-        // Click Action: Launch Loved Tracker app when widget is tapped
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            flags |= PendingIntent.FLAG_IMMUTABLE;
+        // ရက်ပေါင်း Real-time တိကျစွာ တွက်ချက်ခြင်း
+        long daysDiff = 0;
+        if (startDateStr != null && !startDateStr.isEmpty()) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                Date startDate = sdf.parse(startDateStr);
+                if (startDate != null) {
+                    long diffInMillis = System.currentTimeMillis() - startDate.getTime();
+                    if (diffInMillis > 0) {
+                        daysDiff = diffInMillis / (1000 * 60 * 60 * 24);
+                    }
+                }
+            } catch (Exception ignored) {}
         }
-        
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, flags);
-        views.setOnClickPendingIntent(R.id.widget_root_layout, pendingIntent);
 
-        // Instruct the widget manager to update
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_loved_tracker);
+        views.setTextViewText(R.id.widget_days, daysDiff + " ရက်မြောက်");
+        views.setTextViewText(R.id.widget_message, "💌 " + partnerMsg);
+
+        // Widget နှိပ်ပါက App တိုက်ရိုက်ပွင့်ရန်
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
+
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        super.onReceive(context, intent);
-        if (ACTION_UPDATE_WIDGET.equals(intent.getAction())) {
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            ComponentName thisWidget = new ComponentName(context, LovedWidgetProvider.class);
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
-            onUpdate(context, appWidgetManager, appWidgetIds);
+    public static void updateAllWidgets(Context context) {
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        int[] ids = manager.getAppWidgetIds(new ComponentName(context, LovedWidgetProvider.class));
+        for (int id : ids) {
+            updateAppWidget(context, manager, id);
         }
     }
 }
