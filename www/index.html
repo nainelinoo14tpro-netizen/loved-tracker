@@ -83,7 +83,7 @@
       font-weight: 600;
     }
 
-    /* Scroll Area */
+    /* Scroll Content Area */
     .content-scroll {
       flex: 1;
       overflow-y: auto;
@@ -111,7 +111,7 @@
       position: relative;
     }
 
-    /* 3:4 Profile Frame Header */
+    /* 3:4 Profile Frames */
     .profile-box-header {
       display: flex;
       justify-content: space-between;
@@ -147,7 +147,6 @@
       gap: 8px;
     }
 
-    /* 3:4 Portrait Box */
     .profile-card-34 {
       width: 102px;
       aspect-ratio: 3 / 4;
@@ -566,7 +565,7 @@
       cursor: pointer;
     }
 
-    /* Separate Room Cards */
+    /* 3 Separate Room Cards */
     .sync-card {
       margin-bottom: 14px;
     }
@@ -672,7 +671,7 @@
       text-shadow: 0 0 10px var(--pink-glow);
     }
 
-    /* Origami Paper Airplane SVG */
+    /* Origami Airplane SVG Layer */
     .plane-layer {
       position: fixed;
       inset: 0;
@@ -1009,7 +1008,7 @@
 
   <div id="app" class="no-select">
 
-    <!-- ၁။ လုံခြုံရေး PIN Code Screen (Decoy Skip & Old PIN Verification Supported) -->
+    <!-- ၁။ လုံခြုံရေး PIN Code Screen (Decoy Skip & Old PIN Verification) -->
     <div id="pin-overlay" class="pin-overlay">
       <div class="pin-card">
         <div class="pin-heart-icon" onclick="resetPinSetup()">💖</div>
@@ -1051,7 +1050,7 @@
       </svg>
     </div>
 
-    <!-- ၃။ Header Bar (Alone Mode ခလုတ် အပြီးဖယ်ရှားပြီးဖြစ်သည်) -->
+    <!-- ၃။ Header Bar (Alone Mode ခလုတ် အပြီးတိုင် ဖယ်ရှားပြီးဖြစ်သည်) -->
     <header class="top-nav">
       <div class="app-brand">
         <span>💖</span> Loved Tracker
@@ -1122,7 +1121,7 @@
           </div>
 
           <div class="voice-alert-badge">
-            <i class="fa-solid fa-bell"></i> Real-time Audio Ready
+            <i class="fa-solid fa-bell"></i> Real-time Widget Ready
           </div>
         </div>
 
@@ -1193,7 +1192,7 @@
         </div>
       </section>
 
-      <!-- TAB 4: Codes / Settings Page (Separate Rooms & Old PIN Verification) -->
+      <!-- TAB 4: Codes / Settings Page -->
       <section id="tab-codes" class="tab-pane">
         
         <!-- ကတ် (၁) - 🔐 PIN Security သီးသန့် ကတ် -->
@@ -1458,7 +1457,24 @@
       } catch (e) {}
     }
 
-    // Web Audio Synthesizer (ချစ်စရာကောင်းသော Pop / Sweet Chime အသံ ၁၀၀% မြည်စေသော စနစ်)
+    // Android Native Widget သို့ Capacitor ဖြင့် Real-time လှမ်းပို့ခြင်း
+    function syncToAndroidWidget() {
+      try {
+        const startDate = (appData.couple && appData.couple.startDate) || '';
+        const msg = (appData.partnerBoard && appData.partnerBoard.content) || 'MY LOVE';
+
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.WidgetPlugin) {
+          window.Capacitor.Plugins.WidgetPlugin.syncWidgetData({
+            startDate: startDate,
+            message: msg
+          });
+        }
+      } catch (e) {
+        console.error('Widget sync error:', e);
+      }
+    }
+
+    // Web Audio Synthesizer (Chime & Pop Effect)
     function playHeartChimeSound() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1471,8 +1487,8 @@
 
           osc.type = 'sine';
           const now = ctx.currentTime;
-          osc.frequency.setValueAtTime(523.25, now); // C5
-          osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12); // A5
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12);
 
           gain.gain.setValueAtTime(0.35, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
@@ -1519,7 +1535,7 @@
       reader.readAsDataURL(file);
     }
 
-    // DATA STATE (Real vs Decoy)
+    // APP DATA STATE
     const defaultData = {
       couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'You', partnerAvatar: '😘', startDate: '' },
       familyMembers: [{ id: 1, name: 'Family 1', avatar: '😊' }, { id: 2, name: 'Family 2', avatar: '🌸' }],
@@ -1565,9 +1581,9 @@
       }
     }
 
-    // PIN LOCK LOGIC (Old PIN -> New PIN -> Confirm & Decoy Skip)
+    // PIN LOCK (Old PIN Check & Decoy Skip)
     let currentEnteredPin = '';
-    let pinSetupStep = 'CREATE'; // CREATE, CONFIRM, ENTER, VERIFY_OLD, CREATE_NEW, CONFIRM_NEW
+    let pinSetupStep = 'CREATE';
     let tempFirstPin = '';
 
     function checkPinStatus() {
@@ -1630,7 +1646,7 @@
       updatePinDots();
     }
 
-    // Decoy Mode Login (Zero Date & Data)
+    // Decoy Login
     function pressDecoySkip() {
       isDecoyMode = true;
       appData = JSON.parse(JSON.stringify(decoyData));
@@ -1643,7 +1659,6 @@
       checkPinStatus();
     }
 
-    // Old PIN စစ်ဆေးပြီးမှ New PIN ပြောင်းလဲခွင့် ပြုခြင်း
     function startChangePinProcess() {
       let savedPin = null;
       try { savedPin = localStorage.getItem(PIN_KEY); } catch (e) {}
@@ -1667,7 +1682,6 @@
       let savedPin = null;
       try { savedPin = localStorage.getItem(PIN_KEY); } catch (e) {}
 
-      // Initial Create
       if (pinSetupStep === 'CREATE') {
         tempFirstPin = currentEnteredPin;
         currentEnteredPin = '';
@@ -1691,7 +1705,6 @@
           updatePinUiText('New Passcode', 'PIN အသစ် သတ်မှတ်ပါ (ဂဏန်း ၄ လုံး)');
         }
       }
-      // Login Enter
       else if (pinSetupStep === 'ENTER') {
         if (currentEnteredPin === savedPin) {
           isDecoyMode = false;
@@ -1705,7 +1718,6 @@
           updatePinDots();
         }
       }
-      // Old PIN Verification
       else if (pinSetupStep === 'VERIFY_OLD') {
         if (currentEnteredPin === savedPin) {
           pinSetupStep = 'CREATE_NEW';
@@ -1750,7 +1762,7 @@
       updatePinDots();
     }
 
-    // AIRPLANE ANIMATION
+    // PAPER PLANE ANIMATION
     function triggerPaperPlane(callback) {
       const layer = document.getElementById('plane-animation-layer');
       if (layer) {
@@ -1771,11 +1783,12 @@
       }
     }
 
-    // ACCURATE DATE CALCULATION
+    // REAL-TIME ACCURATE DATE & WIDGET SYNC
     function onDateChange(val) {
       appData.couple.startDate = val;
       saveAppData();
       renderCounter();
+      syncToAndroidWidget(); // Native Widget Real-time Sync
     }
 
     function renderCounter() {
@@ -1838,7 +1851,7 @@
       if (progressEl) progressEl.style.width = `${percentage}%`;
     }
 
-    // PROFILES & GALLERY UPLOADS
+    // PROFILES & 3:4 FRAMES
     function openProfileModal() {
       document.getElementById('edit-my-name').value = appData.couple.meName;
       document.getElementById('edit-partner-name').value = appData.couple.partnerName;
@@ -1904,7 +1917,7 @@
       if (sd) sd.value = appData.couple.startDate || '';
     }
 
-    // PARTNER LIVE SCREEN
+    // PARTNER BOARD & WIDGET SYNC
     function sendPartnerMessage() {
       const input = document.getElementById('partner-msg-input');
       const msg = input.value.trim();
@@ -1916,6 +1929,7 @@
         input.value = '';
         renderBoard();
         playHeartChimeSound();
+        syncToAndroidWidget(); // Widget ပေါ် စာသား Real-time လိုက်ပြောင်းစေရန်
       });
     }
 
@@ -2070,7 +2084,7 @@
       }
     }
 
-    // ၃ ခု သီးသန့် ROOM CODES & CUSTOM EDIT
+    // ၃ ခု သီးသန့် ROOM CODES
     function renderRoomCodes() {
       const c = document.getElementById('code-disp-couple');
       const f = document.getElementById('code-disp-family');
@@ -2243,6 +2257,7 @@
       renderMembers();
       renderNotes();
       renderRoomCodes();
+      syncToAndroidWidget(); // App ဖွင့်ချိန်တွင်လည်း Widget ကို Real-time Update လှမ်းလုပ်ခြင်း
     }
 
     // INITIAL LOAD
