@@ -53,7 +53,6 @@
       position: relative;
     }
 
-    /* Top Nav */
     .top-nav {
       padding: 14px 18px;
       display: flex;
@@ -112,7 +111,6 @@
       position: relative;
     }
 
-    /* 3:4 Profile Frame Header */
     .profile-box-header {
       display: flex;
       justify-content: space-between;
@@ -211,7 +209,6 @@
       color: var(--pink-soft);
     }
 
-    /* Counter */
     .counter-box {
       text-align: center;
     }
@@ -308,7 +305,6 @@
       margin-top: 12px;
     }
 
-    /* Live Countdown Badges */
     .live-timer-badge {
       display: inline-flex;
       align-items: center;
@@ -329,7 +325,6 @@
       color: #34d399;
     }
 
-    /* Couple Memories / Special Dates */
     .special-note-card {
       background: rgba(36, 22, 44, 0.9);
       border: 1px solid rgba(255, 75, 139, 0.35);
@@ -387,7 +382,6 @@
       cursor: pointer;
     }
 
-    /* Live Screen */
     .box-header {
       display: flex;
       justify-content: space-between;
@@ -500,7 +494,6 @@
       width: 100%;
     }
 
-    /* Members */
     .section-title-row {
       display: flex;
       justify-content: space-between;
@@ -592,7 +585,6 @@
       margin-bottom: 22px;
     }
 
-    /* Notes */
     .notes-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -649,7 +641,6 @@
       cursor: pointer;
     }
 
-    /* Settings & Dropdown Room Sync */
     .setting-item {
       margin-top: 10px;
       display: flex;
@@ -706,7 +697,6 @@
       color: #ff6685;
     }
 
-    /* Bottom Nav */
     .bottom-tab-bar {
       position: absolute;
       bottom: 0;
@@ -744,7 +734,6 @@
       text-shadow: 0 0 10px var(--pink-glow);
     }
 
-    /* Airplane */
     .plane-layer {
       position: fixed;
       inset: 0;
@@ -788,7 +777,6 @@
       }
     }
 
-    /* PIN Overlay */
     .pin-overlay {
       position: fixed;
       inset: 0;
@@ -886,7 +874,6 @@
       opacity: 0.8;
     }
 
-    /* Modals */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -1023,7 +1010,6 @@
       cursor: pointer;
     }
 
-    /* Photo Upload */
     .photo-upload-section {
       display: flex;
       flex-direction: column;
@@ -1076,7 +1062,6 @@
       border: 1px solid var(--pink-primary);
     }
 
-    /* 3:4 Interactive Cropper with Zoom Slider */
     .crop-viewport-box {
       width: 225px;
       height: 300px;
@@ -1223,7 +1208,7 @@
           </div>
         </div>
 
-        <!-- 💍 Couple Memories & Special Dates (Live Countdown + AI Voice Alarm) -->
+        <!-- 💍 Couple Memories & Special Dates (Live Countdown) -->
         <div class="card glass-card">
           <div class="section-title-row">
             <h4>💍 အမှတ်တရ ရက်စွဲနှင့် Note များ</h4>
@@ -1320,7 +1305,6 @@
           </div>
         </div>
 
-        <!-- Unified Dropdown Live Room Sync Card -->
         <div class="card glass-card">
           <div class="section-title-row">
             <h3>📡 Live Room Sync (Real-time)</h3>
@@ -1621,42 +1605,48 @@
       } catch (e) {}
     }
 
-    // 4-STAGE SCHEDULED VOICE NOTIFICATION ENGINE (1 Day, 12 Hrs, 1 Hr, 1 Min)
-    function scheduleNoteAlarms(noteId, dateStr, timeStr, titleText, category) {
+    // Native Notification Triggers (Instant & Scheduled)
+    function triggerNativeNotification(title, message, category) {
       try {
-        if (!window.Capacitor || !window.Capacitor.Plugins || !window.Capacitor.Plugins.NotificationPlugin) return;
-        if (!dateStr) return;
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.NotificationPlugin) {
+          window.Capacitor.Plugins.NotificationPlugin.showInstantNotification({
+            title: title,
+            message: message,
+            category: category
+          });
+        }
+      } catch(e) {}
+    }
 
-        const timePart = timeStr && timeStr.trim() ? timeStr.trim() : '00:00';
-        const targetMs = new Date(`${dateStr}T${timePart}:00`).getTime();
-        const now = Date.now();
+    function scheduleNoteAlarms(noteTitle, dateStr, timeStr, category, noteId) {
+      if (!dateStr) return;
+      const fullStr = timeStr ? `${dateStr}T${timeStr}:00` : `${dateStr}T00:00:00`;
+      const targetTime = new Date(fullStr).getTime();
+      if (isNaN(targetTime)) return;
 
-        if (isNaN(targetMs) || targetMs <= now) return;
+      const intervals = [
+        { offset: 24 * 60 * 60 * 1000, label: "၁ ရက်အလို" },
+        { offset: 12 * 60 * 60 * 1000, label: "၁၂ နာရီအလို" },
+        { offset: 60 * 60 * 1000, label: "၁ နာရီအလို" },
+        { offset: 60 * 1000, label: "၁ မိနစ်အလို" }
+      ];
 
-        // အဆင့် ၄ ဆင့်ဖြင့် Alarm စီစဉ်ခြင်း
-        const stages = [
-          { label: '၁ ရက် အလို သတိပေးချက်', offsetMs: 24 * 60 * 60 * 1000, subId: 1 },
-          { label: '၁၂ နာရီ အလို သတိပေးချက်', offsetMs: 12 * 60 * 60 * 1000, subId: 2 },
-          { label: '၁ နာရီ အလို သတိပေးချက်', offsetMs: 60 * 60 * 1000, subId: 3 },
-          { label: '၁ မိနစ် အလို သတိပေးချက်', offsetMs: 60 * 1000, subId: 4 }
-        ];
-
-        stages.forEach(st => {
-          const triggerTime = targetMs - st.offsetMs;
-          if (triggerTime > now) {
-            const notifUniqueId = Math.abs((Number(noteId) % 100000) * 10 + st.subId);
-            window.Capacitor.Plugins.NotificationPlugin.scheduleAlarm({
-              triggerAtMillis: triggerTime,
-              title: `Loved Tracker (${st.label})`,
-              message: `${titleText} ရောက်ရှိရန် အချိန်နီးကပ်လာပါပြီ!`,
-              category: category,
-              notifId: notifUniqueId
-            });
-          }
-        });
-      } catch (e) {
-        console.error('Failed to schedule alarms:', e);
-      }
+      intervals.forEach((item, idx) => {
+        const triggerTime = targetTime - item.offset;
+        if (triggerTime > Date.now()) {
+          try {
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.NotificationPlugin) {
+              window.Capacitor.Plugins.NotificationPlugin.scheduleAlarm({
+                triggerAtMillis: triggerTime,
+                title: `⏰ ${noteTitle} (${item.label})`,
+                message: `သတ်မှတ်ချိန် ရောက်ရှိရန် ${item.label} ဖြစ်ပါသည်!`,
+                category: category,
+                notifId: (Number(noteId) % 100000) * 10 + idx
+              });
+            }
+          } catch(e) {}
+        }
+      });
     }
 
     function playHeartChimeSound() {
@@ -1695,7 +1685,7 @@
       return `<span class="placeholder-emoji">${val}</span>`;
     }
 
-    // 3:4 CROPPER ENGINE WITH ZOOM SLIDER
+    // 3:4 CROPPER ENGINE WITH ZOOM SLIDER & AUTO-APPLY
     let cropTargetType = 'me';
     let cropImgNaturalW = 0, cropImgNaturalH = 0;
     let cropBaseScale = 1;
@@ -1794,6 +1784,7 @@
       window.addEventListener('touchend', onEnd);
     }
 
+    // AUTO-APPLY: Crop ဖြတ်လိုက်သည်နှင့် Profile ပေါ် တိုက်ရိုက်ရောက်စေခြင်း
     function applyCroppedImage() {
       const outW = 450, outH = 600;
       const canvas = document.createElement('canvas');
@@ -1814,26 +1805,25 @@
 
       const croppedBase64 = canvas.toDataURL('image/jpeg', 0.85);
       closeModal('cropper-modal');
+      closeModal('profile-edit-modal'); // Profile Modal ပါ တိုက်ရိုက် ပိတ်ပေးခြင်း
 
       if (cropTargetType === 'me') {
+        appData.couple.meAvatar = croppedBase64;
         chosenAvatarMe = croppedBase64;
-        const p = document.getElementById('me-photo-preview');
-        p.src = croppedBase64;
-        p.style.display = 'block';
-        document.querySelectorAll('#my-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
       } else if (cropTargetType === 'partner') {
+        appData.couple.partnerAvatar = croppedBase64;
         chosenAvatarPartner = croppedBase64;
-        const p = document.getElementById('partner-photo-preview');
-        p.src = croppedBase64;
-        p.style.display = 'block';
-        document.querySelectorAll('#partner-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
       } else if (cropTargetType === 'member') {
         chosenAvatarMember = croppedBase64;
         const p = document.getElementById('member-photo-preview');
-        p.src = croppedBase64;
-        p.style.display = 'block';
-        document.querySelectorAll('#member-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
+        if (p) { p.src = croppedBase64; p.style.display = 'block'; }
+        return;
       }
+
+      saveAppData();
+      renderProfiles();
+      playHeartChimeSound();
+      broadcastSync('couple_live', { couple: appData.couple });
     }
 
     function handleProfilePhoto(input, type) {
@@ -1951,7 +1941,7 @@
 
     function broadcastSync(type, payload) {
       if (!mqttClient || !mqttClient.connected || isDecoyMode) return;
-      const roomCode = appData.rooms[type];
+      const roomCode = appData.rooms[type === 'couple_live' ? 'couple' : type];
       if (!roomCode) return;
 
       const topic = `loved_tracker/${roomCode}/${type}`;
@@ -1965,19 +1955,26 @@
       mqttClient.publish(topic, message);
     }
 
+    // အခြားဖုန်းမှ Update ပို့လိုက်တိုင်း အသံနှင့် နိုတီကျစေမည့် Handler
     function handleMqttIncoming(incoming) {
       if (incoming.sender === CLIENT_ID) return;
 
       const { type, data } = incoming;
       if (type === 'couple_live') {
+        if (data.couple) appData.couple = Object.assign(appData.couple, data.couple);
         if (data.startDate !== undefined) appData.couple.startDate = data.startDate;
-        if (data.partnerBoard !== undefined) appData.partnerBoard = data.partnerBoard;
+        if (data.partnerBoard !== undefined) {
+          appData.partnerBoard = data.partnerBoard;
+          const msgText = data.partnerBoard.type === 'text' ? data.partnerBoard.content : "🎨 ချစ်သူ ပုံဆွဲပို့ထားပါသည်";
+          triggerNativeNotification("💖 Loved Tracker (Couple)", msgText, "couple");
+        }
         if (data.coupleNotes) {
           appData.coupleNotes = data.coupleNotes;
-          // Join ထားသော ဖုန်းတွင်ပါ အသံ Alarm များကို တစ်ပါတည်း စီစဉ်ပေးခြင်း
-          appData.coupleNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.title, 'couple'));
+          data.coupleNotes.forEach(n => scheduleNoteAlarms(n.title, n.date, n.time, 'couple', n.id));
+          triggerNativeNotification("💖 Loved Tracker", "Couple Note အသစ် ရောက်ရှိပါသည်", "couple");
         }
         saveAppData();
+        renderProfiles();
         renderCounter();
         renderBoard();
         renderCoupleNotes();
@@ -1985,7 +1982,8 @@
       } else if (type === 'family') {
         if (data.familyNotes) {
           appData.familyNotes = data.familyNotes;
-          appData.familyNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.text, 'family'));
+          data.familyNotes.forEach(n => scheduleNoteAlarms("Family Note", n.date, n.time, 'family', n.id));
+          triggerNativeNotification("🏡 Family Fridge Board", "မိသားစု Note အသစ် ရောက်ရှိပါသည်", "family");
         }
         if (data.familyMembers) appData.familyMembers = data.familyMembers;
         saveAppData();
@@ -1994,7 +1992,8 @@
       } else if (type === 'friends') {
         if (data.friendsNotes) {
           appData.friendsNotes = data.friendsNotes;
-          appData.friendsNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.text, 'friends'));
+          data.friendsNotes.forEach(n => scheduleNoteAlarms("Friends Note", n.date, n.time, 'friends', n.id));
+          triggerNativeNotification("✨ Friends Squad", "သူငယ်ချင်း Note အသစ် ရောက်ရှိပါသည်", "friends");
         }
         if (data.friendsMembers) appData.friendsMembers = data.friendsMembers;
         saveAppData();
@@ -2054,7 +2053,7 @@
       alert(`${selectedRoomType.toUpperCase()} Room "${code}" သို့ အောင်မြင်စွာ ချိတ်ဆက်ပြီးပါပြီ!`);
     }
 
-    // PIN LOCK (Old PIN Check & Decoy Skip)
+    // PIN LOCK
     let currentEnteredPin = '';
     let pinSetupStep = 'CREATE';
     let tempFirstPin = '';
@@ -2394,10 +2393,7 @@
       renderCoupleNotes();
       playHeartChimeSound();
 
-      // စနစ်နာရီထဲတွင် ၁ ရက်၊ ၁၂ နာရီ၊ ၁ နာရီ၊ ၁ မိနစ် အလို အသံ Alarm များ ချိန်မှတ်ခြင်း
-      scheduleNoteAlarms(item.id, date, time, title, 'couple');
-
-      // အခြားဖုန်းများဆီသို့ပါ အသံ Alarm ချိန်မှတ်နိုင်စေရန် ပို့ဆောင်ခြင်း
+      scheduleNoteAlarms(title, date, time, 'couple', item.id);
       broadcastSync('couple_live', { coupleNotes: appData.coupleNotes });
     }
 
@@ -2472,6 +2468,7 @@
       saveAppData();
       closeModal('profile-edit-modal');
       renderProfiles();
+      broadcastSync('couple_live', { couple: appData.couple });
     }
 
     function renderProfiles() {
@@ -2609,12 +2606,12 @@
       const n = { id: Date.now(), text, date, time };
       if (activeNoteType === 'family') {
         appData.familyNotes.unshift(n);
+        scheduleNoteAlarms("Family Note", date, time, 'family', n.id);
         broadcastSync('family', { familyNotes: appData.familyNotes });
-        scheduleNoteAlarms(n.id, date, time, text, 'family');
       } else {
         appData.friendsNotes.unshift(n);
+        scheduleNoteAlarms("Friends Note", date, time, 'friends', n.id);
         broadcastSync('friends', { friendsNotes: appData.friendsNotes });
-        scheduleNoteAlarms(n.id, date, time, text, 'friends');
       }
       playHeartChimeSound();
       saveAppData();
@@ -2814,7 +2811,7 @@
       syncToAndroidWidget();
     }
 
-    // စက္ကန့်အလိုက် Real-time Timer Refresh လုပ်ခြင်း (Every 1 Second)
+    // ၁ စက္ကန့်တိုင်း Countdown Timer အချိန်နှင့်တစ်ပြေးညီ တွက်ချက်ပြသခြင်း
     setInterval(() => {
       renderCoupleNotes();
       renderNotes();
@@ -2825,17 +2822,6 @@
       refreshAllUi();
       initCropperGestures();
       initMqtt();
-
-      // စတင်ဖွင့်ချိန်တွင် ရှိပြီးသား Notes များအတွက် အသံ Alarm များကို Refresh စီစဉ်ခြင်း
-      if (appData.coupleNotes) {
-        appData.coupleNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.title, 'couple'));
-      }
-      if (appData.familyNotes) {
-        appData.familyNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.text, 'family'));
-      }
-      if (appData.friendsNotes) {
-        appData.friendsNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.text, 'friends'));
-      }
     };
   </script>
 </body>
