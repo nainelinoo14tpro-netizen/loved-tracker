@@ -5,280 +5,364 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Loved Tracker</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="theme-couple">
+<body class="dark-love-theme">
 
-  <!-- Status Bar Overlay (Dynamic Color) -->
-  <div class="status-bar-bg" id="statusBarBg"></div>
+  <!-- စာသား Copy / Select မရအောင် ပိတ်ထားသည့် Container -->
+  <div id="app" class="no-select">
 
-  <!-- Main Scrollable App Container -->
-  <main class="app-container">
-
-    <!-- ==================== COUPLE TAB ==================== -->
-    <section id="tab-couple" class="tab-view active">
-      <!-- Mode Switch (Couple vs Alone Mode) -->
-      <div class="mode-banner">
-        <span class="mode-label" id="coupleModeLabel">💖 Couple Mode</span>
-        <button type="button" class="btn-mode-toggle" id="toggleCoupleAloneBtn">Alone Mode ပြောင်းရန်</button>
-      </div>
-
-      <!-- Profiles Card (3:4 Ratio & No Overlap Edit) -->
-      <div class="card profile-card">
-        <div class="card-header-action">
-          <button type="button" class="btn-outline-sm" id="openEditProfileBtn">✏️ Edit</button>
-        </div>
-        <div class="profiles-wrapper">
-          <!-- Profile Left (Me) -->
-          <div class="profile-item">
-            <div class="avatar-box-34" id="avatarMeBox">
-              <img id="avatarMeImg" src="https://api.dicebear.com/7.x/bottts/svg?seed=KoKo" alt="ကိုကို">
-            </div>
-            <div class="profile-name" id="nameMeText">ကိုကို</div>
-          </div>
-
-          <!-- Interactive Center Heart (Audio + Haptics) -->
-          <div class="heart-trigger-wrapper">
-            <button type="button" class="btn-heart-pulse" id="btnHeartTrigger" aria-label="I Love You">
-              ❤️
-            </button>
-            <span class="heart-hint">Tap me!</span>
-          </div>
-
-          <!-- Profile Right (Partner / Self) -->
-          <div class="profile-item" id="partnerProfileItem">
-            <div class="avatar-box-34" id="avatarPartnerBox">
-              <img id="avatarPartnerImg" src="https://api.dicebear.com/7.x/bottts/svg?seed=ThaeLay" alt="သဲလေး">
-            </div>
-            <div class="profile-name" id="namePartnerText">သဲလေး</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- D-Day Milestone Card -->
-      <div class="card milestone-card">
-        <h3 class="card-title text-center" id="milestoneTitle">တို့နှစ်ယောက် ချစ်သက်တမ်း</h3>
-        <div class="counter-display">
-          <span class="counter-number" id="daysCountText">139</span>
-          <span class="counter-unit">ရက်မြောက်</span>
-        </div>
-        <div class="counter-subtext" id="detailDurationText">0 နှစ် 4 လ 16 ရက်</div>
-
-        <div class="date-picker-row">
-          <label for="startDateInput">စတင်ခဲ့သည့်နေ့ -</label>
-          <input type="date" id="startDateInput" class="styled-date-input">
+    <!-- ၁။ လုံခြုံရေး PIN Code Screen -->
+    <div id="pin-overlay" class="pin-overlay">
+      <div class="pin-card">
+        <div class="pin-heart-icon">💖</div>
+        <h2 id="pin-title">Enter Passcode</h2>
+        <p id="pin-subtitle">လုံခြုံရေး PIN နံပါတ် ရိုက်ထည့်ပါ</p>
+        
+        <div class="pin-dots">
+          <span class="dot" id="dot-0"></span>
+          <span class="dot" id="dot-1"></span>
+          <span class="dot" id="dot-2"></span>
+          <span class="dot" id="dot-3"></span>
         </div>
 
-        <div class="progress-box">
-          <div class="progress-info">
-            <span id="nextGoalTitle">ရက် ၂၀၀ ပြည့်ဖို့</span>
-            <span id="nextGoalRemaining">61 ရက်လို</span>
-          </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="goalProgressBar" style="width: 70%;"></div>
-          </div>
+        <div class="pin-keypad">
+          <button class="pin-key" data-key="1">1</button>
+          <button class="pin-key" data-key="2">2</button>
+          <button class="pin-key" data-key="3">3</button>
+          <button class="pin-key" data-key="4">4</button>
+          <button class="pin-key" data-key="5">5</button>
+          <button class="pin-key" data-key="6">6</button>
+          <button class="pin-key" data-key="7">7</button>
+          <button class="pin-key" data-key="8">8</button>
+          <button class="pin-key" data-key="9">9</button>
+          <button class="pin-key action" id="pin-bio-btn"><i class="fa-solid fa-fingerprint"></i></button>
+          <button class="pin-key" data-key="0">0</button>
+          <button class="pin-key action" id="pin-del-btn"><i class="fa-solid fa-delete-left"></i></button>
         </div>
-        <div class="voice-alert-badge">🔔 Voice Alert Ready</div>
-      </div>
-
-      <!-- Partner Live Screen Card -->
-      <div class="card live-screen-card" id="liveScreenCard">
-        <div class="card-header-flex">
-          <h3 class="card-title">💌 Partner Live Screen</h3>
-          <span class="status-dot online"></span>
-        </div>
-
-        <!-- Live Display Area (Text or Drawing) -->
-        <div class="live-screen-viewport" id="liveViewport">
-          <div class="empty-placeholder" id="viewportPlaceholder">ချစ်သူဆီက စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</div>
-          <p class="live-text-content" id="liveTextDisplay" style="display: none;"></p>
-          <img class="live-image-content" id="liveImageDisplay" alt="Live Drawing" style="display: none;">
-        </div>
-
-        <!-- Live Message Controls (Horizontal Layout) -->
-        <div class="live-controls-row">
-          <input type="text" id="liveMessageInput" class="styled-text-input" placeholder="ချစ်သူ့မျက်နှာပြင်ပေါ် စာပို့မည်...">
-          <div class="action-buttons-group">
-            <button type="button" class="btn-action-send" id="btnSendMessage">ပို့မည်</button>
-            <button type="button" class="btn-action-draw" id="btnOpenDrawing">🎨 ပုံဆွဲမည်</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== FAMILY TAB ==================== -->
-    <section id="tab-family" class="tab-view">
-      <div class="mode-banner">
-        <span class="mode-label" id="familyModeLabel">🏡 Family Mode</span>
-        <button type="button" class="btn-mode-toggle" id="toggleFamilyAloneBtn">Alone Mode ပြောင်းရန်</button>
-      </div>
-
-      <div class="card family-members-card">
-        <div class="card-header-flex">
-          <h3 class="card-title">🏡 မိသားစုဝင်များ</h3>
-          <span class="badge-pill" id="familyCountBadge">3 ယောက်</span>
-        </div>
-        <div class="members-scroll-row" id="familyMembersList">
-          <!-- Dynamically populated without x-button overlap -->
-        </div>
-        <button type="button" class="btn-dashed-block" id="btnAddFamilyMember">+ မိသားစုဝင် အသစ်ထည့်မည်</button>
-      </div>
-
-      <div class="card fridge-board-card">
-        <h3 class="card-title">📌 Family Fridge Board</h3>
-        <div class="sticky-notes-grid" id="familyNotesGrid">
-          <!-- Dynamically populated sticky notes -->
-        </div>
-        <button type="button" class="btn-dashed-block" id="btnAddFamilyNote">+ Sticky Note အသစ်ကပ်မည်</button>
-      </div>
-    </section>
-
-    <!-- ==================== FRIENDS TAB ==================== -->
-    <section id="tab-friends" class="tab-view">
-      <div class="mode-banner">
-        <span class="mode-label" id="friendsModeLabel">✨ Squad Mode</span>
-        <button type="button" class="btn-mode-toggle" id="toggleFriendsAloneBtn">Alone Mode ပြောင်းရန်</button>
-      </div>
-
-      <div class="card friends-squad-card">
-        <div class="card-header-flex">
-          <h3 class="card-title">✨ Squad Members</h3>
-          <span class="badge-pill" id="friendsCountBadge">5 ယောက်</span>
-        </div>
-        <div class="members-scroll-row" id="friendsMembersList">
-          <!-- Dynamically populated without clipping -->
-        </div>
-        <button type="button" class="btn-dashed-block" id="btnAddFriendMember">+ သူငယ်ချင်း အသစ်ထည့်မည်</button>
-      </div>
-
-      <div class="card friends-hub-card">
-        <h3 class="card-title">💬 Friends Hub</h3>
-        <div class="sticky-notes-grid" id="friendsNotesGrid">
-          <!-- Dynamically populated sticky notes -->
-        </div>
-        <button type="button" class="btn-dashed-block" id="btnAddFriendNote">+ Friends Note အသစ်ကပ်မည်</button>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ==================== FIXED BOTTOM NAVIGATION BAR ==================== -->
-  <nav class="fixed-bottom-nav">
-    <button type="button" class="nav-item active" data-tab="couple" id="navCoupleBtn">
-      <span class="nav-icon">💖</span>
-      <span class="nav-text">Couple</span>
-    </button>
-    <button type="button" class="nav-item" data-tab="family" id="navFamilyBtn">
-      <span class="nav-icon">🏡</span>
-      <span class="nav-text">Family</span>
-    </button>
-    <button type="button" class="nav-item" data-tab="friends" id="navFriendsBtn">
-      <span class="nav-icon">✨</span>
-      <span class="nav-text">Friends</span>
-    </button>
-    <button type="button" class="nav-item join-code-nav-btn" id="openJoinCodeBtn">
-      <span class="nav-icon">🔗</span>
-      <span class="nav-text" id="bottomNavCodeLabel">Codes</span>
-    </button>
-  </nav>
-
-  <!-- ==================== JOIN CODE & ROOM MODAL ==================== -->
-  <div class="modal-backdrop" id="joinCodeModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>🔗 Join Codes (သီးသန့်ချိတ်ဆက်မှုများ)</h3>
-        <button type="button" class="btn-modal-close" id="closeJoinCodeModal">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="input-field-group">
-          <label>💖 Couple Join Code:</label>
-          <input type="text" id="inputCoupleCode" class="styled-modal-input" placeholder="LOVE-999">
-        </div>
-        <div class="input-field-group">
-          <label>🏡 Family Join Code:</label>
-          <input type="text" id="inputFamilyCode" class="styled-modal-input" placeholder="FAM-101">
-        </div>
-        <div class="input-field-group">
-          <label>✨ Friends Join Code:</label>
-          <input type="text" id="inputFriendsCode" class="styled-modal-input" placeholder="SQUAD-999">
-        </div>
-        <p class="modal-hint-text">⚠️ Join Code အသစ်ပြောင်းပါက Room အသစ်စက်စက် (Clean Room) သို့ အလိုအလျောက် သီးခြားကူးပြောင်းချိတ်ဆက်ပါမည်။</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-primary-block" id="btnSaveJoinCodes">💾 Join Codes အားလုံး သိမ်းဆည်းမည်</button>
       </div>
     </div>
-  </div>
 
-  <!-- ==================== EDIT PROFILE MODAL (3:4 & DELETE PHOTO) ==================== -->
-  <div class="modal-backdrop" id="editProfileModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>✏️ ပရိုဖိုင် ပြင်ဆင်ရန်</h3>
-        <button type="button" class="btn-modal-close" id="closeEditProfileModal">×</button>
+    <!-- ၂။ စက္ကူလေယာဉ် ပျံသန်းသည့် Animation Container -->
+    <div id="plane-animation-layer" class="plane-layer">
+      <div id="paper-plane" class="paper-plane">✈️</div>
+    </div>
+
+    <!-- ၃။ Header Bar -->
+    <header class="top-nav">
+      <div class="mode-badge" id="current-mode-indicator">
+        <span id="mode-icon">💖</span> <span id="mode-text">Couple Mode</span>
       </div>
-      <div class="modal-body">
-        <div class="input-field-group">
-          <label>မိမိအမည် / Nickname:</label>
-          <input type="text" id="editMyNameInput" class="styled-modal-input" placeholder="ကိုကို">
-        </div>
-        <div class="input-field-group">
-          <label>3:4 ဓာတ်ပုံ ရွေးချယ်ရန်:</label>
-          <input type="file" id="editMyPhotoInput" accept="image/*" class="styled-modal-input">
-        </div>
-        <button type="button" class="btn-warning-outline" id="btnResetMyPhoto">🗑️ တင်ထားသောပုံဖျက်ပြီး မူရင်းအတိုင်းပြန်ထားမည်</button>
+      <button class="mode-toggle-btn" id="alone-mode-toggle">
+        <i class="fa-solid fa-user-astronaut"></i> <span id="toggle-label">Alone Mode ပြောင်းရန်</span>
+      </button>
+    </header>
 
-        <hr class="modal-divider">
+    <!-- ၄။ Main Content Pages -->
+    <main class="content-scroll">
 
-        <div class="input-field-group" id="partnerEditFields">
-          <label>ချစ်သူ့အမည် / Partner Name:</label>
-          <input type="text" id="editPartnerNameInput" class="styled-modal-input" placeholder="သဲလေး">
-          <label class="mt-2">ချစ်သူ့ 3:4 ဓာတ်ပုံ:</label>
-          <input type="file" id="editPartnerPhotoInput" accept="image/*" class="styled-modal-input">
-          <button type="button" class="btn-warning-outline mt-1" id="btnResetPartnerPhoto">🗑️ ချစ်သူ့ပုံဖျက်ပြီး မူရင်းအတိုင်းပြန်ထားမည်</button>
+      <!-- TAB 1: Couple / Solo Page -->
+      <section id="tab-couple" class="tab-pane active">
+        
+        <!-- Profile Card -->
+        <div class="card glass-card profile-box">
+          <button class="edit-pill-btn" id="edit-profiles-btn">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
+          <div class="profiles-wrapper">
+            <div class="avatar-col" id="col-me">
+              <div class="avatar-bubble" id="avatar-me">🥰</div>
+              <span class="avatar-name" id="name-me">Me</span>
+            </div>
+            
+            <div class="heart-center-col" id="col-heart">
+              <div class="heart-pulse-btn" id="main-heart-btn">
+                <i class="fa-solid fa-heart"></i>
+              </div>
+              <span class="tap-hint" id="tap-hint-text">Tap me!</span>
+            </div>
+
+            <div class="avatar-col" id="col-partner">
+              <div class="avatar-bubble" id="avatar-partner">😘</div>
+              <span class="avatar-name" id="name-partner">You</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-primary-block" id="btnSaveProfile">💾 သိမ်းဆည်းမည်</button>
+
+        <!-- Relationship / Solo Days Counter -->
+        <div class="card glass-card counter-box">
+          <h3 id="counter-title">တို့နှစ်ယောက် ချစ်သက်တမ်း</h3>
+          <div class="big-counter">
+            <span id="days-count">0</span> <span class="unit">ရက်မြောက်</span>
+          </div>
+          <p class="counter-breakdown" id="detailed-time">0 နှစ် 0 လ 0 ရက်</p>
+          
+          <div class="date-pick-row">
+            <label for="love-start-date">စတင်ခဲ့သည့်နေ့ -</label>
+            <input type="date" id="love-start-date" class="dark-input-date">
+          </div>
+
+          <div class="milestone-container" id="milestone-box">
+            <div class="milestone-info">
+              <span id="next-milestone-title">ရက် ၁၀၀ ပြည့်ဖို့</span>
+              <span id="milestone-days-left">၁၀၀ ရက်လို</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="milestone-progress"></div>
+            </div>
+          </div>
+
+          <div class="voice-alert-badge">
+            <i class="fa-solid fa-bell"></i> Voice Alert Ready
+          </div>
+        </div>
+
+        <!-- Partner / Solo Live Screen -->
+        <div class="card glass-card live-screen-box">
+          <div class="box-header">
+            <h4><i class="fa-regular fa-envelope"></i> <span id="live-screen-title">Partner Live Screen</span></h4>
+            <span class="status-dot"></span>
+          </div>
+          
+          <div class="screen-board" id="partner-board-display">
+            <p class="placeholder-text" id="board-empty-text">ချစ်သူဆီက စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>
+          </div>
+
+          <div class="action-inputs-row" id="send-controls-row">
+            <input type="text" id="partner-msg-input" placeholder="ချစ်သူ့မျက်နှာပြင်ပေါ် စာပို့မည်..." class="dark-text-input">
+            <div class="btn-group">
+              <button class="btn btn-pink" id="send-msg-btn">ပို့မည်</button>
+              <button class="btn btn-purple" id="open-canvas-btn">🎨 ပုံဆွဲမည်</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB 2: Family Page -->
+      <section id="tab-family" class="tab-pane">
+        <div class="card glass-card">
+          <div class="section-title-row">
+            <h3 id="family-section-title">🏡 မိသားစုဝင်များ</h3>
+            <span class="count-tag" id="family-count-tag">2 ယောက်</span>
+          </div>
+
+          <!-- Circular Member Avatars List + Circular Add Button -->
+          <div class="members-horizontal-list" id="family-members-container">
+            <!-- အဖွဲ့ဝင်များ JS ဖြင့် ထွက်ပေါ်လာမည် -->
+          </div>
+        </div>
+
+        <div class="card glass-card fridge-board">
+          <div class="section-title-row">
+            <h4>📌 <span id="family-fridge-title">Family Fridge Board</span></h4>
+          </div>
+          <div class="notes-grid" id="family-notes-container"></div>
+          
+          <button class="btn-outline-dashed" id="add-family-note-btn">
+            + Sticky Note အသစ်ကပ်မည်
+          </button>
+        </div>
+      </section>
+
+      <!-- TAB 3: Friends Page -->
+      <section id="tab-friends" class="tab-pane">
+        <div class="card glass-card">
+          <div class="section-title-row">
+            <h3 id="friends-section-title">✨ Squad Members</h3>
+            <span class="count-tag" id="friends-count-tag">2 ယောက်</span>
+          </div>
+
+          <!-- Circular Member Avatars List + Circular Add Button -->
+          <div class="members-horizontal-list" id="friends-members-container">
+            <!-- အဖွဲ့ဝင်များ JS ဖြင့် ထွက်ပေါ်လာမည် -->
+          </div>
+        </div>
+
+        <div class="card glass-card squad-hub">
+          <div class="section-title-row">
+            <h4>💬 <span id="friends-hub-title">Friends Hub</span></h4>
+          </div>
+          <div class="notes-grid" id="friends-notes-container"></div>
+
+          <button class="btn-outline-dashed" id="add-friends-note-btn">
+            + Friends Note အသစ်ကပ်မည်
+          </button>
+        </div>
+      </section>
+
+      <!-- TAB 4: Codes / Settings Page -->
+      <section id="tab-codes" class="tab-pane">
+        <div class="card glass-card">
+          <h3>🔐 လုံခြုံရေး & ချိတ်ဆက်မှု</h3>
+          
+          <div class="setting-item">
+            <label>Partner Connection Code</label>
+            <div class="code-box-display">
+              <span id="my-device-code">LOVE-7892</span>
+              <button class="mini-copy-btn" id="copy-code-btn"><i class="fa-solid fa-copy"></i></button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label>Partner Code ဖြင့် ချိတ်ဆက်ရန်</label>
+            <div class="connect-input-row">
+              <input type="text" id="pair-code-input" placeholder="ကုဒ်ရိုက်ထည့်ပါ..." class="dark-text-input">
+              <button class="btn btn-pink" id="pair-submit-btn">ချိတ်မည်</button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label>လုံခြုံရေး PIN ပြောင်းရန်</label>
+            <button class="btn btn-outline" id="change-pin-btn">PIN အသစ်သတ်မှတ်မည်</button>
+          </div>
+
+          <div class="setting-item danger-zone">
+            <label>Data အားလုံး ရှင်းလင်းရန် (Reset Day 0)</label>
+            <button class="btn btn-danger" id="clear-all-data-btn">Clear All Data</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ၅။ Bottom Navigation Bar -->
+    <nav class="bottom-tab-bar">
+      <button class="tab-btn active" data-tab="tab-couple">
+        <i class="fa-solid fa-heart"></i>
+        <span id="nav-couple-text">Couple</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-family">
+        <i class="fa-solid fa-house-chimney"></i>
+        <span id="nav-family-text">Family</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-friends">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span id="nav-friends-text">Friends</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-codes">
+        <i class="fa-solid fa-link"></i>
+        <span>Codes</span>
+      </button>
+    </nav>
+
+    <!-- ၆။ Modals (Popups) -->
+
+    <!-- Note အသစ်ထည့်ရန် Popup (Date & Time ပါဝင်သည်) -->
+    <div id="note-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <h4 id="note-modal-title">မှတ်စုအသစ် ရေးပါ</h4>
+        <textarea id="note-text-input" placeholder="မှတ်လိုသော စာသား ရိုက်ထည့်ပါ..." rows="3" class="dark-textarea"></textarea>
+        
+        <div class="datetime-fields">
+          <div class="input-field">
+            <label>ရက်စွဲ</label>
+            <input type="date" id="note-date-input" class="dark-input-date">
+          </div>
+          <div class="input-field">
+            <label>အချိန်</label>
+            <input type="time" id="note-time-input" class="dark-input-date">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-cancel" id="close-note-modal-btn">Cancel</button>
+          <button class="btn btn-pink" id="save-note-btn">ကပ်မည်</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- ==================== DRAWING MODAL (UNDO & PALETTE) ==================== -->
-  <div class="modal-backdrop" id="drawingModal">
-    <div class="modal-card draw-modal-card">
-      <div class="modal-header">
-        <h3>🎨 ချစ်သူ့မျက်နှာပြင်ပေါ် ပုံဆွဲမည်</h3>
-        <button type="button" class="btn-modal-close" id="closeDrawingModal">×</button>
-      </div>
-      <div class="modal-body draw-body">
-        <!-- Canvas Viewport -->
+    <!-- ပုံဆွဲရန် Canvas Popup -->
+    <div id="canvas-modal" class="modal-backdrop">
+      <div class="modal-card canvas-card">
+        <div class="modal-header-row">
+          <h4>🎨 ချစ်သူ့မျက်နှာပြင်ပေါ် ပုံဆွဲမည်</h4>
+          <button class="close-icon-btn" id="close-canvas-modal-btn">&times;</button>
+        </div>
+        
         <div class="canvas-wrapper">
-          <canvas id="liveDrawingCanvas" width="320" height="240"></canvas>
+          <canvas id="drawing-canvas" width="300" height="240"></canvas>
         </div>
 
-        <!-- Drawing Toolbar: Color Palette & Undo -->
-        <div class="drawing-toolbar">
+        <div class="canvas-tools">
           <div class="color-palette">
-            <button type="button" class="color-dot active" data-color="#FF4B72" style="background: #FF4B72;"></button>
-            <button type="button" class="color-dot" data-color="#3B82F6" style="background: #3B82F6;"></button>
-            <button type="button" class="color-dot" data-color="#10B981" style="background: #10B981;"></button>
-            <button type="button" class="color-dot" data-color="#F59E0B" style="background: #F59E0B;"></button>
-            <button type="button" class="color-dot" data-color="#1F2937" style="background: #1F2937;"></button>
-            <button type="button" class="color-dot" data-color="#FFFFFF" style="background: #FFFFFF; border: 1px solid #ccc;"></button>
+            <span class="color-dot active" data-color="#ff4b8b" style="background: #ff4b8b;"></span>
+            <span class="color-dot" data-color="#3b82f6" style="background: #3b82f6;"></span>
+            <span class="color-dot" data-color="#10b981" style="background: #10b981;"></span>
+            <span class="color-dot" data-color="#f59e0b" style="background: #f59e0b;"></span>
+            <span class="color-dot" data-color="#ffffff" style="background: #ffffff;"></span>
           </div>
-          <div class="tool-actions">
-            <button type="button" class="btn-tool-sm" id="btnUndoCanvas">↩️ Undo</button>
-            <button type="button" class="btn-tool-sm" id="btnClearCanvas">🗑️ ရှင်းမည်</button>
-          </div>
+          <button class="tool-btn" id="canvas-undo-btn"><i class="fa-solid fa-rotate-left"></i> Undo</button>
+          <button class="tool-btn" id="canvas-clear-btn"><i class="fa-solid fa-trash-can"></i> ရှင်းမည်</button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-primary-block" id="btnSendCanvasDrawing">🚀 Partner Screen ပေါ် တင်မည်</button>
+
+        <button class="btn btn-pink btn-block" id="send-drawing-btn">
+          🚀 Partner Screen ပေါ်တင်မည်
+        </button>
       </div>
     </div>
+
+    <!-- Member အသစ်ထည့်ရန် Popup -->
+    <div id="member-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <h4 id="member-modal-title">အဖွဲ့ဝင် အသစ်ထည့်မည်</h4>
+        <input type="text" id="member-name-input" placeholder="အမည် ရိုက်ထည့်ပါ..." class="dark-text-input">
+        
+        <label class="modal-label">Emoji ရွေးချယ်ပါ</label>
+        <div class="emoji-picker-grid" id="member-emoji-options">
+          <span class="emoji-option selected">😊</span>
+          <span class="emoji-option">😎</span>
+          <span class="emoji-option">🤠</span>
+          <span class="emoji-option">🥳</span>
+          <span class="emoji-option">🌸</span>
+          <span class="emoji-option">🐱</span>
+          <span class="emoji-option">🐶</span>
+          <span class="emoji-option">⭐</span>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-cancel" id="close-member-modal-btn">Cancel</button>
+          <button class="btn btn-pink" id="save-member-btn">ထည့်မည်</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Edit Popup (Couple Mode အတွက်) -->
+    <div id="profile-edit-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <h4>ပရိုဖိုင် အမည် & Emoji ပြင်ဆင်ရန်</h4>
+        
+        <div class="profile-edit-section">
+          <h5>ငါ့အချက်အလက် (Me)</h5>
+          <input type="text" id="edit-my-name" value="Me" class="dark-text-input">
+          <div class="emoji-picker-grid" id="my-emoji-options">
+            <span class="emoji-option selected">🥰</span>
+            <span class="emoji-option">😎</span>
+            <span class="emoji-option">🤖</span>
+            <span class="emoji-option">🦊</span>
+          </div>
+        </div>
+
+        <div class="profile-edit-section" id="partner-edit-section">
+          <h5>ချစ်သူ့အချက်အလက် (You)</h5>
+          <input type="text" id="edit-partner-name" value="You" class="dark-text-input">
+          <div class="emoji-picker-grid" id="partner-emoji-options">
+            <span class="emoji-option selected">😘</span>
+            <span class="emoji-option">🐰</span>
+            <span class="emoji-option">👑</span>
+            <span class="emoji-option">🎀</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-cancel" id="close-profile-modal-btn">Cancel</button>
+          <button class="btn btn-pink" id="save-profiles-btn">သိမ်းမည်</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Application Scripts -->
-  <script src="js/app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
