@@ -11,10 +11,9 @@
 
   <div id="app" class="no-select">
 
-    <!-- ၁။ လုံခြုံရေး PIN Code Screen -->
     <div id="pin-overlay" class="pin-overlay">
       <div class="pin-card">
-        <div class="pin-heart-icon" onclick="resetPinSetup()">💖</div>
+        <div class="pin-heart-icon" onpointerdown="resetPinSetup(event)" onclick="resetPinSetup(event)">💖</div>
         <h2 id="pin-title">New Passcode</h2>
         <p id="pin-subtitle">PIN အသစ် သတ်မှတ်ပါ (ဂဏန်း ၄ လုံး)</p>
         
@@ -26,28 +25,29 @@
         </div>
 
         <div class="pin-keypad">
-          <button type="button" class="pin-key" onclick="pressPin('1')">1</button>
-          <button type="button" class="pin-key" onclick="pressPin('2')">2</button>
-          <button type="button" class="pin-key" onclick="pressPin('3')">3</button>
-          <button type="button" class="pin-key" onclick="pressPin('4')">4</button>
-          <button type="button" class="pin-key" onclick="pressPin('5')">5</button>
-          <button type="button" class="pin-key" onclick="pressPin('6')">6</button>
-          <button type="button" class="pin-key" onclick="pressPin('7')">7</button>
-          <button type="button" class="pin-key" onclick="pressPin('8')">8</button>
-          <button type="button" class="pin-key" onclick="pressPin('9')">9</button>
-          <button type="button" class="pin-key action" onclick="bypassPin()"><i class="fa-solid fa-fingerprint"></i></button>
-          <button type="button" class="pin-key" onclick="pressPin('0')">0</button>
-          <button type="button" class="pin-key action" onclick="deletePin()"><i class="fa-solid fa-delete-left"></i></button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('1', event)" onclick="pressPin('1', event)">1</button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('2', event)" onclick="pressPin('2', event)">2</button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('3', event)" onclick="pressPin('3', event)">3</button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('4', event)" onclick="pressPin('4', event)">4</button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('5', event)" onclick="pressPin('5', event)">5</button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('6', event)" onclick="pressPin('6', event)">6</button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('7', event)" onclick="pressPin('7', event)">7</button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('8', event)" onclick="pressPin('8', event)">8</button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('9', event)" onclick="pressPin('9', event)">9</button>
+          <button type="button" class="pin-key action" onpointerdown="bypassPin(event)" onclick="bypassPin(event)"><i class="fa-solid fa-fingerprint"></i></button>
+          <button type="button" class="pin-key" onpointerdown="pressPin('0', event)" onclick="pressPin('0', event)">0</button>
+          <button type="button" class="pin-key action" onpointerdown="deletePin(event)" onclick="deletePin(event)"><i class="fa-solid fa-delete-left"></i></button>
         </div>
       </div>
     </div>
 
-    <!-- ၂။ စက္ကူလေယာဉ် ပျံသန်းသည့် Layer (Vector Icon) -->
     <div id="plane-animation-layer" class="plane-layer">
-      <i class="fa-solid fa-paper-plane paper-plane-icon"></i>
+      <svg class="paper-plane-svg" viewBox="0 0 24 24">
+        <path d="M2 12l20-9-9 20-2-8-9-3z" fill="#ff4b8b" stroke="#ffffff" stroke-width="1.5"/>
+        <path d="M13 15l9-12" stroke="#ffffff" stroke-width="1.5"/>
+      </svg>
     </div>
 
-    <!-- ၃။ Header Bar -->
     <header class="top-nav">
       <div class="mode-badge" id="current-mode-indicator">
         <span id="mode-icon">💖</span> <span id="mode-text">Couple Mode</span>
@@ -57,10 +57,8 @@
       </button>
     </header>
 
-    <!-- ၄။ Main Content Pages -->
     <main class="content-scroll">
 
-      <!-- TAB 1: Couple / Solo Page -->
       <section id="tab-couple" class="tab-pane active">
         
         <div class="card glass-card profile-box">
@@ -72,7 +70,6 @@
           </div>
 
           <div class="profiles-wrapper">
-            <!-- 3:4 Aspect Ratio Frame: Me -->
             <div class="avatar-col" id="col-me">
               <div class="profile-card-34" id="avatar-me">
                 <span class="placeholder-emoji">🥰</span>
@@ -87,7 +84,6 @@
               <span class="tap-hint" id="tap-hint-text">Tap me!</span>
             </div>
 
-            <!-- 3:4 Aspect Ratio Frame: You -->
             <div class="avatar-col" id="col-partner">
               <div class="profile-card-34" id="avatar-partner">
                 <span class="placeholder-emoji">😘</span>
@@ -131,7 +127,7 @@
           </div>
           
           <div class="screen-board" id="partner-board-display">
-            <p class="placeholder-text" id="board-empty-text">ချစ်သူဆီက စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>
+            <p class="placeholder-text" id="board-empty-text">စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>
           </div>
 
           <div class="action-inputs-row" id="send-controls-row">
@@ -145,7 +141,6 @@
 
       </section>
 
-      <!-- TAB 2: Family Page -->
       <section id="tab-family" class="tab-pane">
         <div class="card glass-card">
           <div class="section-title-row">
@@ -168,7 +163,6 @@
         </div>
       </section>
 
-      <!-- TAB 3: Friends Page -->
       <section id="tab-friends" class="tab-pane">
         <div class="card glass-card">
           <div class="section-title-row">
@@ -191,10 +185,8 @@
         </div>
       </section>
 
-      <!-- TAB 4: Codes / Settings Page -->
       <section id="tab-codes" class="tab-pane">
         
-        <!-- ကတ် (၁) - 🔐 PIN / App Security သီးသန့် ကတ် -->
         <div class="card glass-card security-card">
           <h3>🔐 App Security (Passcode)</h3>
           <p class="card-desc">App ဖွင့်ချိန် လုံခြုံရေးအတွက် PIN သတ်မှတ်ပါ</p>
@@ -212,7 +204,6 @@
           </div>
         </div>
 
-        <!-- ကတ် (၂) - 🔗 Room / Partner Sync သီးသန့် ကတ် -->
         <div class="card glass-card sync-card" id="room-sync-card">
           <h3>🔗 Room & Partner Sync</h3>
           <p class="card-desc">ချစ်သူနှင့် နှစ်ယောက်သီးသန့် ချိတ်ဆက်ရန် ကုဒ်</p>
@@ -238,7 +229,6 @@
 
     </main>
 
-    <!-- ၅။ Bottom Navigation Bar -->
     <nav class="bottom-tab-bar">
       <button class="tab-btn active" onclick="switchTab('tab-couple', this)">
         <i class="fa-solid fa-heart"></i>
@@ -258,9 +248,6 @@
       </button>
     </nav>
 
-    <!-- ၆။ Modals -->
-
-    <!-- Note Modal -->
     <div id="note-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="note-modal-title">မှတ်စုအသစ် ရေးပါ</h4>
@@ -284,7 +271,6 @@
       </div>
     </div>
 
-    <!-- Canvas Modal -->
     <div id="canvas-modal" class="modal-backdrop">
       <div class="modal-card canvas-card">
         <div class="modal-header-row">
@@ -314,7 +300,6 @@
       </div>
     </div>
 
-    <!-- Member Modal (Gallery Upload + Emoji) -->
     <div id="member-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="member-modal-title">အဖွဲ့ဝင် အသစ်ထည့်မည်</h4>
@@ -345,7 +330,6 @@
       </div>
     </div>
 
-    <!-- Profile Edit Modal (Me & You Gallery Uploads) -->
     <div id="profile-edit-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4>Profile Frame ဓာတ်ပုံ ပြင်ဆင်ရန်</h4>
