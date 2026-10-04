@@ -14,6 +14,26 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 @CapacitorPlugin(name = "NotificationPlugin")
 public class NotificationPlugin extends Plugin {
 
+    // ဖုန်းတစ်လုံးက Update လုပ်လိုက်တိုင်း အခြားဖုန်းတွင် ချက်ချင်း အသံနှင့် နိုတီကျစေမည့် စနစ်
+    @PluginMethod
+    public void showInstantNotification(PluginCall call) {
+        String title = call.getString("title", "Loved Tracker");
+        String message = call.getString("message", "အသစ်ရောက်ရှိပါသည်!");
+        String category = call.getString("category", "couple");
+        int notifId = (int) System.currentTimeMillis();
+
+        Context context = getContext();
+        Intent intent = new Intent(context, NotificationReceiver.class);
+        intent.putExtra("title", title);
+        intent.putExtra("message", message);
+        intent.putExtra("category", category);
+        intent.putExtra("notif_id", notifId);
+
+        context.sendBroadcast(intent);
+        call.resolve();
+    }
+
+    // သတ်မှတ်ချိန်မတိုင်မီ (၁ရက်၊ ၁၂နာရီ၊ ၁နာရီ၊ ၁မိနစ်အလို) Alarm ချိန်မှတ်ပေးသည့် စနစ်
     @PluginMethod
     public void scheduleAlarm(PluginCall call) {
         Long triggerAtMillis = call.getLong("triggerAtMillis");
@@ -67,7 +87,6 @@ public class NotificationPlugin extends Plugin {
                 ret.put("notifId", notifId);
                 call.resolve(ret);
             } catch (SecurityException se) {
-                // Android 12+ Exact alarm permission fallback
                 alarmManager.set(
                         AlarmManager.RTC_WAKEUP,
                         triggerAtMillis,
