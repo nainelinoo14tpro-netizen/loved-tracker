@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Loved Tracker v1.1</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Public MQTT WebSocket Library (No Account Required) -->
+  <!-- Public MQTT WebSocket Library -->
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <style>
     :root {
@@ -1223,7 +1223,7 @@
           </div>
         </div>
 
-        <!-- 💍 Couple Memories & Special Dates (Live Countdown) -->
+        <!-- 💍 Couple Memories & Special Dates (Live Countdown + AI Voice Alarm) -->
         <div class="card glass-card">
           <div class="section-title-row">
             <h4>💍 အမှတ်တရ ရက်စွဲနှင့် Note များ</h4>
@@ -1621,6 +1621,44 @@
       } catch (e) {}
     }
 
+    // 4-STAGE SCHEDULED VOICE NOTIFICATION ENGINE (1 Day, 12 Hrs, 1 Hr, 1 Min)
+    function scheduleNoteAlarms(noteId, dateStr, timeStr, titleText, category) {
+      try {
+        if (!window.Capacitor || !window.Capacitor.Plugins || !window.Capacitor.Plugins.NotificationPlugin) return;
+        if (!dateStr) return;
+
+        const timePart = timeStr && timeStr.trim() ? timeStr.trim() : '00:00';
+        const targetMs = new Date(`${dateStr}T${timePart}:00`).getTime();
+        const now = Date.now();
+
+        if (isNaN(targetMs) || targetMs <= now) return;
+
+        // အဆင့် ၄ ဆင့်ဖြင့် Alarm စီစဉ်ခြင်း
+        const stages = [
+          { label: '၁ ရက် အလို သတိပေးချက်', offsetMs: 24 * 60 * 60 * 1000, subId: 1 },
+          { label: '၁၂ နာရီ အလို သတိပေးချက်', offsetMs: 12 * 60 * 60 * 1000, subId: 2 },
+          { label: '၁ နာရီ အလို သတိပေးချက်', offsetMs: 60 * 60 * 1000, subId: 3 },
+          { label: '၁ မိနစ် အလို သတိပေးချက်', offsetMs: 60 * 1000, subId: 4 }
+        ];
+
+        stages.forEach(st => {
+          const triggerTime = targetMs - st.offsetMs;
+          if (triggerTime > now) {
+            const notifUniqueId = Math.abs((Number(noteId) % 100000) * 10 + st.subId);
+            window.Capacitor.Plugins.NotificationPlugin.scheduleAlarm({
+              triggerAtMillis: triggerTime,
+              title: `Loved Tracker (${st.label})`,
+              message: `${titleText} ရောက်ရှိရန် အချိန်နီးကပ်လာပါပြီ!`,
+              category: category,
+              notifId: notifUniqueId
+            });
+          }
+        });
+      } catch (e) {
+        console.error('Failed to schedule alarms:', e);
+      }
+    }
+
     function playHeartChimeSound() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1928,26 +1966,36 @@
     }
 
     function handleMqttIncoming(incoming) {
-      if (incoming.sender === CLIENT_ID) return; // မိမိပို့သော packet ကို ပြန်မယူပါ
+      if (incoming.sender === CLIENT_ID) return;
 
       const { type, data } = incoming;
       if (type === 'couple_live') {
         if (data.startDate !== undefined) appData.couple.startDate = data.startDate;
         if (data.partnerBoard !== undefined) appData.partnerBoard = data.partnerBoard;
-        if (data.coupleNotes) appData.coupleNotes = data.coupleNotes;
+        if (data.coupleNotes) {
+          appData.coupleNotes = data.coupleNotes;
+          // Join ထားသော ဖုန်းတွင်ပါ အသံ Alarm များကို တစ်ပါတည်း စီစဉ်ပေးခြင်း
+          appData.coupleNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.title, 'couple'));
+        }
         saveAppData();
         renderCounter();
         renderBoard();
         renderCoupleNotes();
         syncToAndroidWidget();
       } else if (type === 'family') {
-        if (data.familyNotes) appData.familyNotes = data.familyNotes;
+        if (data.familyNotes) {
+          appData.familyNotes = data.familyNotes;
+          appData.familyNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.text, 'family'));
+        }
         if (data.familyMembers) appData.familyMembers = data.familyMembers;
         saveAppData();
         renderMembers();
         renderNotes();
       } else if (type === 'friends') {
-        if (data.friendsNotes) appData.friendsNotes = data.friendsNotes;
+        if (data.friendsNotes) {
+          appData.friendsNotes = data.friendsNotes;
+          appData.friendsNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.text, 'friends'));
+        }
         if (data.friendsMembers) appData.friendsMembers = data.friendsMembers;
         saveAppData();
         renderMembers();
@@ -2345,6 +2393,11 @@
       closeModal('couple-note-modal');
       renderCoupleNotes();
       playHeartChimeSound();
+
+      // စနစ်နာရီထဲတွင် ၁ ရက်၊ ၁၂ နာရီ၊ ၁ နာရီ၊ ၁ မိနစ် အလို အသံ Alarm များ ချိန်မှတ်ခြင်း
+      scheduleNoteAlarms(item.id, date, time, title, 'couple');
+
+      // အခြားဖုန်းများဆီသို့ပါ အသံ Alarm ချိန်မှတ်နိုင်စေရန် ပို့ဆောင်ခြင်း
       broadcastSync('couple_live', { coupleNotes: appData.coupleNotes });
     }
 
@@ -2557,9 +2610,11 @@
       if (activeNoteType === 'family') {
         appData.familyNotes.unshift(n);
         broadcastSync('family', { familyNotes: appData.familyNotes });
+        scheduleNoteAlarms(n.id, date, time, text, 'family');
       } else {
         appData.friendsNotes.unshift(n);
         broadcastSync('friends', { friendsNotes: appData.friendsNotes });
+        scheduleNoteAlarms(n.id, date, time, text, 'friends');
       }
       playHeartChimeSound();
       saveAppData();
@@ -2770,6 +2825,17 @@
       refreshAllUi();
       initCropperGestures();
       initMqtt();
+
+      // စတင်ဖွင့်ချိန်တွင် ရှိပြီးသား Notes များအတွက် အသံ Alarm များကို Refresh စီစဉ်ခြင်း
+      if (appData.coupleNotes) {
+        appData.coupleNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.title, 'couple'));
+      }
+      if (appData.familyNotes) {
+        appData.familyNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.text, 'family'));
+      }
+      if (appData.friendsNotes) {
+        appData.friendsNotes.forEach(n => scheduleNoteAlarms(n.id, n.date, n.time, n.text, 'friends'));
+      }
     };
   </script>
 </body>
