@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Loved Tracker v1.1</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Public MQTT WebSocket Library (No Account Required) -->
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <style>
     :root {
       --bg-main: #0c0a12;
@@ -83,7 +85,6 @@
       font-weight: 600;
     }
 
-    /* Scroll Area */
     .content-scroll {
       flex: 1;
       overflow-y: auto;
@@ -307,6 +308,85 @@
       margin-top: 12px;
     }
 
+    /* Live Countdown Badges */
+    .live-timer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      background: rgba(255, 75, 139, 0.16);
+      border: 1px solid rgba(255, 75, 139, 0.4);
+      color: var(--pink-soft);
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .live-timer-badge.reached {
+      background: rgba(16, 185, 129, 0.16);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    /* Couple Memories / Special Dates */
+    .special-note-card {
+      background: rgba(36, 22, 44, 0.9);
+      border: 1px solid rgba(255, 75, 139, 0.35);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .special-note-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .special-note-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pink-soft);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .special-note-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .special-note-desc {
+      font-size: 12px;
+      color: var(--text-main);
+      line-height: 1.4;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    .quick-tag-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .quick-tag-btn {
+      background: rgba(255, 75, 139, 0.15);
+      border: 1px solid rgba(255, 75, 139, 0.3);
+      color: var(--pink-soft);
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
     /* Live Screen */
     .box-header {
       display: flex;
@@ -370,9 +450,17 @@
       width: 100%;
     }
 
-    .dark-text-input:focus {
-      border-color: var(--pink-primary);
-      box-shadow: 0 0 8px var(--pink-glow);
+    .dark-select-input {
+      background: #1a1424;
+      border: 1px solid var(--bg-card-border);
+      color: var(--pink-soft);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+      font-weight: 600;
     }
 
     .btn-group {
@@ -394,10 +482,6 @@
       transition: all 0.2s ease;
     }
 
-    .btn:active {
-      transform: scale(0.96);
-    }
-
     .btn-pink {
       background: var(--pink-primary);
       color: #fff;
@@ -414,80 +498,6 @@
 
     .btn-block {
       width: 100%;
-    }
-
-    /* Couple Memories / Special Date Cards */
-    .special-note-card {
-      background: rgba(36, 22, 44, 0.9);
-      border: 1px solid rgba(255, 75, 139, 0.35);
-      border-radius: 16px;
-      padding: 12px 14px;
-      margin-bottom: 10px;
-      position: relative;
-    }
-
-    .special-note-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-
-    .special-note-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--pink-soft);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .special-countdown-badge {
-      font-size: 11px;
-      background: rgba(255, 75, 139, 0.18);
-      color: var(--pink-primary);
-      border: 1px solid var(--pink-primary);
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-    }
-
-    .special-note-date {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .special-note-desc {
-      font-size: 12px;
-      color: var(--text-main);
-      line-height: 1.4;
-      background: rgba(0, 0, 0, 0.2);
-      padding: 6px 10px;
-      border-radius: 8px;
-    }
-
-    /* Quick Preset Buttons */
-    .quick-tag-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 6px;
-    }
-
-    .quick-tag-btn {
-      background: rgba(255, 75, 139, 0.15);
-      border: 1px solid rgba(255, 75, 139, 0.3);
-      color: var(--pink-soft);
-      font-size: 11px;
-      padding: 5px 10px;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-
-    .quick-tag-btn:hover {
-      background: var(--pink-primary);
-      color: #fff;
     }
 
     /* Members */
@@ -639,18 +649,7 @@
       cursor: pointer;
     }
 
-    /* 3 Separate Room Cards */
-    .sync-card {
-      margin-bottom: 14px;
-    }
-
-    .card-desc {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 4px;
-      margin-bottom: 12px;
-    }
-
+    /* Settings & Dropdown Room Sync */
     .setting-item {
       margin-top: 10px;
       display: flex;
@@ -707,7 +706,7 @@
       color: #ff6685;
     }
 
-    /* Bottom Navigation */
+    /* Bottom Nav */
     .bottom-tab-bar {
       position: absolute;
       bottom: 0;
@@ -745,7 +744,7 @@
       text-shadow: 0 0 10px var(--pink-glow);
     }
 
-    /* Origami Airplane SVG Layer */
+    /* Airplane */
     .plane-layer {
       position: fixed;
       inset: 0;
@@ -1076,13 +1075,41 @@
       background: rgba(255, 75, 139, 0.3);
       border: 1px solid var(--pink-primary);
     }
+
+    /* 3:4 Interactive Cropper with Zoom Slider */
+    .crop-viewport-box {
+      width: 225px;
+      height: 300px;
+      position: relative;
+      border: 2px solid var(--pink-primary);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #000;
+      touch-action: none;
+      box-shadow: 0 0 20px var(--pink-glow);
+      margin: 8px auto;
+    }
+
+    .crop-slider-container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0 10px 0;
+    }
+
+    .zoom-slider {
+      flex: 1;
+      accent-color: var(--pink-primary);
+      cursor: pointer;
+    }
   </style>
 </head>
 <body class="dark-love-theme">
 
   <div id="app" class="no-select">
 
-    <!-- ၁။ လုံခြုံရေး PIN Screen -->
+    <!-- PIN Screen -->
     <div id="pin-overlay" class="pin-overlay">
       <div class="pin-card">
         <div class="pin-heart-icon" onclick="resetPinSetup()">💖</div>
@@ -1115,7 +1142,7 @@
       </div>
     </div>
 
-    <!-- ၂။ စက္ကူလေယာဉ် ပျံသန်းသည့် SVG Layer -->
+    <!-- Origami Plane Layer -->
     <div id="plane-animation-layer" class="plane-layer">
       <svg class="paper-plane-svg" viewBox="0 0 24 24">
         <path d="M1.5 12.5l21-9.5-9 20-3-8.5-9-2z" fill="#ff4b8b" stroke="#ffffff" stroke-width="1.5"/>
@@ -1123,7 +1150,7 @@
       </svg>
     </div>
 
-    <!-- ၃။ Header Bar -->
+    <!-- Top Nav -->
     <header class="top-nav">
       <div class="app-brand">
         <span>💖</span> Loved Tracker
@@ -1131,7 +1158,7 @@
       <div class="version-tag">v1.1</div>
     </header>
 
-    <!-- ၄။ Main Content Pages -->
+    <!-- Main Content -->
     <main class="content-scroll">
 
       <!-- TAB 1: Couple Page -->
@@ -1196,8 +1223,8 @@
           </div>
         </div>
 
-        <!-- 💍 COUPLE SPECIAL DATES & MEMORIES NOTES (အသစ်ဖြည့်စွက်ထားသောအပိုင်း) -->
-        <div class="card glass-card couple-special-box">
+        <!-- 💍 Couple Memories & Special Dates (Live Countdown) -->
+        <div class="card glass-card">
           <div class="section-title-row">
             <h4>💍 အမှတ်တရ ရက်စွဲနှင့် Note များ</h4>
             <span class="count-tag" id="couple-notes-count">0 ခု</span>
@@ -1238,16 +1265,14 @@
             <h3>🏡 မိသားစုဝင်များ</h3>
             <span class="count-tag" id="family-count-tag">0 ယောက်</span>
           </div>
-
           <div class="members-horizontal-list" id="family-members-container"></div>
         </div>
 
-        <div class="card glass-card fridge-board">
+        <div class="card glass-card">
           <div class="section-title-row">
             <h4>📌 Family Fridge Board</h4>
           </div>
           <div class="notes-grid" id="family-notes-container"></div>
-          
           <button class="btn-outline-dashed" onclick="openNoteModal('family')">
             + Sticky Note အသစ်ကပ်မည်
           </button>
@@ -1261,28 +1286,26 @@
             <h3>✨ Squad Members</h3>
             <span class="count-tag" id="friends-count-tag">0 ယောက်</span>
           </div>
-
           <div class="members-horizontal-list" id="friends-members-container"></div>
         </div>
 
-        <div class="card glass-card squad-hub">
+        <div class="card glass-card">
           <div class="section-title-row">
             <h4>💬 Friends Hub</h4>
           </div>
           <div class="notes-grid" id="friends-notes-container"></div>
-
           <button class="btn-outline-dashed" onclick="openNoteModal('friends')">
             + Friends Note အသစ်ကပ်မည်
           </button>
         </div>
       </section>
 
-      <!-- TAB 4: Codes / Settings Page -->
+      <!-- TAB 4: Codes Page (Dropdown Unified Live Sync) -->
       <section id="tab-codes" class="tab-pane">
         
         <div class="card glass-card">
           <h3>🔐 App Security (Passcode)</h3>
-          <p class="card-desc">App ဖွင့်ချိန် လုံခြုံရေးအတွက် PIN သတ်မှတ်ပါ</p>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; margin-bottom: 12px;">App ဖွင့်ချိန် လုံခြုံရေးအတွက် PIN သတ်မှတ်ပါ</p>
           
           <div class="setting-item">
             <button class="btn btn-outline btn-block" onclick="startChangePinProcess()">
@@ -1297,74 +1320,47 @@
           </div>
         </div>
 
-        <div class="card glass-card sync-card">
-          <h3>💑 Couple Room Sync</h3>
-          <p class="card-desc">ချစ်သူနှင့် နှစ်ယောက်သီးသန့် ချိတ်ဆက်ရန် အခန်း</p>
+        <!-- Unified Dropdown Live Room Sync Card -->
+        <div class="card glass-card">
+          <div class="section-title-row">
+            <h3>📡 Live Room Sync (Real-time)</h3>
+            <span id="mqtt-status-badge" class="count-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">
+              🟢 Ready
+            </span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            Account မလိုဘဲ အခန်းရွေးချယ်ပြီး ဖုန်းအချင်းချင်း အချိန်နှင့်တစ်ပြေးညီ ချိတ်ဆက်နိုင်ပါသည်
+          </p>
 
           <div class="setting-item">
-            <label>My Couple Code</label>
+            <label>ချိတ်ဆက်မည့် အခန်း အမျိုးအစား ရွေးပါ</label>
+            <select id="room-type-select" class="dark-select-input" onchange="onRoomTypeChange(this.value)">
+              <option value="couple">💑 Couple Room (နှစ်ယောက်သီးသန့်)</option>
+              <option value="family">🏡 Family Room (မိသားစု)</option>
+              <option value="friends">✨ Friends Squad (သူငယ်ချင်းများ)</option>
+            </select>
+          </div>
+
+          <div class="setting-item" style="margin-top: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label id="selected-room-label">My Couple Room Code</label>
+              <button class="mini-icon-btn" onclick="generateRandomRoomCode()" style="color: var(--pink-primary); font-size: 12px; font-weight: 600;">
+                <i class="fa-solid fa-shuffle"></i> Random Code ထုတ်မည်
+              </button>
+            </div>
             <div class="code-box-display">
-              <span id="code-disp-couple">LOVE-7892</span>
+              <span id="active-room-code-disp">LOVE-7892</span>
               <div class="code-action-btns">
-                <button class="mini-icon-btn" onclick="editCustomRoomCode('couple')" title="Edit Code"><i class="fa-solid fa-pen"></i></button>
-                <button class="mini-icon-btn" onclick="copyCode('couple')" title="Copy Code"><i class="fa-solid fa-copy"></i></button>
+                <button class="mini-icon-btn" onclick="copyCurrentRoomCode()"><i class="fa-solid fa-copy"></i></button>
               </div>
             </div>
           </div>
 
-          <div class="setting-item">
-            <label>Join Partner Code</label>
+          <div class="setting-item" style="margin-top: 12px;">
+            <label>တခြားဖုန်းမှ Code ဖြင့် ချိတ်ဆက်မည်</label>
             <div class="connect-input-row">
-              <input type="text" id="join-couple-input" placeholder="ချစ်သူ့ ကုဒ် ရိုက်ထည့်ပါ..." class="dark-text-input">
-              <button class="btn btn-pink" onclick="joinRoom('couple')">ချိတ်မည်</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card glass-card sync-card">
-          <h3>🏡 Family Room Sync</h3>
-          <p class="card-desc">မိသားစုဝင်များ သီးသန့် ချိတ်ဆက်ရန် အခန်း</p>
-
-          <div class="setting-item">
-            <label>My Family Code</label>
-            <div class="code-box-display">
-              <span id="code-disp-family">HOME-3321</span>
-              <div class="code-action-btns">
-                <button class="mini-icon-btn" onclick="editCustomRoomCode('family')" title="Edit Code"><i class="fa-solid fa-pen"></i></button>
-                <button class="mini-icon-btn" onclick="copyCode('family')" title="Copy Code"><i class="fa-solid fa-copy"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="setting-item">
-            <label>Join Family Code</label>
-            <div class="connect-input-row">
-              <input type="text" id="join-family-input" placeholder="မိသားစု ကုဒ် ရိုက်ထည့်ပါ..." class="dark-text-input">
-              <button class="btn btn-pink" onclick="joinRoom('family')">ချိတ်မည်</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card glass-card sync-card">
-          <h3>✨ Friends Squad Room</h3>
-          <p class="card-desc">သူငယ်ချင်းများ Group ချိတ်ဆက်ရန် အခန်း</p>
-
-          <div class="setting-item">
-            <label>My Friends Code</label>
-            <div class="code-box-display">
-              <span id="code-disp-friends">SQUAD-9904</span>
-              <div class="code-action-btns">
-                <button class="mini-icon-btn" onclick="editCustomRoomCode('friends')" title="Edit Code"><i class="fa-solid fa-pen"></i></button>
-                <button class="mini-icon-btn" onclick="copyCode('friends')" title="Copy Code"><i class="fa-solid fa-copy"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="setting-item">
-            <label>Join Squad Code</label>
-            <div class="connect-input-row">
-              <input type="text" id="join-friends-input" placeholder="သူငယ်ချင်း ကုဒ် ရိုက်ထည့်ပါ..." class="dark-text-input">
-              <button class="btn btn-pink" onclick="joinRoom('friends')">ချိတ်မည်</button>
+              <input type="text" id="join-room-input" placeholder="Room Code ရိုက်ထည့်ပါ..." class="dark-text-input">
+              <button class="btn btn-pink" onclick="joinSelectedRoom()">ချိတ်မည်</button>
             </div>
           </div>
         </div>
@@ -1373,7 +1369,7 @@
 
     </main>
 
-    <!-- ၅။ Bottom Navigation Bar -->
+    <!-- Bottom Nav -->
     <nav class="bottom-tab-bar">
       <button class="tab-btn active" onclick="switchTab('tab-couple', this)">
         <i class="fa-solid fa-heart"></i>
@@ -1393,9 +1389,35 @@
       </button>
     </nav>
 
-    <!-- ၆။ MODALS -->
+    <!-- MODALS -->
 
-    <!-- COUPLE SPECIAL NOTE MODAL (အသစ်) -->
+    <!-- 3:4 Interactive Cropper Modal With Zoom Slider -->
+    <div id="cropper-modal" class="modal-backdrop">
+      <div class="modal-card" style="align-items: center; max-width: 320px;">
+        <h4>✂️ 3:4 ပုံနေရာညှိပြီး Crop ဖြတ်မည်</h4>
+        
+        <div id="crop-viewport" class="crop-viewport-box">
+          <img id="crop-image-elem" style="position: absolute; top: 0; left: 0; user-select: none; -webkit-user-drag: none; cursor: grab;" alt="Crop Target">
+        </div>
+        
+        <div class="crop-slider-container">
+          <i class="fa-solid fa-magnifying-glass-minus" style="font-size: 13px; color: var(--text-muted);"></i>
+          <input type="range" id="crop-zoom-slider" class="zoom-slider" min="1" max="3" step="0.02" value="1" oninput="onZoomSliderChange(this.value)">
+          <i class="fa-solid fa-magnifying-glass-plus" style="font-size: 13px; color: var(--pink-soft);"></i>
+        </div>
+
+        <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 6px;">
+          ပုံကို လက်ဖြင့် ဖိဆွဲပြီး မျက်နှာ အလယ်ကျအောင် ညှိပါ
+        </p>
+
+        <div class="modal-actions" style="width: 100%;">
+          <button class="btn btn-cancel" onclick="closeModal('cropper-modal')">Cancel</button>
+          <button class="btn btn-pink" onclick="applyCroppedImage()">✓ Crop ဖြတ်မည်</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Couple Note Modal -->
     <div id="couple-note-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4>💍 အမှတ်တရ ရက်စွဲ / Note အသစ်</h4>
@@ -1406,11 +1428,17 @@
           <button type="button" class="quick-tag-btn" onclick="setCouplePreset('🌹 First Date Memory')">🌹 First Date</button>
         </div>
 
-        <input type="text" id="couple-note-title-input" placeholder="ခေါင်းစဉ် (ဥပမာ - Anniversary, Birthday)" class="dark-text-input">
+        <input type="text" id="couple-note-title-input" placeholder="ခေါင်းစဉ် ရိုက်ထည့်ပါ..." class="dark-text-input">
 
-        <div class="input-field" style="display: flex; flex-direction: column; gap: 4px;">
-          <label style="font-size: 11px; color: var(--text-muted);">ရက်စွဲ ရွေးချယ်ပါ</label>
-          <input type="date" id="couple-note-date-input" class="dark-input-date" style="width: 100%;">
+        <div class="datetime-fields">
+          <div class="input-field">
+            <label>ရက်စွဲ</label>
+            <input type="date" id="couple-note-date-input" class="dark-input-date">
+          </div>
+          <div class="input-field">
+            <label>အချိန် (မဖြစ်မနေ မလိုပါ)</label>
+            <input type="time" id="couple-note-time-input" class="dark-input-date">
+          </div>
         </div>
 
         <textarea id="couple-note-desc-input" placeholder="အမှတ်တရ စကား သို့မဟုတ် Note မှတ်ရန်..." rows="3" class="dark-textarea"></textarea>
@@ -1422,7 +1450,7 @@
       </div>
     </div>
 
-    <!-- STICKY NOTE MODAL -->
+    <!-- Sticky Note Modal (Family & Friends) -->
     <div id="note-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="note-modal-title">မှတ်စုအသစ် ရေးပါ</h4>
@@ -1446,7 +1474,7 @@
       </div>
     </div>
 
-    <!-- CANVAS MODAL -->
+    <!-- Canvas Modal -->
     <div id="canvas-modal" class="modal-backdrop">
       <div class="modal-card canvas-card">
         <div class="modal-header-row">
@@ -1476,13 +1504,13 @@
       </div>
     </div>
 
-    <!-- MEMBER MODAL -->
+    <!-- Member Modal -->
     <div id="member-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="member-modal-title">အဖွဲ့ဝင် အသစ်ထည့်မည်</h4>
         <input type="text" id="member-name-input" placeholder="အမည် ရိုက်ထည့်ပါ..." class="dark-text-input">
         
-        <label class="modal-label" style="font-size: 11px; color: var(--text-muted);">ဓာတ်ပုံ သို့မဟုတ် Emoji ရွေးချယ်ပါ</label>
+        <label style="font-size: 11px; color: var(--text-muted);">ဓာတ်ပုံ သို့မဟုတ် Emoji ရွေးချယ်ပါ</label>
         <div class="photo-upload-section">
           <label class="btn-file-label">
             <i class="fa-solid fa-camera"></i> ဖုန်းထဲမှ ဓာတ်ပုံရွေးမည်
@@ -1507,14 +1535,14 @@
       </div>
     </div>
 
-    <!-- PROFILE EDIT MODAL -->
+    <!-- Profile Edit Modal -->
     <div id="profile-edit-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4>Profile Frame ဓာတ်ပုံ ပြင်ဆင်ရန်</h4>
         
-        <div class="profile-edit-section">
+        <div>
           <h5>Me (ငါ့အချက်အလက်)</h5>
-          <input type="text" id="edit-my-name" value="Me" class="dark-text-input">
+          <input type="text" id="edit-my-name" value="Me" class="dark-text-input" style="margin-top: 4px;">
           <div class="photo-upload-section" style="margin-top: 6px;">
             <label class="btn-file-label">
               <i class="fa-solid fa-camera"></i> Me အတွက် ဓာတ်ပုံတင်မည်
@@ -1530,9 +1558,9 @@
           </div>
         </div>
 
-        <div class="profile-edit-section" style="margin-top: 10px;">
+        <div style="margin-top: 10px;">
           <h5>Bae (ချစ်သူ့အချက်အလက်)</h5>
-          <input type="text" id="edit-partner-name" value="Bae" class="dark-text-input">
+          <input type="text" id="edit-partner-name" value="Bae" class="dark-text-input" style="margin-top: 4px;">
           <div class="photo-upload-section" style="margin-top: 6px;">
             <label class="btn-file-label">
               <i class="fa-solid fa-camera"></i> Bae အတွက် ဓာတ်ပုံတင်မည်
@@ -1570,11 +1598,19 @@
       } catch (e) {}
     }
 
-    // Android Native Widget သို့ Capacitor ဖြင့် Real-time လှမ်းပို့ခြင်း
+    // Android Native Widget Sync
     function syncToAndroidWidget() {
       try {
         const startDate = (appData.couple && appData.couple.startDate) || '';
-        const msg = (appData.partnerBoard && appData.partnerBoard.content) || 'MY LOVE';
+        let msg = 'MY LOVE';
+
+        if (appData.partnerBoard) {
+          if (appData.partnerBoard.type === 'text') {
+            msg = appData.partnerBoard.content;
+          } else if (appData.partnerBoard.type === 'image') {
+            msg = '🎨 ချစ်သူ ပုံဆွဲထားပါသည်';
+          }
+        }
 
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.WidgetPlugin) {
           window.Capacitor.Plugins.WidgetPlugin.syncWidgetData({
@@ -1582,12 +1618,9 @@
             message: msg
           });
         }
-      } catch (e) {
-        console.error('Widget sync error:', e);
-      }
+      } catch (e) {}
     }
 
-    // Web Audio Synthesizer (Chime Sound Effect)
     function playHeartChimeSound() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1624,36 +1657,167 @@
       return `<span class="placeholder-emoji">${val}</span>`;
     }
 
-    function compressImage(file, callback) {
-      if (!file) return;
+    // 3:4 CROPPER ENGINE WITH ZOOM SLIDER
+    let cropTargetType = 'me';
+    let cropImgNaturalW = 0, cropImgNaturalH = 0;
+    let cropBaseScale = 1;
+    let currentZoomMultiplier = 1;
+    let cropPosX = 0, cropPosY = 0;
+    let isDraggingCrop = false;
+    let startDragX = 0, startDragY = 0;
+
+    function openCropper(file, targetType) {
+      cropTargetType = targetType;
       const reader = new FileReader();
       reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const maxDim = 320;
-          let w = img.width, h = img.height;
-          if (w > h) {
-            if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
-          } else {
-            if (h > maxDim) { w = Math.round((h * maxDim) / h); h = maxDim; }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          callback(canvas.toDataURL('image/jpeg', 0.8));
+        const cropImg = document.getElementById('crop-image-elem');
+        cropImg.src = e.target.result;
+        cropImg.onload = function() {
+          cropImgNaturalW = cropImg.naturalWidth;
+          cropImgNaturalH = cropImg.naturalHeight;
+
+          const viewW = 225, viewH = 300;
+          const scaleW = viewW / cropImgNaturalW;
+          const scaleH = viewH / cropImgNaturalH;
+          cropBaseScale = Math.max(scaleW, scaleH);
+          currentZoomMultiplier = 1;
+
+          document.getElementById('crop-zoom-slider').value = '1';
+          updateCropDimensions();
+
+          cropPosX = (viewW - parseFloat(cropImg.style.width)) / 2;
+          cropPosY = (viewH - parseFloat(cropImg.style.height)) / 2;
+          updateCropTransform();
+
+          document.getElementById('cropper-modal').classList.add('active');
         };
-        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    // APP DATA STATE
+    function updateCropDimensions() {
+      const cropImg = document.getElementById('crop-image-elem');
+      const totalScale = cropBaseScale * currentZoomMultiplier;
+      cropImg.style.width = (cropImgNaturalW * totalScale) + 'px';
+      cropImg.style.height = (cropImgNaturalH * totalScale) + 'px';
+    }
+
+    function onZoomSliderChange(val) {
+      const prevZoom = currentZoomMultiplier;
+      currentZoomMultiplier = parseFloat(val);
+
+      const viewW = 225, viewH = 300;
+      const centerX = viewW / 2;
+      const centerY = viewH / 2;
+      const ratio = currentZoomMultiplier / prevZoom;
+
+      cropPosX = centerX - (centerX - cropPosX) * ratio;
+      cropPosY = centerY - (centerY - cropPosY) * ratio;
+
+      updateCropDimensions();
+      updateCropTransform();
+    }
+
+    function updateCropTransform() {
+      const cropImg = document.getElementById('crop-image-elem');
+      if (cropImg) {
+        cropImg.style.left = cropPosX + 'px';
+        cropImg.style.top = cropPosY + 'px';
+      }
+    }
+
+    function initCropperGestures() {
+      const vp = document.getElementById('crop-viewport');
+      if (!vp) return;
+
+      function onStart(x, y) {
+        isDraggingCrop = true;
+        startDragX = x - cropPosX;
+        startDragY = y - cropPosY;
+      }
+      function onMove(x, y) {
+        if (!isDraggingCrop) return;
+        cropPosX = x - startDragX;
+        cropPosY = y - startDragY;
+        updateCropTransform();
+      }
+      function onEnd() { isDraggingCrop = false; }
+
+      vp.addEventListener('mousedown', (e) => onStart(e.clientX, e.clientY));
+      window.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
+      window.addEventListener('mouseup', onEnd);
+
+      vp.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY);
+      });
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) onMove(e.touches[0].clientX, e.touches[0].clientY);
+      });
+      window.addEventListener('touchend', onEnd);
+    }
+
+    function applyCroppedImage() {
+      const outW = 450, outH = 600;
+      const canvas = document.createElement('canvas');
+      canvas.width = outW;
+      canvas.height = outH;
+      const ctx = canvas.getContext('2d');
+
+      const cropImg = document.getElementById('crop-image-elem');
+      const ratioMultiplier = outW / 225;
+
+      ctx.drawImage(
+        cropImg,
+        cropPosX * ratioMultiplier,
+        cropPosY * ratioMultiplier,
+        parseFloat(cropImg.style.width) * ratioMultiplier,
+        parseFloat(cropImg.style.height) * ratioMultiplier
+      );
+
+      const croppedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+      closeModal('cropper-modal');
+
+      if (cropTargetType === 'me') {
+        chosenAvatarMe = croppedBase64;
+        const p = document.getElementById('me-photo-preview');
+        p.src = croppedBase64;
+        p.style.display = 'block';
+        document.querySelectorAll('#my-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
+      } else if (cropTargetType === 'partner') {
+        chosenAvatarPartner = croppedBase64;
+        const p = document.getElementById('partner-photo-preview');
+        p.src = croppedBase64;
+        p.style.display = 'block';
+        document.querySelectorAll('#partner-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
+      } else if (cropTargetType === 'member') {
+        chosenAvatarMember = croppedBase64;
+        const p = document.getElementById('member-photo-preview');
+        p.src = croppedBase64;
+        p.style.display = 'block';
+        document.querySelectorAll('#member-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
+      }
+    }
+
+    function handleProfilePhoto(input, type) {
+      if (input.files && input.files[0]) {
+        openCropper(input.files[0], type);
+        input.value = '';
+      }
+    }
+
+    function handleMemberPhoto(input) {
+      if (input.files && input.files[0]) {
+        openCropper(input.files[0], 'member');
+        input.value = '';
+      }
+    }
+
+    // DATA STATE
     const defaultData = {
       couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'Bae', partnerAvatar: '😘', startDate: '2026-05-18' },
       coupleNotes: [
-        { id: 1, title: '💍 Couple Anniversary Day', date: '2027-05-18', desc: 'တို့နှစ်ယောက်ရဲ့ ၁ နှစ်ပြည့် အမှတ်တရနေ့' },
-        { id: 2, title: '🎂 My Love Birthday', date: '2026-11-20', desc: 'ချစ်ရသူလေး မွေးနေ့ဆုတောင်းနှင့် လက်ဆောင်ပေးရန်' }
+        { id: 1, title: '💍 Couple Anniversary Day', date: '2027-05-18', time: '00:00', desc: 'တို့နှစ်ယောက်ရဲ့ ၁ နှစ်ပြည့် အမှတ်တရနေ့' },
+        { id: 2, title: '🎂 My Love Birthday', date: '2026-11-20', time: '00:00', desc: 'ချစ်ရသူလေး မွေးနေ့ဆုတောင်းနှင့် လက်ဆောင်ပေးရန်' }
       ],
       familyMembers: [{ id: 1, name: 'Family 1', avatar: '😊' }, { id: 2, name: 'Family 2', avatar: '🌸' }],
       familyNotes: [{ id: 1, text: 'ညနေစာ အတူတူစားကြမယ်နော် 🍲', date: '2026-10-04', time: '18:30' }],
@@ -1680,6 +1844,7 @@
     let chosenAvatarMember = '😊';
     let chosenAvatarMe = '🥰';
     let chosenAvatarPartner = '😘';
+    let selectedRoomType = 'couple';
 
     function loadAppData() {
       try {
@@ -1698,6 +1863,147 @@
       if (!isDecoyMode) {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch (e) {}
       }
+    }
+
+    // PUBLIC MQTT CLIENT (Account လုံးဝမလိုသော Real-time Engine)
+    let mqttClient = null;
+    const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt';
+    const CLIENT_ID = 'loved_' + Math.random().toString(16).substr(2, 8);
+
+    function initMqtt() {
+      try {
+        mqttClient = mqtt.connect(MQTT_BROKER, { clientId: CLIENT_ID, keepalive: 60 });
+
+        mqttClient.on('connect', () => {
+          const badge = document.getElementById('mqtt-status-badge');
+          if (badge) {
+            badge.style.background = 'rgba(16, 185, 129, 0.2)';
+            badge.style.color = '#34d399';
+            badge.textContent = '🟢 Live Syncing';
+          }
+          subscribeAllRooms();
+        });
+
+        mqttClient.on('message', (topic, message) => {
+          try {
+            const data = JSON.parse(message.toString());
+            handleMqttIncoming(data);
+          } catch (e) {}
+        });
+
+        mqttClient.on('error', () => {
+          const badge = document.getElementById('mqtt-status-badge');
+          if (badge) {
+            badge.style.background = 'rgba(255, 51, 102, 0.2)';
+            badge.style.color = '#ff6685';
+            badge.textContent = '⚪ Offline';
+          }
+        });
+      } catch (e) {}
+    }
+
+    function subscribeAllRooms() {
+      if (!mqttClient || !mqttClient.connected) return;
+      Object.values(appData.rooms).forEach(code => {
+        if (code) {
+          mqttClient.subscribe(`loved_tracker/${code}/#`);
+        }
+      });
+    }
+
+    function broadcastSync(type, payload) {
+      if (!mqttClient || !mqttClient.connected || isDecoyMode) return;
+      const roomCode = appData.rooms[type];
+      if (!roomCode) return;
+
+      const topic = `loved_tracker/${roomCode}/${type}`;
+      const message = JSON.stringify({
+        sender: CLIENT_ID,
+        type: type,
+        timestamp: Date.now(),
+        data: payload
+      });
+
+      mqttClient.publish(topic, message);
+    }
+
+    function handleMqttIncoming(incoming) {
+      if (incoming.sender === CLIENT_ID) return; // မိမိပို့သော packet ကို ပြန်မယူပါ
+
+      const { type, data } = incoming;
+      if (type === 'couple_live') {
+        if (data.startDate !== undefined) appData.couple.startDate = data.startDate;
+        if (data.partnerBoard !== undefined) appData.partnerBoard = data.partnerBoard;
+        if (data.coupleNotes) appData.coupleNotes = data.coupleNotes;
+        saveAppData();
+        renderCounter();
+        renderBoard();
+        renderCoupleNotes();
+        syncToAndroidWidget();
+      } else if (type === 'family') {
+        if (data.familyNotes) appData.familyNotes = data.familyNotes;
+        if (data.familyMembers) appData.familyMembers = data.familyMembers;
+        saveAppData();
+        renderMembers();
+        renderNotes();
+      } else if (type === 'friends') {
+        if (data.friendsNotes) appData.friendsNotes = data.friendsNotes;
+        if (data.friendsMembers) appData.friendsMembers = data.friendsMembers;
+        saveAppData();
+        renderMembers();
+        renderNotes();
+      }
+    }
+
+    // UNIFIED DROPDOWN ROOM FUNCTIONS
+    function onRoomTypeChange(type) {
+      selectedRoomType = type;
+      updateRoomCardUi();
+    }
+
+    function updateRoomCardUi() {
+      const lbl = document.getElementById('selected-room-label');
+      const disp = document.getElementById('active-room-code-disp');
+      const nameMap = {
+        couple: 'My Couple Room Code',
+        family: 'My Family Room Code',
+        friends: 'My Friends Squad Code'
+      };
+      if (lbl) lbl.textContent = nameMap[selectedRoomType];
+      if (disp) disp.textContent = appData.rooms[selectedRoomType];
+    }
+
+    function generateRandomRoomCode() {
+      const prefix = selectedRoomType === 'couple' ? 'LOVE' : selectedRoomType === 'family' ? 'HOME' : 'SQUAD';
+      const randomNum = Math.floor(100000 + Math.random() * 900000);
+      const newCode = `${prefix}-${randomNum}`;
+
+      appData.rooms[selectedRoomType] = newCode;
+      saveAppData();
+      updateRoomCardUi();
+      subscribeAllRooms();
+      alert(`Random Code အသစ် ထုတ်ပေးပြီးပါပြီ: ${newCode}`);
+    }
+
+    function copyCurrentRoomCode() {
+      const code = appData.rooms[selectedRoomType];
+      if (navigator.clipboard) navigator.clipboard.writeText(code);
+      alert(`${selectedRoomType.toUpperCase()} Code ကူးယူပြီးပါပြီ: ${code}`);
+    }
+
+    function joinSelectedRoom() {
+      const input = document.getElementById('join-room-input');
+      const code = input.value.trim().toUpperCase();
+      if (!code) {
+        alert('Room Code ရိုက်ထည့်ပါ!');
+        return;
+      }
+      appData.rooms[selectedRoomType] = code;
+      saveAppData();
+      input.value = '';
+      updateRoomCardUi();
+      subscribeAllRooms();
+      alert(`${selectedRoomType.toUpperCase()} Room "${code}" သို့ အောင်မြင်စွာ ချိတ်ဆက်ပြီးပါပြီ!`);
     }
 
     // PIN LOCK (Old PIN Check & Decoy Skip)
@@ -1880,7 +2186,6 @@
       updatePinDots();
     }
 
-    // PAPER PLANE ANIMATION
     function triggerPaperPlane(callback) {
       const layer = document.getElementById('plane-animation-layer');
       if (layer) {
@@ -1907,6 +2212,7 @@
       saveAppData();
       renderCounter();
       syncToAndroidWidget();
+      broadcastSync('couple_live', { startDate: val });
     }
 
     function renderCounter() {
@@ -1969,10 +2275,50 @@
       if (progressEl) progressEl.style.width = `${percentage}%`;
     }
 
-    // 💍 COUPLE SPECIAL NOTES & COUNTDOWN LOGIC
+    // REAL-TIME SECOND-BY-SECOND LIVE TIMER CALCULATOR
+    function getLiveCountdownBadge(dateStr, timeStr) {
+      if (!dateStr) return '';
+      const fullStr = timeStr ? `${dateStr}T${timeStr}:00` : `${dateStr}T00:00:00`;
+      const targetTime = new Date(fullStr).getTime();
+      const now = Date.now();
+      const diffMs = targetTime - now;
+
+      if (isNaN(targetTime)) return '';
+
+      if (diffMs > 0) {
+        const totalSecs = Math.floor(diffMs / 1000);
+        const d = Math.floor(totalSecs / 86400);
+        const h = Math.floor((totalSecs % 86400) / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const s = totalSecs % 60;
+
+        let str = '⏳ ';
+        if (d > 0) str += `${d}ရက် `;
+        str += `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} လို`;
+        return `<span class="live-timer-badge">${str}</span>`;
+      } else {
+        const pastSecs = Math.floor(Math.abs(diffMs) / 1000);
+        if (pastSecs < 60) {
+          return `<span class="live-timer-badge reached">🎉 အချိန်ရောက်ရှိပါပြီ!</span>`;
+        }
+        const m = Math.floor(pastSecs / 60);
+        const h = Math.floor(m / 60);
+        const d = Math.floor(h / 24);
+
+        let str = '⏰ လွန်ခဲ့သော ';
+        if (d > 0) str += `${d} ရက် `;
+        else if (h > 0) str += `${h} နာရီ `;
+        else str += `${m} မိနစ် `;
+        str += 'က';
+        return `<span class="live-timer-badge reached">${str}</span>`;
+      }
+    }
+
+    // COUPLE SPECIAL NOTES
     function openCoupleNoteModal() {
       document.getElementById('couple-note-title-input').value = '';
       document.getElementById('couple-note-date-input').value = '';
+      document.getElementById('couple-note-time-input').value = '';
       document.getElementById('couple-note-desc-input').value = '';
       document.getElementById('couple-note-modal').classList.add('active');
     }
@@ -1981,24 +2327,10 @@
       document.getElementById('couple-note-title-input').value = title;
     }
 
-    function calculateDaysRemaining(targetDateStr) {
-      if (!targetDateStr) return '';
-      const target = new Date(targetDateStr);
-      const now = new Date();
-      target.setHours(0, 0, 0, 0);
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-      const diffTime = target - today;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays === 0) return 'ဒီနေ့ရောက်ပါပြီ 🎉';
-      if (diffDays > 0) return `${diffDays} ရက်လို`;
-      return `${Math.abs(diffDays)} ရက်လွန်ခဲ့`;
-    }
-
     function saveCoupleNote() {
       const title = document.getElementById('couple-note-title-input').value.trim();
       const date = document.getElementById('couple-note-date-input').value;
+      const time = document.getElementById('couple-note-time-input').value || '00:00';
       const desc = document.getElementById('couple-note-desc-input').value.trim();
 
       if (!title) {
@@ -2007,12 +2339,13 @@
       }
 
       if (!appData.coupleNotes) appData.coupleNotes = [];
-      const item = { id: Date.now(), title, date, desc };
+      const item = { id: Date.now(), title, date, time, desc };
       appData.coupleNotes.unshift(item);
       saveAppData();
       closeModal('couple-note-modal');
       renderCoupleNotes();
       playHeartChimeSound();
+      broadcastSync('couple_live', { coupleNotes: appData.coupleNotes });
     }
 
     function delCoupleNote(id) {
@@ -2020,6 +2353,7 @@
         appData.coupleNotes = appData.coupleNotes.filter(n => n.id !== id);
         saveAppData();
         renderCoupleNotes();
+        broadcastSync('couple_live', { coupleNotes: appData.coupleNotes });
       }
     }
 
@@ -2038,24 +2372,24 @@
 
       listEl.innerHTML = '';
       notes.forEach(n => {
-        const remaining = n.date ? calculateDaysRemaining(n.date) : '';
+        const badge = getLiveCountdownBadge(n.date, n.time);
         listEl.innerHTML += `
           <div class="special-note-card">
             <div class="special-note-top">
               <span class="special-note-title">${n.title}</span>
               <div style="display: flex; align-items: center; gap: 8px;">
-                ${remaining ? `<span class="special-countdown-badge">${remaining}</span>` : ''}
+                ${badge}
                 <button class="note-del-btn" onclick="delCoupleNote(${n.id})">&times;</button>
               </div>
             </div>
-            ${n.date ? `<div class="special-note-date"><i class="fa-regular fa-calendar-heart"></i> ${n.date}</div>` : ''}
+            ${n.date ? `<div class="special-note-date"><i class="fa-regular fa-calendar"></i> ${n.date} ${n.time ? n.time : ''}</div>` : ''}
             ${n.desc ? `<div class="special-note-desc">${n.desc}</div>` : ''}
           </div>
         `;
       });
     }
 
-    // PROFILES & 3:4 FRAMES
+    // PROFILES
     function openProfileModal() {
       document.getElementById('edit-my-name').value = appData.couple.meName;
       document.getElementById('edit-partner-name').value = appData.couple.partnerName;
@@ -2075,26 +2409,6 @@
       } else { pPart.style.display = 'none'; }
 
       document.getElementById('profile-edit-modal').classList.add('active');
-    }
-
-    function handleProfilePhoto(input, type) {
-      if (input.files && input.files[0]) {
-        compressImage(input.files[0], (dataUrl) => {
-          if (type === 'me') {
-            chosenAvatarMe = dataUrl;
-            const p = document.getElementById('me-photo-preview');
-            p.src = dataUrl;
-            p.style.display = 'block';
-            document.querySelectorAll('#my-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
-          } else {
-            chosenAvatarPartner = dataUrl;
-            const p = document.getElementById('partner-photo-preview');
-            p.src = dataUrl;
-            p.style.display = 'block';
-            document.querySelectorAll('#partner-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
-          }
-        });
-      }
     }
 
     function saveProfiles() {
@@ -2121,7 +2435,7 @@
       if (sd) sd.value = appData.couple.startDate || '';
     }
 
-    // PARTNER BOARD & WIDGET SYNC
+    // PARTNER LIVE SCREEN & SYNC
     function sendPartnerMessage() {
       const input = document.getElementById('partner-msg-input');
       const msg = input.value.trim();
@@ -2134,6 +2448,7 @@
         renderBoard();
         playHeartChimeSound();
         syncToAndroidWidget();
+        broadcastSync('couple_live', { partnerBoard: appData.partnerBoard });
       });
     }
 
@@ -2151,7 +2466,7 @@
       }
     }
 
-    // MEMBERS & STICKY NOTES
+    // MEMBERS & STICKY NOTES WITH REAL-TIME LIVE BADGE
     function openMemberModal(type) {
       activeNoteType = type;
       document.getElementById('member-modal-title').textContent = type === 'family' ? 'မိသားစုဝင် အသစ်ထည့်မည်' : 'သူငယ်ချင်း အသစ်ထည့်မည်';
@@ -2162,32 +2477,30 @@
       document.getElementById('member-modal').classList.add('active');
     }
 
-    function handleMemberPhoto(input) {
-      if (input.files && input.files[0]) {
-        compressImage(input.files[0], (dataUrl) => {
-          chosenAvatarMember = dataUrl;
-          const prev = document.getElementById('member-photo-preview');
-          prev.src = dataUrl;
-          prev.style.display = 'block';
-          document.querySelectorAll('#member-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
-        });
-      }
-    }
-
     function saveMember() {
       const name = document.getElementById('member-name-input').value.trim();
       if (!name) return;
       const m = { id: Date.now(), name, avatar: chosenAvatarMember };
-      if (activeNoteType === 'family') appData.familyMembers.push(m);
-      else appData.friendsMembers.push(m);
+      if (activeNoteType === 'family') {
+        appData.familyMembers.push(m);
+        broadcastSync('family', { familyMembers: appData.familyMembers });
+      } else {
+        appData.friendsMembers.push(m);
+        broadcastSync('friends', { friendsMembers: appData.friendsMembers });
+      }
       saveAppData();
       closeModal('member-modal');
       renderMembers();
     }
 
     function delMember(type, id) {
-      if (type === 'family') appData.familyMembers = appData.familyMembers.filter(m => m.id !== id);
-      else appData.friendsMembers = appData.friendsMembers.filter(m => m.id !== id);
+      if (type === 'family') {
+        appData.familyMembers = appData.familyMembers.filter(m => m.id !== id);
+        broadcastSync('family', { familyMembers: appData.familyMembers });
+      } else {
+        appData.friendsMembers = appData.friendsMembers.filter(m => m.id !== id);
+        broadcastSync('friends', { friendsMembers: appData.friendsMembers });
+      }
       saveAppData();
       renderMembers();
     }
@@ -2241,8 +2554,13 @@
       if (!text) return;
 
       const n = { id: Date.now(), text, date, time };
-      if (activeNoteType === 'family') appData.familyNotes.unshift(n);
-      else appData.friendsNotes.unshift(n);
+      if (activeNoteType === 'family') {
+        appData.familyNotes.unshift(n);
+        broadcastSync('family', { familyNotes: appData.familyNotes });
+      } else {
+        appData.friendsNotes.unshift(n);
+        broadcastSync('friends', { friendsNotes: appData.friendsNotes });
+      }
       playHeartChimeSound();
       saveAppData();
       closeModal('note-modal');
@@ -2250,8 +2568,13 @@
     }
 
     function delNote(type, id) {
-      if (type === 'family') appData.familyNotes = appData.familyNotes.filter(n => n.id !== id);
-      else appData.friendsNotes = appData.friendsNotes.filter(n => n.id !== id);
+      if (type === 'family') {
+        appData.familyNotes = appData.familyNotes.filter(n => n.id !== id);
+        broadcastSync('family', { familyNotes: appData.familyNotes });
+      } else {
+        appData.friendsNotes = appData.friendsNotes.filter(n => n.id !== id);
+        broadcastSync('friends', { friendsNotes: appData.friendsNotes });
+      }
       saveAppData();
       renderNotes();
     }
@@ -2261,11 +2584,15 @@
       if (fn) {
         fn.innerHTML = '';
         appData.familyNotes.forEach(n => {
+          const badge = getLiveCountdownBadge(n.date, n.time);
           fn.innerHTML += `
             <div class="sticky-note-card">
               <div class="note-header-line">
                 <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
-                <button class="note-del-btn" onclick="delNote('family', ${n.id})">&times;</button>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  ${badge}
+                  <button class="note-del-btn" onclick="delNote('family', ${n.id})">&times;</button>
+                </div>
               </div>
               <div class="note-content-text">${n.text}</div>
             </div>`;
@@ -2276,63 +2603,19 @@
       if (frn) {
         frn.innerHTML = '';
         appData.friendsNotes.forEach(n => {
+          const badge = getLiveCountdownBadge(n.date, n.time);
           frn.innerHTML += `
             <div class="sticky-note-card">
               <div class="note-header-line">
                 <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
-                <button class="note-del-btn" onclick="delNote('friends', ${n.id})">&times;</button>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  ${badge}
+                  <button class="note-del-btn" onclick="delNote('friends', ${n.id})">&times;</button>
+                </div>
               </div>
               <div class="note-content-text">${n.text}</div>
             </div>`;
         });
-      }
-    }
-
-    // ၃ ခု သီးသန့် ROOM CODES
-    function renderRoomCodes() {
-      const c = document.getElementById('code-disp-couple');
-      const f = document.getElementById('code-disp-family');
-      const fr = document.getElementById('code-disp-friends');
-      if (c) c.textContent = appData.rooms.couple;
-      if (f) f.textContent = appData.rooms.family;
-      if (fr) fr.textContent = appData.rooms.friends;
-    }
-
-    function editCustomRoomCode(type) {
-      const current = appData.rooms[type];
-      const custom = prompt(`စိတ်ကြိုက် ${type.toUpperCase()} Room Code အသစ် သတ်မှတ်ပါ:`, current);
-      if (custom && custom.trim()) {
-        appData.rooms[type] = custom.trim().toUpperCase();
-        saveAppData();
-        renderRoomCodes();
-        alert(`Room Code အသစ် ပြောင်းလဲပြီးပါပြီ: ${appData.rooms[type]}`);
-      }
-    }
-
-    function copyCode(type) {
-      const code = appData.rooms[type];
-      if (navigator.clipboard) navigator.clipboard.writeText(code);
-      alert(`${type.toUpperCase()} Code ကူးယူပြီးပါပြီ: ${code}`);
-    }
-
-    function joinRoom(type) {
-      const input = document.getElementById(`join-${type}-input`);
-      const val = input.value.trim();
-      if (val) {
-        alert(`${type.toUpperCase()} Room "${val}" သို့ အောင်မြင်စွာ Join ပြီးပါပြီ!`);
-        input.value = '';
-      } else {
-        alert('Room Code ရိုက်ထည့်ပါ!');
-      }
-    }
-
-    function clearAllData() {
-      if (confirm('Data အားလုံးကို ရှင်းလင်းပြီး Day 0 သို့ ပြန်လည်သတ်မှတ်မည်မှာ သေချာပါသလား?')) {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem(PIN_KEY);
-        } catch(e) {}
-        location.reload();
       }
     }
 
@@ -2421,10 +2704,11 @@
         saveAppData();
         renderBoard();
         playHeartChimeSound();
+        syncToAndroidWidget();
+        broadcastSync('couple_live', { partnerBoard: appData.partnerBoard });
       });
     }
 
-    // TABS & MODALS
     function switchTab(id, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
@@ -2454,6 +2738,16 @@
       if (m) m.classList.remove('active');
     }
 
+    function clearAllData() {
+      if (confirm('Data အားလုံးကို ရှင်းလင်းပြီး Day 0 သို့ ပြန်လည်သတ်မှတ်မည်မှာ သေချာပါသလား?')) {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(PIN_KEY);
+        } catch(e) {}
+        location.reload();
+      }
+    }
+
     function refreshAllUi() {
       renderProfiles();
       renderCounter();
@@ -2461,14 +2755,21 @@
       renderBoard();
       renderMembers();
       renderNotes();
-      renderRoomCodes();
+      updateRoomCardUi();
       syncToAndroidWidget();
     }
 
-    // INITIAL LOAD
+    // စက္ကန့်အလိုက် Real-time Timer Refresh လုပ်ခြင်း (Every 1 Second)
+    setInterval(() => {
+      renderCoupleNotes();
+      renderNotes();
+    }, 1000);
+
     window.onload = function() {
       checkPinStatus();
       refreshAllUi();
+      initCropperGestures();
+      initMqtt();
     };
   </script>
 </body>
