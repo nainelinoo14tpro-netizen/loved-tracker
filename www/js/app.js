@@ -1,6 +1,22 @@
 const STORAGE_KEY = 'loved_tracker_data_v2';
 const PIN_KEY = 'loved_tracker_pin';
 
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function getCurrentTimeStr() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>'"]/g, tag => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[tag] || tag));
+}
+
 const defaultState = {
   isAloneMode: false,
   couple: {
@@ -29,14 +45,14 @@ const defaultState = {
 
 let appState = loadState();
 let currentEnteredPin = '';
-let pinSetupStep = 'ENTER'; // 'CREATE', 'CONFIRM', 'ENTER'
+let pinSetupStep = 'CREATE';
 let tempFirstPin = '';
 let activeNoteTarget = 'family';
 let selectedMemberEmoji = '😊';
 let selectedMyEmoji = '🥰';
 let selectedPartnerEmoji = '😘';
 
-document.addEventListener('DOMContentLoaded', () => {
+function startApp() {
   initPinSystem();
   initNavigation();
   initAloneMode();
@@ -45,15 +61,20 @@ document.addEventListener('DOMContentLoaded', () => {
   initCanvasDrawing();
   initSettings();
   renderAll();
-});
+}
 
-// PIN Code System (New Passcode -> Confirm Passcode -> Unlock)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}
+
 function initPinSystem() {
-  const pinOverlay = document.getElementById('pin-overlay');
   checkPinStatus();
 
   document.querySelectorAll('.pin-key[data-key]').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
       if (currentEnteredPin.length < 4) {
         currentEnteredPin += btn.getAttribute('data-key');
         updatePinDots();
@@ -64,12 +85,14 @@ function initPinSystem() {
     });
   });
 
-  document.getElementById('pin-del-btn').addEventListener('click', () => {
+  document.getElementById('pin-del-btn').addEventListener('click', (e) => {
+    e.preventDefault();
     currentEnteredPin = currentEnteredPin.slice(0, -1);
     updatePinDots();
   });
 
-  document.getElementById('pin-bio-btn').addEventListener('click', () => {
+  document.getElementById('pin-bio-btn').addEventListener('click', (e) => {
+    e.preventDefault();
     if (localStorage.getItem(PIN_KEY)) {
       unlockPinScreen();
     }
@@ -95,8 +118,10 @@ function checkPinStatus() {
 }
 
 function updatePinUiText(title, subtitle) {
-  document.getElementById('pin-title').textContent = title;
-  document.getElementById('pin-subtitle').textContent = subtitle;
+  const titleEl = document.getElementById('pin-title');
+  const subEl = document.getElementById('pin-subtitle');
+  if (titleEl) titleEl.textContent = title;
+  if (subEl) subEl.textContent = subtitle;
 }
 
 function handlePinComplete() {
@@ -136,7 +161,8 @@ function handlePinComplete() {
 }
 
 function unlockPinScreen() {
-  document.getElementById('pin-overlay').classList.add('hidden');
+  const pinOverlay = document.getElementById('pin-overlay');
+  if (pinOverlay) pinOverlay.classList.add('hidden');
   currentEnteredPin = '';
   tempFirstPin = '';
   updatePinDots();
@@ -152,7 +178,6 @@ function updatePinDots() {
   }
 }
 
-// Voice Alert & Audio (TTS)
 function playVoiceAlert(text) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
@@ -172,7 +197,6 @@ document.getElementById('main-heart-btn').addEventListener('click', () => {
   setTimeout(() => { heart.style.transform = ''; }, 200);
 });
 
-// Paper Airplane Animation
 function triggerAirplane(onComplete) {
   const layer = document.getElementById('plane-animation-layer');
   layer.classList.add('animating');
@@ -182,7 +206,6 @@ function triggerAirplane(onComplete) {
   }, 1100);
 }
 
-// Alone Mode
 function initAloneMode() {
   const toggleBtn = document.getElementById('alone-mode-toggle');
   toggleBtn.addEventListener('click', () => {
@@ -217,7 +240,6 @@ function applyAloneModeUI() {
   }
 }
 
-// Couple Section
 function initCoupleSection() {
   const dateInput = document.getElementById('love-start-date');
   dateInput.value = appState.couple.startDate || '';
@@ -268,8 +290,7 @@ function initCoupleSection() {
       renderPartnerBoard();
       
       const coupleAlerts = ['I love you', 'I miss you'];
-      const randomVoice = coupleAlerts[Math.floor(Math.random() * coupleAlerts.length)];
-      playVoiceAlert(randomVoice);
+      playVoiceAlert(coupleAlerts[Math.floor(Math.random() * coupleAlerts.length)]);
     });
   });
 }
@@ -321,7 +342,6 @@ function updateCounter() {
   progressEl.style.width = `${percentage}%`;
 }
 
-// Members & Sticky Notes
 function initMembersAndNotes() {
   const noteModal = document.getElementById('note-modal');
   const memberModal = document.getElementById('member-modal');
@@ -399,7 +419,6 @@ function openMemberModal(target) {
   document.getElementById('member-modal').classList.add('active');
 }
 
-// Canvas Drawing
 function initCanvasDrawing() {
   const canvas = document.getElementById('drawing-canvas');
   const ctx = canvas.getContext('2d');
@@ -497,7 +516,6 @@ function initCanvasDrawing() {
   });
 }
 
-// Navigation & Settings
 function initNavigation() {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -528,7 +546,6 @@ function initSettings() {
   });
 }
 
-// Render Functions
 function renderAll() {
   renderProfiles();
   updateCounter();
@@ -606,7 +623,6 @@ function renderNotes() {
   const friNotes = document.getElementById('friends-notes-container');
   friNotes.innerHTML = '';
   appState.friendsNotes.forEach(n => {
-    famNotes = null;
     friNotes.innerHTML += `
       <div class="sticky-note-card">
         <div class="note-header-line">
@@ -639,7 +655,6 @@ window.deleteNote = function(type, id) {
   renderNotes();
 };
 
-// Utilities
 function loadState() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (!saved) return JSON.parse(JSON.stringify(defaultState));
@@ -652,22 +667,6 @@ function loadState() {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-}
-
-function getTodayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function getCurrentTimeStr() {
-  const d = new Date();
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-}
-
-function escapeHtml(str) {
-  return str.replace(/[&<>'"]/g, tag => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-  }[tag] || tag));
 }
 
 function setupEmojiPicker(containerId, onSelect) {
