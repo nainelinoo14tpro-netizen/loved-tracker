@@ -42,7 +42,7 @@ function compressImage(file, callback) {
       if (w > h) {
         if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
       } else {
-        if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+        if (h > maxDim) { w = Math.round((h * maxDim) / h); h = maxDim; }
       }
       const canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
@@ -55,14 +55,17 @@ function compressImage(file, callback) {
   reader.readAsDataURL(file);
 }
 
-// ------------------------------------------
-// 1. PIN LOCK LOGIC (New Passcode -> Confirm)
-// ------------------------------------------
+// PIN SYSTEM
 let currentEnteredPin = '';
 let pinSetupStep = 'CREATE';
 let tempFirstPin = '';
+let lastPinPressTime = 0;
 
-window.pressPin = function(num) {
+window.pressPin = function(num, e) {
+  if (e) {
+    if (e.type === 'click' && Date.now() - lastPinPressTime < 350) return;
+    lastPinPressTime = Date.now();
+  }
   if (currentEnteredPin.length < 4) {
     currentEnteredPin += String(num);
     safeVibrate(25);
@@ -73,23 +76,28 @@ window.pressPin = function(num) {
   }
 };
 
-window.deletePin = function() {
+window.deletePin = function(e) {
+  if (e) {
+    if (e.type === 'click' && Date.now() - lastPinPressTime < 350) return;
+    lastPinPressTime = Date.now();
+  }
   currentEnteredPin = currentEnteredPin.slice(0, -1);
   safeVibrate(25);
   updatePinDots();
 };
 
-window.bypassPin = function() {
+window.bypassPin = function(e) {
   unlockPinScreen();
 };
 
-window.resetPinSetup = function() {
-  localStorage.removeItem(PIN_KEY);
+window.resetPinSetup = function(e) {
+  try { localStorage.removeItem(PIN_KEY); } catch (e) {}
   checkPinStatus();
 };
 
 function checkPinStatus() {
-  const savedPin = localStorage.getItem(PIN_KEY);
+  let savedPin = null;
+  try { savedPin = localStorage.getItem(PIN_KEY); } catch (e) {}
   const overlay = document.getElementById('pin-overlay');
 
   if (!savedPin) {
@@ -117,14 +125,22 @@ function updatePinDots() {
   for (let i = 0; i < 4; i++) {
     const dot = document.getElementById(`dot-${i}`);
     if (dot) {
-      if (i < currentEnteredPin.length) dot.classList.add('filled');
-      else dot.classList.remove('filled');
+      if (i < currentEnteredPin.length) {
+        dot.style.background = '#ff4b8b';
+        dot.style.borderColor = '#ff4b8b';
+        dot.style.boxShadow = '0 0 12px #ff4b8b';
+      } else {
+        dot.style.background = 'transparent';
+        dot.style.borderColor = '#ff4b8b';
+        dot.style.boxShadow = 'none';
+      }
     }
   }
 }
 
 function handlePinComplete() {
-  const savedPin = localStorage.getItem(PIN_KEY);
+  let savedPin = null;
+  try { savedPin = localStorage.getItem(PIN_KEY); } catch (e) {}
 
   if (pinSetupStep === 'CREATE') {
     tempFirstPin = currentEnteredPin;
@@ -135,7 +151,7 @@ function handlePinComplete() {
   } 
   else if (pinSetupStep === 'CONFIRM') {
     if (currentEnteredPin === tempFirstPin) {
-      localStorage.setItem(PIN_KEY, currentEnteredPin);
+      try { localStorage.setItem(PIN_KEY, currentEnteredPin); } catch (e) {}
       unlockPinScreen();
     } else {
       safeVibrate([100, 50, 100]);
@@ -167,9 +183,7 @@ function unlockPinScreen() {
   updatePinDots();
 }
 
-// ------------------------------------------
-// 2. DATA STATE & STORAGE
-// ------------------------------------------
+// DATA STATE
 const defaultData = {
   isAloneMode: false,
   couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'You', partnerAvatar: '😘', startDate: '' },
@@ -208,12 +222,9 @@ function loadAppData() {
 }
 
 function saveAppData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch (e) {}
 }
 
-// ------------------------------------------
-// 3. PAPER AIRPLANE ANIMATION
-// ------------------------------------------
 function triggerPaperPlane(callback) {
   const layer = document.getElementById('plane-animation-layer');
   if (layer) {
@@ -225,9 +236,6 @@ function triggerPaperPlane(callback) {
   } else if (callback) callback();
 }
 
-// ------------------------------------------
-// 4. COUPLE & FOREVER ALONE MODE
-// ------------------------------------------
 window.tapHeart = function() {
   safeVoiceAlert('I love you');
   const h = document.getElementById('main-heart-btn');
@@ -271,9 +279,6 @@ function applyAloneModeUI() {
   }
 }
 
-// ------------------------------------------
-// 5. ACCURATE DATE CALCULATION
-// ------------------------------------------
 window.onDateChange = function(val) {
   appData.couple.startDate = val;
   saveAppData();
@@ -313,7 +318,6 @@ function renderCounter() {
   const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   daysEl.textContent = totalDays;
 
-  // နှစ်၊ လ၊ ရက် အတိအကျ တွက်ချက်ခြင်း
   let years = today.getFullYear() - start.getFullYear();
   let months = today.getMonth() - start.getMonth();
   let days = today.getDate() - start.getDate();
@@ -331,7 +335,6 @@ function renderCounter() {
 
   if (detailedEl) detailedEl.textContent = `${years} နှစ် ${months} လ ${days} ရက်`;
 
-  // Milestone တွက်ချက်ခြင်း
   let target = 100;
   while (totalDays >= target) target += 100;
   const daysLeft = target - totalDays;
@@ -342,9 +345,6 @@ function renderCounter() {
   if (progressEl) progressEl.style.width = `${percentage}%`;
 }
 
-// ------------------------------------------
-// 6. PROFILES & GALLERY PHOTO UPLOADS
-// ------------------------------------------
 window.openProfileModal = function() {
   document.getElementById('edit-my-name').value = appData.couple.meName;
   document.getElementById('edit-partner-name').value = appData.couple.partnerName;
@@ -410,9 +410,6 @@ function renderProfiles() {
   if (sd) sd.value = appData.couple.startDate || '';
 }
 
-// ------------------------------------------
-// 7. PARTNER LIVE SCREEN & SENDING
-// ------------------------------------------
 window.sendPartnerMessage = function() {
   const input = document.getElementById('partner-msg-input');
   const msg = input.value.trim();
@@ -443,9 +440,6 @@ function renderBoard() {
   }
 }
 
-// ------------------------------------------
-// 8. MEMBERS & STICKY NOTES WITH DATE/TIME
-// ------------------------------------------
 window.openMemberModal = function(type) {
   activeNoteType = type;
   document.getElementById('member-modal-title').textContent = type === 'family' ? 'မိသားစုဝင် အသစ်ထည့်မည်' : 'သူငယ်ချင်း အသစ်ထည့်မည်';
@@ -518,7 +512,6 @@ function renderMembers() {
   }
 }
 
-// Notes
 window.openNoteModal = function(type) {
   activeNoteType = type;
   document.getElementById('note-modal-title').textContent = type === 'family' ? '🏡 မိသားစု မှတ်စုအသစ် ရေးပါ' : '✨ သူငယ်ချင်း မှတ်စုအသစ် ရေးပါ';
@@ -587,9 +580,6 @@ function renderNotes() {
   }
 }
 
-// ------------------------------------------
-// 9. CODES & ROOM CONNECTION
-// ------------------------------------------
 window.copyRoomCode = function() {
   const code = document.getElementById('my-device-code').textContent;
   if (navigator.clipboard) {
@@ -611,15 +601,14 @@ window.joinRoomCode = function() {
 
 window.clearAllData = function() {
   if (confirm('Data အားလုံးကို ရှင်းလင်းပြီး Day 0 သို့ ပြန်လည်သတ်မှတ်မည်မှာ သေချာပါသလား?')) {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(PIN_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(PIN_KEY);
+    } catch(e) {}
     location.reload();
   }
 };
 
-// ------------------------------------------
-// 10. CANVAS DRAWING
-// ------------------------------------------
 let canvas, ctx, isDrawing = false, strokeColor = '#ff4b8b', canvasHistory = [];
 
 window.openCanvasModal = function() {
@@ -708,9 +697,6 @@ window.sendDrawing = function() {
   });
 };
 
-// ------------------------------------------
-// 11. GENERAL HELPERS & NAVIGATION
-// ------------------------------------------
 window.switchTab = function(id, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
@@ -740,9 +726,6 @@ window.closeModal = function(id) {
   if (m) m.classList.remove('active');
 };
 
-// ------------------------------------------
-// 12. APP INITIALIZATION
-// ------------------------------------------
 function initApp() {
   checkPinStatus();
   applyAloneModeUI();
