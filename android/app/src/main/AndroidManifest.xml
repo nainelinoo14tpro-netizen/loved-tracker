@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Permissions for Internet, Vibration, Exact Alarm & Notifications -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +18,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
@@ -37,6 +42,7 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
+        <!-- Home Screen Native Widget Receiver -->
         <receiver
             android:name=".LovedWidgetProvider"
             android:exported="true">
@@ -48,6 +54,11 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/loved_widget_info" />
         </receiver>
+
+        <!-- Scheduled Note Notification & Voice Alarm Receiver -->
+        <receiver
+            android:name=".NotificationReceiver"
+            android:exported="false" />
 
     </application>
 
