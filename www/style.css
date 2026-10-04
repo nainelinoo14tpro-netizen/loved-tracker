@@ -20,7 +20,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* စာသားများ Copy ကူးမရအောင် ပိတ်ထားမှု */
 .no-select, body {
   user-select: none !important;
   -webkit-user-select: none !important;
@@ -44,7 +43,6 @@ body.dark-love-theme {
   position: relative;
 }
 
-/* Top Nav */
 .top-nav {
   padding: 12px 18px;
   display: flex;
@@ -79,11 +77,6 @@ body.dark-love-theme {
   gap: 6px;
 }
 
-.mode-toggle-btn:active {
-  transform: scale(0.95);
-}
-
-/* Content Area */
 .content-scroll {
   flex: 1;
   overflow-y: auto;
@@ -101,7 +94,6 @@ body.dark-love-theme {
   display: flex;
 }
 
-/* Glassmorphism Cards */
 .glass-card {
   background: var(--bg-card);
   backdrop-filter: blur(16px);
@@ -112,7 +104,6 @@ body.dark-love-theme {
   position: relative;
 }
 
-/* 3:4 Aspect Ratio Profile Frames */
 .profile-box-header {
   display: flex;
   justify-content: space-between;
@@ -148,7 +139,6 @@ body.dark-love-theme {
   gap: 8px;
 }
 
-/* 3:4 Portrait Photo Frame (အဝိုင်း မဟုတ်ပါ) */
 .profile-card-34 {
   width: 96px;
   aspect-ratio: 3 / 4;
@@ -202,10 +192,6 @@ body.dark-love-theme {
   transition: transform 0.1s ease;
 }
 
-.heart-pulse-btn:active {
-  transform: scale(0.85);
-}
-
 @keyframes heartBeat {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.12); }
@@ -216,7 +202,6 @@ body.dark-love-theme {
   color: var(--pink-soft);
 }
 
-/* Counter Box */
 .counter-box {
   text-align: center;
 }
@@ -313,7 +298,6 @@ body.dark-love-theme {
   margin-top: 12px;
 }
 
-/* Live Screen Box */
 .box-header {
   display: flex;
   justify-content: space-between;
@@ -376,11 +360,6 @@ body.dark-love-theme {
   width: 100%;
 }
 
-.dark-text-input:focus {
-  border-color: var(--pink-primary);
-  box-shadow: 0 0 8px var(--pink-glow);
-}
-
 .btn-group {
   display: flex;
   gap: 8px;
@@ -398,10 +377,6 @@ body.dark-love-theme {
   justify-content: center;
   gap: 6px;
   transition: all 0.2s ease;
-}
-
-.btn:active {
-  transform: scale(0.96);
 }
 
 .btn-pink {
@@ -422,7 +397,6 @@ body.dark-love-theme {
   width: 100%;
 }
 
-/* Members List */
 .section-title-row {
   display: flex;
   justify-content: space-between;
@@ -511,16 +485,9 @@ body.dark-love-theme {
   justify-content: center;
   font-size: 22px;
   cursor: pointer;
-  transition: all 0.2s ease;
   margin-bottom: 22px;
 }
 
-.circle-add-member-btn:active {
-  transform: scale(0.92);
-  background: var(--pink-glow);
-}
-
-/* Notes Grid */
 .notes-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -577,7 +544,6 @@ body.dark-love-theme {
   cursor: pointer;
 }
 
-/* Security & Room Sync Separate Cards */
 .security-card, .sync-card {
   margin-bottom: 14px;
 }
@@ -639,7 +605,6 @@ body.dark-love-theme {
   color: #ff6685;
 }
 
-/* Bottom Navigation */
 .bottom-tab-bar {
   position: absolute;
   bottom: 0;
@@ -665,7 +630,6 @@ body.dark-love-theme {
   gap: 4px;
   font-size: 11px;
   cursor: pointer;
-  transition: all 0.2s ease;
   flex: 1;
 }
 
@@ -678,7 +642,7 @@ body.dark-love-theme {
   text-shadow: 0 0 10px var(--pink-glow);
 }
 
-/* စက္ကူလေယာဉ်ပျံ Vector Animation */
+/* Origami Paper Airplane SVG Animation */
 .plane-layer {
   position: fixed;
   inset: 0;
@@ -691,17 +655,17 @@ body.dark-love-theme {
   display: block;
 }
 
-.paper-plane-icon {
+.paper-plane-svg {
   position: absolute;
   bottom: 25%;
   left: 15%;
-  font-size: 42px;
-  color: #ffffff;
+  width: 50px;
+  height: 50px;
   filter: drop-shadow(0 0 12px var(--pink-primary));
   opacity: 0;
 }
 
-.plane-layer.animating .paper-plane-icon {
+.plane-layer.animating .paper-plane-svg {
   animation: flyPaperPlane 1.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
@@ -712,12 +676,8 @@ body.dark-love-theme {
     transform: scale(0.6) rotate(-15deg);
     opacity: 0;
   }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
   100% {
     bottom: 85%;
     left: 85%;
@@ -726,7 +686,7 @@ body.dark-love-theme {
   }
 }
 
-/* PIN Screen Overlay */
+/* PIN Screen */
 .pin-overlay {
   position: fixed;
   inset: 0;
@@ -739,7 +699,7 @@ body.dark-love-theme {
 }
 
 .pin-overlay.hidden {
-  display: none;
+  display: none !important;
 }
 
 .pin-card {
@@ -753,7 +713,6 @@ body.dark-love-theme {
 .pin-heart-icon {
   font-size: 40px;
   margin-bottom: 10px;
-  animation: heartBeat 1.8s infinite ease-in-out;
   cursor: pointer;
 }
 
@@ -782,12 +741,7 @@ body.dark-love-theme {
   border-radius: 50%;
   border: 1.5px solid var(--pink-primary);
   background: transparent;
-  transition: all 0.2s ease;
-}
-
-.dot.filled {
-  background: var(--pink-primary);
-  box-shadow: 0 0 12px var(--pink-primary);
+  transition: all 0.15s ease;
 }
 
 .pin-keypad {
@@ -809,11 +763,11 @@ body.dark-love-theme {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  touch-action: manipulation;
 }
 
 .pin-key:active {
-  background: var(--pink-glow);
+  background: var(--pink-glow) !important;
   transform: scale(0.92);
 }
 
@@ -822,7 +776,6 @@ body.dark-love-theme {
   color: var(--text-muted);
 }
 
-/* Modals */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -846,7 +799,6 @@ body.dark-love-theme {
   width: 100%;
   max-width: 340px;
   padding: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -900,7 +852,6 @@ body.dark-love-theme {
   flex: 1;
 }
 
-/* Canvas Modal */
 .modal-header-row {
   display: flex;
   justify-content: space-between;
@@ -961,7 +912,6 @@ canvas {
   cursor: pointer;
 }
 
-/* Photo Upload & Preview */
 .photo-upload-section {
   display: flex;
   flex-direction: column;
@@ -994,7 +944,6 @@ canvas {
   margin: 0 auto;
 }
 
-/* Emoji Pickers */
 .emoji-picker-grid {
   display: flex;
   justify-content: space-between;
@@ -1015,9 +964,7 @@ canvas {
   border: 1px solid var(--pink-primary);
 }
 
-/* =======================================
-   FOREVER ALONE MODE SPECIFIC STYLES
-   ======================================= */
+/* Alone Mode */
 body.alone-mode #col-partner,
 body.alone-mode #col-heart,
 body.alone-mode #room-sync-card,
