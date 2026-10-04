@@ -52,52 +52,34 @@ let selectedMemberEmoji = '😊';
 let selectedMyEmoji = '🥰';
 let selectedPartnerEmoji = '😘';
 
-function startApp() {
-  initPinSystem();
-  initNavigation();
-  initAloneMode();
-  initCoupleSection();
-  initMembersAndNotes();
-  initCanvasDrawing();
-  initSettings();
-  renderAll();
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', startApp);
-} else {
-  startApp();
-}
-
-function initPinSystem() {
-  checkPinStatus();
-
-  document.querySelectorAll('.pin-key[data-key]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (currentEnteredPin.length < 4) {
-        currentEnteredPin += btn.getAttribute('data-key');
-        updatePinDots();
-        if (currentEnteredPin.length === 4) {
-          setTimeout(handlePinComplete, 150);
-        }
-      }
-    });
-  });
-
-  document.getElementById('pin-del-btn').addEventListener('click', (e) => {
-    e.preventDefault();
-    currentEnteredPin = currentEnteredPin.slice(0, -1);
+// ------------------------------------------
+// PIN LOCK FUNCTIONS (GLOBAL)
+// ------------------------------------------
+window.pressPin = function(num) {
+  if (currentEnteredPin.length < 4) {
+    currentEnteredPin += String(num);
+    if (navigator.vibrate) navigator.vibrate(25);
     updatePinDots();
-  });
-
-  document.getElementById('pin-bio-btn').addEventListener('click', (e) => {
-    e.preventDefault();
-    if (localStorage.getItem(PIN_KEY)) {
-      unlockPinScreen();
+    if (currentEnteredPin.length === 4) {
+      setTimeout(handlePinComplete, 150);
     }
-  });
-}
+  }
+};
+
+window.deletePin = function() {
+  currentEnteredPin = currentEnteredPin.slice(0, -1);
+  if (navigator.vibrate) navigator.vibrate(25);
+  updatePinDots();
+};
+
+window.bypassPin = function() {
+  unlockPinScreen();
+};
+
+window.resetPinSetup = function() {
+  localStorage.removeItem(PIN_KEY);
+  checkPinStatus();
+};
 
 function checkPinStatus() {
   const savedPin = localStorage.getItem(PIN_KEY);
@@ -114,14 +96,24 @@ function checkPinStatus() {
   currentEnteredPin = '';
   tempFirstPin = '';
   updatePinDots();
-  pinOverlay.classList.remove('hidden');
+  if (pinOverlay) pinOverlay.classList.remove('hidden');
 }
 
 function updatePinUiText(title, subtitle) {
-  const titleEl = document.getElementById('pin-title');
-  const subEl = document.getElementById('pin-subtitle');
-  if (titleEl) titleEl.textContent = title;
-  if (subEl) subEl.textContent = subtitle;
+  const t = document.getElementById('pin-title');
+  const s = document.getElementById('pin-subtitle');
+  if (t) t.textContent = title;
+  if (s) s.textContent = subtitle;
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    if (dot) {
+      if (i < currentEnteredPin.length) dot.classList.add('filled');
+      else dot.classList.remove('filled');
+    }
+  }
 }
 
 function handlePinComplete() {
@@ -161,23 +153,16 @@ function handlePinComplete() {
 }
 
 function unlockPinScreen() {
-  const pinOverlay = document.getElementById('pin-overlay');
-  if (pinOverlay) pinOverlay.classList.add('hidden');
+  const overlay = document.getElementById('pin-overlay');
+  if (overlay) overlay.classList.add('hidden');
   currentEnteredPin = '';
   tempFirstPin = '';
   updatePinDots();
 }
 
-function updatePinDots() {
-  for (let i = 0; i < 4; i++) {
-    const dot = document.getElementById(`dot-${i}`);
-    if (dot) {
-      if (i < currentEnteredPin.length) dot.classList.add('filled');
-      else dot.classList.remove('filled');
-    }
-  }
-}
-
+// ------------------------------------------
+// AUDIO & TTS
+// ------------------------------------------
 function playVoiceAlert(text) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
@@ -190,29 +175,52 @@ function playVoiceAlert(text) {
   if (navigator.vibrate) navigator.vibrate(80);
 }
 
-document.getElementById('main-heart-btn').addEventListener('click', () => {
-  playVoiceAlert('I love you');
-  const heart = document.getElementById('main-heart-btn');
-  heart.style.transform = 'scale(1.25)';
-  setTimeout(() => { heart.style.transform = ''; }, 200);
-});
-
+// ------------------------------------------
+// AIRPLANE ANIMATION
+// ------------------------------------------
 function triggerAirplane(onComplete) {
   const layer = document.getElementById('plane-animation-layer');
-  layer.classList.add('animating');
-  setTimeout(() => {
-    layer.classList.remove('animating');
-    if (onComplete) onComplete();
-  }, 1100);
+  if (layer) {
+    layer.classList.add('animating');
+    setTimeout(() => {
+      layer.classList.remove('animating');
+      if (onComplete) onComplete();
+    }, 1100);
+  } else if (onComplete) {
+    onComplete();
+  }
 }
 
+// ------------------------------------------
+// INITIALIZE APPLICATION
+// ------------------------------------------
+function startApp() {
+  checkPinStatus();
+  initNavigation();
+  initAloneMode();
+  initCoupleSection();
+  initMembersAndNotes();
+  initCanvasDrawing();
+  initSettings();
+  renderAll();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}
+
+// Alone Mode
 function initAloneMode() {
   const toggleBtn = document.getElementById('alone-mode-toggle');
-  toggleBtn.addEventListener('click', () => {
-    appState.isAloneMode = !appState.isAloneMode;
-    saveState();
-    applyAloneModeUI();
-  });
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      appState.isAloneMode = !appState.isAloneMode;
+      saveState();
+      applyAloneModeUI();
+    });
+  }
   applyAloneModeUI();
 }
 
@@ -222,77 +230,101 @@ function applyAloneModeUI() {
   const modeText = document.getElementById('mode-text');
   const modeIcon = document.getElementById('mode-icon');
   const counterTitle = document.getElementById('counter-title');
+  const liveTitle = document.getElementById('live-screen-title');
 
   if (isAlone) {
     document.body.classList.add('alone-mode');
-    toggleLabel.textContent = 'Couple Mode သို့ပြောင်းရန်';
-    modeText.textContent = 'Alone Mode (Solo Journey)';
-    modeIcon.textContent = '🪐';
-    counterTitle.textContent = 'ကိုယ်တိုင်နှင့်အတူ ဖြတ်သန်းခဲ့သောရက်များ';
-    document.getElementById('live-screen-title').textContent = 'My Personal Notepad';
+    if (toggleLabel) toggleLabel.textContent = 'Couple Mode သို့ပြောင်းရန်';
+    if (modeText) modeText.textContent = 'Alone Mode (Solo Journey)';
+    if (modeIcon) modeIcon.textContent = '🪐';
+    if (counterTitle) counterTitle.textContent = 'ကိုယ်တိုင်နှင့်အတူ ဖြတ်သန်းခဲ့သောရက်များ';
+    if (liveTitle) liveTitle.textContent = 'My Personal Notepad';
   } else {
     document.body.classList.remove('alone-mode');
-    toggleLabel.textContent = 'Alone Mode ပြောင်းရန်';
-    modeText.textContent = 'Couple Mode';
-    modeIcon.textContent = '💖';
-    counterTitle.textContent = 'တို့နှစ်ယောက် ချစ်သက်တမ်း';
-    document.getElementById('live-screen-title').textContent = 'Partner Live Screen';
+    if (toggleLabel) toggleLabel.textContent = 'Alone Mode ပြောင်းရန်';
+    if (modeText) modeText.textContent = 'Couple Mode';
+    if (modeIcon) modeIcon.textContent = '💖';
+    if (counterTitle) counterTitle.textContent = 'တို့နှစ်ယောက် ချစ်သက်တမ်း';
+    if (liveTitle) liveTitle.textContent = 'Partner Live Screen';
   }
 }
 
+// Couple Section
 function initCoupleSection() {
+  const heartBtn = document.getElementById('main-heart-btn');
+  if (heartBtn) {
+    heartBtn.addEventListener('click', () => {
+      playVoiceAlert('I love you');
+      heartBtn.style.transform = 'scale(1.25)';
+      setTimeout(() => { heartBtn.style.transform = ''; }, 200);
+    });
+  }
+
   const dateInput = document.getElementById('love-start-date');
-  dateInput.value = appState.couple.startDate || '';
-  
-  dateInput.addEventListener('change', (e) => {
-    appState.couple.startDate = e.target.value;
-    saveState();
-    updateCounter();
-  });
+  if (dateInput) {
+    dateInput.value = appState.couple.startDate || '';
+    dateInput.addEventListener('change', (e) => {
+      appState.couple.startDate = e.target.value;
+      saveState();
+      updateCounter();
+    });
+  }
 
   const editModal = document.getElementById('profile-edit-modal');
-  document.getElementById('edit-profiles-btn').addEventListener('click', () => {
-    document.getElementById('edit-my-name').value = appState.couple.meName;
-    document.getElementById('edit-partner-name').value = appState.couple.partnerName;
-    selectedMyEmoji = appState.couple.meEmoji;
-    selectedPartnerEmoji = appState.couple.partnerEmoji;
-    highlightEmojiSelection('my-emoji-options', selectedMyEmoji);
-    highlightEmojiSelection('partner-emoji-options', selectedPartnerEmoji);
-    editModal.classList.add('active');
-  });
+  const editBtn = document.getElementById('edit-profiles-btn');
+  if (editBtn && editModal) {
+    editBtn.addEventListener('click', () => {
+      document.getElementById('edit-my-name').value = appState.couple.meName;
+      document.getElementById('edit-partner-name').value = appState.couple.partnerName;
+      selectedMyEmoji = appState.couple.meEmoji;
+      selectedPartnerEmoji = appState.couple.partnerEmoji;
+      highlightEmojiSelection('my-emoji-options', selectedMyEmoji);
+      highlightEmojiSelection('partner-emoji-options', selectedPartnerEmoji);
+      editModal.classList.add('active');
+    });
+  }
 
   setupEmojiPicker('my-emoji-options', (emoji) => { selectedMyEmoji = emoji; });
   setupEmojiPicker('partner-emoji-options', (emoji) => { selectedPartnerEmoji = emoji; });
 
-  document.getElementById('close-profile-modal-btn').addEventListener('click', () => {
-    editModal.classList.remove('active');
-  });
-
-  document.getElementById('save-profiles-btn').addEventListener('click', () => {
-    appState.couple.meName = document.getElementById('edit-my-name').value.trim() || 'Me';
-    appState.couple.partnerName = document.getElementById('edit-partner-name').value.trim() || 'You';
-    appState.couple.meEmoji = selectedMyEmoji;
-    appState.couple.partnerEmoji = selectedPartnerEmoji;
-    saveState();
-    editModal.classList.remove('active');
-    renderProfiles();
-  });
-
-  document.getElementById('send-msg-btn').addEventListener('click', () => {
-    const textInput = document.getElementById('partner-msg-input');
-    const msg = textInput.value.trim();
-    if (!msg) return;
-
-    triggerAirplane(() => {
-      appState.partnerBoard = { type: 'text', content: msg };
-      saveState();
-      textInput.value = '';
-      renderPartnerBoard();
-      
-      const coupleAlerts = ['I love you', 'I miss you'];
-      playVoiceAlert(coupleAlerts[Math.floor(Math.random() * coupleAlerts.length)]);
+  const closeProfileBtn = document.getElementById('close-profile-modal-btn');
+  if (closeProfileBtn && editModal) {
+    closeProfileBtn.addEventListener('click', () => {
+      editModal.classList.remove('active');
     });
-  });
+  }
+
+  const saveProfileBtn = document.getElementById('save-profiles-btn');
+  if (saveProfileBtn && editModal) {
+    saveProfileBtn.addEventListener('click', () => {
+      appState.couple.meName = document.getElementById('edit-my-name').value.trim() || 'Me';
+      appState.couple.partnerName = document.getElementById('edit-partner-name').value.trim() || 'You';
+      appState.couple.meEmoji = selectedMyEmoji;
+      appState.couple.partnerEmoji = selectedPartnerEmoji;
+      saveState();
+      editModal.classList.remove('active');
+      renderProfiles();
+    });
+  }
+
+  const sendMsgBtn = document.getElementById('send-msg-btn');
+  if (sendMsgBtn) {
+    sendMsgBtn.addEventListener('click', () => {
+      const textInput = document.getElementById('partner-msg-input');
+      const msg = textInput.value.trim();
+      if (!msg) return;
+
+      triggerAirplane(() => {
+        appState.partnerBoard = { type: 'text', content: msg };
+        saveState();
+        textInput.value = '';
+        renderPartnerBoard();
+
+        const coupleAlerts = ['I love you', 'I miss you'];
+        playVoiceAlert(coupleAlerts[Math.floor(Math.random() * coupleAlerts.length)]);
+      });
+    });
+  }
 }
 
 function updateCounter() {
@@ -302,12 +334,14 @@ function updateCounter() {
   const milestoneDaysLeft = document.getElementById('milestone-days-left');
   const milestoneTitle = document.getElementById('next-milestone-title');
 
+  if (!daysEl) return;
+
   if (!appState.couple.startDate) {
     daysEl.textContent = '0';
-    detailedEl.textContent = '0 နှစ် 0 လ 0 ရက်';
-    progressEl.style.width = '0%';
-    milestoneTitle.textContent = 'ရက် ၁၀၀ ပြည့်ဖို့';
-    milestoneDaysLeft.textContent = '၁၀၀ ရက်လို';
+    if (detailedEl) detailedEl.textContent = '0 နှစ် 0 လ 0 ရက်';
+    if (progressEl) progressEl.style.width = '0%';
+    if (milestoneTitle) milestoneTitle.textContent = 'ရက် ၁၀၀ ပြည့်ဖို့';
+    if (milestoneDaysLeft) milestoneDaysLeft.textContent = '၁၀၀ ရက်လို';
     return;
   }
 
@@ -330,97 +364,121 @@ function updateCounter() {
     years--;
     months += 12;
   }
-  detailedEl.textContent = `${Math.max(0, years)} နှစ် ${Math.max(0, months)} လ ${Math.max(0, remainingDays)} ရက်`;
+  if (detailedEl) {
+    detailedEl.textContent = `${Math.max(0, years)} နှစ် ${Math.max(0, months)} လ ${Math.max(0, remainingDays)} ရက်`;
+  }
 
   let target = 100;
   while (days >= target) target += 100;
   const daysLeft = target - days;
   const percentage = Math.min(100, ((days % 100) / 100) * 100);
 
-  milestoneTitle.textContent = `ရက် ${target} ပြည့်ဖို့`;
-  milestoneDaysLeft.textContent = `${daysLeft} ရက်လို`;
-  progressEl.style.width = `${percentage}%`;
+  if (milestoneTitle) milestoneTitle.textContent = `ရက် ${target} ပြည့်ဖို့`;
+  if (milestoneDaysLeft) milestoneDaysLeft.textContent = `${daysLeft} ရက်လို`;
+  if (progressEl) progressEl.style.width = `${percentage}%`;
 }
 
+// Members & Notes
 function initMembersAndNotes() {
   const noteModal = document.getElementById('note-modal');
   const memberModal = document.getElementById('member-modal');
 
-  document.getElementById('add-family-note-btn').addEventListener('click', () => {
-    activeNoteTarget = 'family';
-    openNoteModal('🏡 မိသားစု မှတ်စုအသစ် ရေးပါ');
-  });
+  const addFamNote = document.getElementById('add-family-note-btn');
+  if (addFamNote) {
+    addFamNote.addEventListener('click', () => {
+      activeNoteTarget = 'family';
+      openNoteModal('🏡 မိသားစု မှတ်စုအသစ် ရေးပါ');
+    });
+  }
 
-  document.getElementById('add-friends-note-btn').addEventListener('click', () => {
-    activeNoteTarget = 'friends';
-    openNoteModal('✨ သူငယ်ချင်း မှတ်စုအသစ် ရေးပါ');
-  });
+  const addFriNote = document.getElementById('add-friends-note-btn');
+  if (addFriNote) {
+    addFriNote.addEventListener('click', () => {
+      activeNoteTarget = 'friends';
+      openNoteModal('✨ သူငယ်ချင်း မှတ်စုအသစ် ရေးပါ');
+    });
+  }
 
   function openNoteModal(title) {
     document.getElementById('note-modal-title').textContent = title;
     document.getElementById('note-text-input').value = '';
     document.getElementById('note-date-input').value = getTodayStr();
     document.getElementById('note-time-input').value = getCurrentTimeStr();
-    noteModal.classList.add('active');
+    if (noteModal) noteModal.classList.add('active');
   }
 
-  document.getElementById('close-note-modal-btn').addEventListener('click', () => {
-    noteModal.classList.remove('active');
-  });
+  const closeNoteBtn = document.getElementById('close-note-modal-btn');
+  if (closeNoteBtn && noteModal) {
+    closeNoteBtn.addEventListener('click', () => {
+      noteModal.classList.remove('active');
+    });
+  }
 
-  document.getElementById('save-note-btn').addEventListener('click', () => {
-    const text = document.getElementById('note-text-input').value.trim();
-    const date = document.getElementById('note-date-input').value || getTodayStr();
-    const time = document.getElementById('note-time-input').value || getCurrentTimeStr();
+  const saveNoteBtn = document.getElementById('save-note-btn');
+  if (saveNoteBtn && noteModal) {
+    saveNoteBtn.addEventListener('click', () => {
+      const text = document.getElementById('note-text-input').value.trim();
+      const date = document.getElementById('note-date-input').value || getTodayStr();
+      const time = document.getElementById('note-time-input').value || getCurrentTimeStr();
 
-    if (!text) return;
+      if (!text) return;
 
-    const newNote = { id: Date.now(), text, date, time };
-    if (activeNoteTarget === 'family') {
-      appState.familyNotes.unshift(newNote);
-      playVoiceAlert('Hello');
-    } else {
-      appState.friendsNotes.unshift(newNote);
-      playVoiceAlert('Hey guys');
-    }
+      const newNote = { id: Date.now(), text, date, time };
+      if (activeNoteTarget === 'family') {
+        appState.familyNotes.unshift(newNote);
+        playVoiceAlert('Hello');
+      } else {
+        appState.friendsNotes.unshift(newNote);
+        playVoiceAlert('Hey guys');
+      }
 
-    saveState();
-    noteModal.classList.remove('active');
-    renderNotes();
-  });
+      saveState();
+      noteModal.classList.remove('active');
+      renderNotes();
+    });
+  }
 
   setupEmojiPicker('member-emoji-options', (emoji) => { selectedMemberEmoji = emoji; });
 
-  document.getElementById('close-member-modal-btn').addEventListener('click', () => {
-    memberModal.classList.remove('active');
-  });
+  const closeMemberBtn = document.getElementById('close-member-modal-btn');
+  if (closeMemberBtn && memberModal) {
+    closeMemberBtn.addEventListener('click', () => {
+      memberModal.classList.remove('active');
+    });
+  }
 
-  document.getElementById('save-member-btn').addEventListener('click', () => {
-    const name = document.getElementById('member-name-input').value.trim();
-    if (!name) return;
+  const saveMemberBtn = document.getElementById('save-member-btn');
+  if (saveMemberBtn && memberModal) {
+    saveMemberBtn.addEventListener('click', () => {
+      const name = document.getElementById('member-name-input').value.trim();
+      if (!name) return;
 
-    const newMember = { id: Date.now(), name, emoji: selectedMemberEmoji };
-    if (activeNoteTarget === 'family') {
-      appState.familyMembers.push(newMember);
-    } else {
-      appState.friendsMembers.push(newMember);
-    }
+      const newMember = { id: Date.now(), name, emoji: selectedMemberEmoji };
+      if (activeNoteTarget === 'family') {
+        appState.familyMembers.push(newMember);
+      } else {
+        appState.friendsMembers.push(newMember);
+      }
 
-    saveState();
-    memberModal.classList.remove('active');
-    renderMembers();
-  });
+      saveState();
+      memberModal.classList.remove('active');
+      renderMembers();
+    });
+  }
 }
 
-function openMemberModal(target) {
+window.openMemberModal = function(target) {
   activeNoteTarget = target;
   document.getElementById('member-name-input').value = '';
   document.getElementById('member-modal-title').textContent = target === 'family' ? 'မိသားစုဝင် အသစ်ထည့်မည်' : 'သူငယ်ချင်း အသစ်ထည့်မည်';
-  document.getElementById('member-modal').classList.add('active');
-}
+  const memberModal = document.getElementById('member-modal');
+  if (memberModal) memberModal.classList.add('active');
+};
 
+// Canvas Drawing
 function initCanvasDrawing() {
   const canvas = document.getElementById('drawing-canvas');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const canvasModal = document.getElementById('canvas-modal');
   let isDrawing = false;
@@ -431,14 +489,20 @@ function initCanvasDrawing() {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  document.getElementById('open-canvas-btn').addEventListener('click', () => {
-    canvasModal.classList.add('active');
-    saveCanvasState();
-  });
+  const openCanvasBtn = document.getElementById('open-canvas-btn');
+  if (openCanvasBtn && canvasModal) {
+    openCanvasBtn.addEventListener('click', () => {
+      canvasModal.classList.add('active');
+      saveCanvasState();
+    });
+  }
 
-  document.getElementById('close-canvas-modal-btn').addEventListener('click', () => {
-    canvasModal.classList.remove('active');
-  });
+  const closeCanvasBtn = document.getElementById('close-canvas-modal-btn');
+  if (closeCanvasBtn && canvasModal) {
+    closeCanvasBtn.addEventListener('click', () => {
+      canvasModal.classList.remove('active');
+    });
+  }
 
   document.querySelectorAll('.color-dot').forEach(dot => {
     dot.addEventListener('click', () => {
@@ -452,17 +516,23 @@ function initCanvasDrawing() {
     historyStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
   }
 
-  document.getElementById('canvas-undo-btn').addEventListener('click', () => {
-    if (historyStack.length > 1) {
-      historyStack.pop();
-      ctx.putImageData(historyStack[historyStack.length - 1], 0, 0);
-    }
-  });
+  const undoBtn = document.getElementById('canvas-undo-btn');
+  if (undoBtn) {
+    undoBtn.addEventListener('click', () => {
+      if (historyStack.length > 1) {
+        historyStack.pop();
+        ctx.putImageData(historyStack[historyStack.length - 1], 0, 0);
+      }
+    });
+  }
 
-  document.getElementById('canvas-clear-btn').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    saveCanvasState();
-  });
+  const clearBtn = document.getElementById('canvas-clear-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      saveCanvasState();
+    });
+  }
 
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
@@ -501,21 +571,25 @@ function initCanvasDrawing() {
   canvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawMove(e); });
   canvas.addEventListener('touchend', stopDraw);
 
-  document.getElementById('send-drawing-btn').addEventListener('click', () => {
-    const dataUrl = canvas.toDataURL();
-    canvasModal.classList.remove('active');
+  const sendDrawingBtn = document.getElementById('send-drawing-btn');
+  if (sendDrawingBtn && canvasModal) {
+    sendDrawingBtn.addEventListener('click', () => {
+      const dataUrl = canvas.toDataURL();
+      canvasModal.classList.remove('active');
 
-    triggerAirplane(() => {
-      appState.partnerBoard = { type: 'image', content: dataUrl };
-      saveState();
-      renderPartnerBoard();
-      
-      const coupleAlerts = ['I love you', 'I miss you'];
-      playVoiceAlert(coupleAlerts[Math.floor(Math.random() * coupleAlerts.length)]);
+      triggerAirplane(() => {
+        appState.partnerBoard = { type: 'image', content: dataUrl };
+        saveState();
+        renderPartnerBoard();
+
+        const coupleAlerts = ['I love you', 'I miss you'];
+        playVoiceAlert(coupleAlerts[Math.floor(Math.random() * coupleAlerts.length)]);
+      });
     });
-  });
+  }
 }
 
+// Navigation & Settings
 function initNavigation() {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -524,28 +598,36 @@ function initNavigation() {
 
       btn.classList.add('active');
       const targetTab = btn.getAttribute('data-tab');
-      document.getElementById(targetTab).classList.add('active');
+      const targetEl = document.getElementById(targetTab);
+      if (targetEl) targetEl.classList.add('active');
     });
   });
 }
 
 function initSettings() {
-  document.getElementById('clear-all-data-btn').addEventListener('click', () => {
-    if (confirm('Data အားလုံးကို ရှင်းလင်းပြီး Day 0 သို့ ပြန်လည်သတ်မှတ်မည်မှာ သေချာပါသလား?')) {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(PIN_KEY);
-      appState = JSON.parse(JSON.stringify(defaultState));
-      saveState();
-      location.reload();
-    }
-  });
+  const clearBtn = document.getElementById('clear-all-data-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (confirm('Data အားလုံးကို ရှင်းလင်းပြီး Day 0 သို့ ပြန်လည်သတ်မှတ်မည်မှာ သေချာပါသလား?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(PIN_KEY);
+        appState = JSON.parse(JSON.stringify(defaultState));
+        saveState();
+        location.reload();
+      }
+    });
+  }
 
-  document.getElementById('change-pin-btn').addEventListener('click', () => {
-    localStorage.removeItem(PIN_KEY);
-    checkPinStatus();
-  });
+  const changePinBtn = document.getElementById('change-pin-btn');
+  if (changePinBtn) {
+    changePinBtn.addEventListener('click', () => {
+      localStorage.removeItem(PIN_KEY);
+      checkPinStatus();
+    });
+  }
 }
 
+// Render Functions
 function renderAll() {
   renderProfiles();
   updateCounter();
@@ -555,14 +637,19 @@ function renderAll() {
 }
 
 function renderProfiles() {
-  document.getElementById('name-me').textContent = appState.couple.meName;
-  document.getElementById('avatar-me').textContent = appState.couple.meEmoji;
-  document.getElementById('name-partner').textContent = appState.couple.partnerName;
-  document.getElementById('avatar-partner').textContent = appState.couple.partnerEmoji;
+  const nm = document.getElementById('name-me');
+  const am = document.getElementById('avatar-me');
+  const np = document.getElementById('name-partner');
+  const ap = document.getElementById('avatar-partner');
+  if (nm) nm.textContent = appState.couple.meName;
+  if (am) am.textContent = appState.couple.meEmoji;
+  if (np) np.textContent = appState.couple.partnerName;
+  if (ap) ap.textContent = appState.couple.partnerEmoji;
 }
 
 function renderPartnerBoard() {
   const display = document.getElementById('partner-board-display');
+  if (!display) return;
   if (!appState.partnerBoard) {
     display.innerHTML = `<p class="placeholder-text" id="board-empty-text">ချစ်သူဆီက စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>`;
     return;
@@ -577,62 +664,72 @@ function renderPartnerBoard() {
 
 function renderMembers() {
   const famContainer = document.getElementById('family-members-container');
-  famContainer.innerHTML = '';
-  appState.familyMembers.forEach(m => {
-    famContainer.innerHTML += `
-      <div class="member-item">
-        <button class="member-del-btn" onclick="deleteMember('family', ${m.id})">&times;</button>
-        <div class="member-bubble">${m.emoji}</div>
-        <span class="member-title">${escapeHtml(m.name)}</span>
-      </div>
-    `;
-  });
-  famContainer.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('family')">+</div>`;
-  document.getElementById('family-count-tag').textContent = `${appState.familyMembers.length} ယောက်`;
+  if (famContainer) {
+    famContainer.innerHTML = '';
+    appState.familyMembers.forEach(m => {
+      famContainer.innerHTML += `
+        <div class="member-item">
+          <button class="member-del-btn" onclick="deleteMember('family', ${m.id})">&times;</button>
+          <div class="member-bubble">${m.emoji}</div>
+          <span class="member-title">${escapeHtml(m.name)}</span>
+        </div>
+      `;
+    });
+    famContainer.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('family')">+</div>`;
+    const fTag = document.getElementById('family-count-tag');
+    if (fTag) fTag.textContent = `${appState.familyMembers.length} ယောက်`;
+  }
 
   const friContainer = document.getElementById('friends-members-container');
-  friContainer.innerHTML = '';
-  appState.friendsMembers.forEach(m => {
-    friContainer.innerHTML += `
-      <div class="member-item">
-        <button class="member-del-btn" onclick="deleteMember('friends', ${m.id})">&times;</button>
-        <div class="member-bubble">${m.emoji}</div>
-        <span class="member-title">${escapeHtml(m.name)}</span>
-      </div>
-    `;
-  });
-  friContainer.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('friends')">+</div>`;
-  document.getElementById('friends-count-tag').textContent = `${appState.friendsMembers.length} ယောက်`;
+  if (friContainer) {
+    friContainer.innerHTML = '';
+    appState.friendsMembers.forEach(m => {
+      friContainer.innerHTML += `
+        <div class="member-item">
+          <button class="member-del-btn" onclick="deleteMember('friends', ${m.id})">&times;</button>
+          <div class="member-bubble">${m.emoji}</div>
+          <span class="member-title">${escapeHtml(m.name)}</span>
+        </div>
+      `;
+    });
+    friContainer.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('friends')">+</div>`;
+    const frTag = document.getElementById('friends-count-tag');
+    if (frTag) frTag.textContent = `${appState.friendsMembers.length} ယောက်`;
+  }
 }
 
 function renderNotes() {
   const famNotes = document.getElementById('family-notes-container');
-  famNotes.innerHTML = '';
-  appState.familyNotes.forEach(n => {
-    famNotes.innerHTML += `
-      <div class="sticky-note-card">
-        <div class="note-header-line">
-          <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
-          <button class="note-del-btn" onclick="deleteNote('family', ${n.id})">&times;</button>
+  if (famNotes) {
+    famNotes.innerHTML = '';
+    appState.familyNotes.forEach(n => {
+      famNotes.innerHTML += `
+        <div class="sticky-note-card">
+          <div class="note-header-line">
+            <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
+            <button class="note-del-btn" onclick="deleteNote('family', ${n.id})">&times;</button>
+          </div>
+          <div class="note-content-text">${escapeHtml(n.text)}</div>
         </div>
-        <div class="note-content-text">${escapeHtml(n.text)}</div>
-      </div>
-    `;
-  });
+      `;
+    });
+  }
 
   const friNotes = document.getElementById('friends-notes-container');
-  friNotes.innerHTML = '';
-  appState.friendsNotes.forEach(n => {
-    friNotes.innerHTML += `
-      <div class="sticky-note-card">
-        <div class="note-header-line">
-          <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
-          <button class="note-del-btn" onclick="deleteNote('friends', ${n.id})">&times;</button>
+  if (friNotes) {
+    friNotes.innerHTML = '';
+    appState.friendsNotes.forEach(n => {
+      friNotes.innerHTML += `
+        <div class="sticky-note-card">
+          <div class="note-header-line">
+            <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
+            <button class="note-del-btn" onclick="deleteNote('friends', ${n.id})">&times;</button>
+          </div>
+          <div class="note-content-text">${escapeHtml(n.text)}</div>
         </div>
-        <div class="note-content-text">${escapeHtml(n.text)}</div>
-      </div>
-    `;
-  });
+      `;
+    });
+  }
 }
 
 window.deleteMember = function(type, id) {
@@ -671,6 +768,7 @@ function saveState() {
 
 function setupEmojiPicker(containerId, onSelect) {
   const container = document.getElementById(containerId);
+  if (!container) return;
   container.querySelectorAll('.emoji-option').forEach(opt => {
     opt.addEventListener('click', () => {
       container.querySelectorAll('.emoji-option').forEach(o => o.classList.remove('selected'));
@@ -682,6 +780,7 @@ function setupEmojiPicker(containerId, onSelect) {
 
 function highlightEmojiSelection(containerId, currentEmoji) {
   const container = document.getElementById(containerId);
+  if (!container) return;
   container.querySelectorAll('.emoji-option').forEach(opt => {
     if (opt.textContent.trim() === currentEmoji) opt.classList.add('selected');
     else opt.classList.remove('selected');
