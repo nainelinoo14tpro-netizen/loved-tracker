@@ -1,6 +1,6 @@
 {
   "appId": "com.lovedones.tracker",
-  "appName": "LovedOnes",
+  "appName": "Loved Tracker",
   "webDir": "www",
   "bundledWebRuntime": false,
   "server": {
