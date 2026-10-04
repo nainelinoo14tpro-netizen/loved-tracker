@@ -23,7 +23,6 @@ public class LovedWidgetProvider extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
 
-        // App ထဲမှ Broadcast ပို့လိုက်ပါက ချက်ချင်း လက်ခံ Update လုပ်ခြင်း
         if ("com.lovedones.tracker.UPDATE_WIDGET".equals(intent.getAction())) {
             if (intent.hasExtra("start_date")) {
                 String d = intent.getStringExtra("start_date");
@@ -32,6 +31,10 @@ public class LovedWidgetProvider extends AppWidgetProvider {
             }
             if (intent.hasExtra("partner_msg")) {
                 String m = intent.getStringExtra("partner_msg");
+                // Base64 image code ဖြစ်နေပါက စာသားအဖြစ် အစားထိုးခြင်း
+                if (m != null && m.startsWith("data:image")) {
+                    m = "🎨 ချစ်သူ ပုံဆွဲထားပါသည်";
+                }
                 context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                         .edit().putString(KEY_MESSAGE, m).apply();
             }
@@ -51,7 +54,10 @@ public class LovedWidgetProvider extends AppWidgetProvider {
         String startDateStr = prefs.getString(KEY_START_DATE, "");
         String partnerMsg = prefs.getString(KEY_MESSAGE, "MY LOVE");
 
-        // ရက်ပေါင်း Real-time တိကျစွာ တွက်ချက်ခြင်း
+        if (partnerMsg != null && partnerMsg.startsWith("data:image")) {
+            partnerMsg = "🎨 ချစ်သူ ပုံဆွဲထားပါသည်";
+        }
+
         long daysDiff = 0;
         if (startDateStr != null && !startDateStr.isEmpty()) {
             try {
@@ -70,7 +76,6 @@ public class LovedWidgetProvider extends AppWidgetProvider {
         views.setTextViewText(R.id.widget_days, daysDiff + " ရက်မြောက်");
         views.setTextViewText(R.id.widget_message, "💌 " + partnerMsg);
 
-        // Widget နှိပ်ပါက App တိုက်ရိုက်ပွင့်ရန်
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
