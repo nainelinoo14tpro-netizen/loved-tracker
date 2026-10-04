@@ -1,9 +1,9 @@
 :root {
   --bg-main: #0c0a12;
-  --bg-card: rgba(26, 20, 36, 0.75);
-  --bg-card-border: rgba(255, 75, 139, 0.22);
+  --bg-card: rgba(26, 20, 36, 0.85);
+  --bg-card-border: rgba(255, 75, 139, 0.25);
   --pink-primary: #ff4b8b;
-  --pink-glow: rgba(255, 75, 139, 0.4);
+  --pink-glow: rgba(255, 75, 139, 0.45);
   --pink-soft: #ff85ad;
   --purple-accent: #9333ea;
   --text-main: #f5edf2;
@@ -20,7 +20,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* စာသားများ Copy / Select လုပ်မရအောင် အပြီးပိတ်ခြင်း */
+/* စာသားများ Copy ကူးမရအောင် ပိတ်ထားမှု */
 .no-select, body {
   user-select: none !important;
   -webkit-user-select: none !important;
@@ -30,8 +30,8 @@
 body.dark-love-theme {
   background-color: var(--bg-main);
   background-image: 
-    radial-gradient(circle at 15% 10%, rgba(255, 75, 139, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(147, 51, 234, 0.08) 0%, transparent 40%);
+    radial-gradient(circle at 15% 10%, rgba(255, 75, 139, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(147, 51, 234, 0.1) 0%, transparent 40%);
   color: var(--text-main);
   min-height: 100vh;
   overflow: hidden;
@@ -44,13 +44,13 @@ body.dark-love-theme {
   position: relative;
 }
 
-/* Header Bar */
+/* Top Nav */
 .top-nav {
   padding: 12px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(12, 10, 18, 0.9);
+  background: rgba(12, 10, 18, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--bg-card-border);
   z-index: 10;
@@ -73,16 +73,14 @@ body.dark-love-theme {
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .mode-toggle-btn:active {
   transform: scale(0.95);
-  background: var(--pink-glow);
 }
 
 /* Content Area */
@@ -110,26 +108,31 @@ body.dark-love-theme {
   border: 1px solid var(--bg-card-border);
   border-radius: 24px;
   padding: 18px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
   position: relative;
 }
 
-/* Couple Profiles */
-.profile-box {
-  padding-top: 24px;
+/* 3:4 Aspect Ratio Profile Frames */
+.profile-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 75, 139, 0.15);
 }
 
 .edit-pill-btn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-muted);
+  background: rgba(255, 75, 139, 0.18);
+  border: 1px solid var(--pink-primary);
+  color: var(--pink-soft);
   border-radius: 14px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   font-size: 11px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .profiles-wrapper {
@@ -145,21 +148,33 @@ body.dark-love-theme {
   gap: 8px;
 }
 
-.avatar-bubble {
-  width: 78px;
-  height: 78px;
-  background: rgba(255, 75, 139, 0.1);
+/* 3:4 Portrait Photo Frame (အဝိုင်း မဟုတ်ပါ) */
+.profile-card-34 {
+  width: 96px;
+  aspect-ratio: 3 / 4;
+  background: rgba(255, 75, 139, 0.08);
   border: 2px solid var(--pink-primary);
-  box-shadow: 0 0 15px var(--pink-glow);
-  border-radius: 50%;
+  border-radius: 16px;
+  box-shadow: 0 0 16px var(--pink-glow);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-card-34 img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-card-34 .placeholder-emoji {
   font-size: 38px;
 }
 
 .avatar-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-main);
 }
@@ -231,7 +246,7 @@ body.dark-love-theme {
 .counter-breakdown {
   font-size: 13px;
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .date-pick-row {
@@ -407,7 +422,7 @@ body.dark-love-theme {
   width: 100%;
 }
 
-/* Circular Member Add Button & Members List */
+/* Members List */
 .section-title-row {
   display: flex;
   justify-content: space-between;
@@ -450,6 +465,14 @@ body.dark-love-theme {
   align-items: center;
   justify-content: center;
   font-size: 26px;
+  overflow: hidden;
+}
+
+.member-bubble img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .member-del-btn {
@@ -475,7 +498,6 @@ body.dark-love-theme {
   text-align: center;
 }
 
-/* တောင်းဆိုထားသော Circular Add Button (+) */
 .circle-add-member-btn {
   width: 58px;
   height: 58px;
@@ -498,7 +520,7 @@ body.dark-love-theme {
   background: var(--pink-glow);
 }
 
-/* Notes Grid (Sticky Notes with Date & Time) */
+/* Notes Grid */
 .notes-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -555,9 +577,20 @@ body.dark-love-theme {
   cursor: pointer;
 }
 
-/* Codes & Settings */
+/* Security & Room Sync Separate Cards */
+.security-card, .sync-card {
+  margin-bottom: 14px;
+}
+
+.card-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
 .setting-item {
-  margin-top: 14px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -645,12 +678,12 @@ body.dark-love-theme {
   text-shadow: 0 0 10px var(--pink-glow);
 }
 
-/* စက္ကူလေယာဉ် ပျံသန်းသည့် Animation Layer */
+/* စက္ကူလေယာဉ်ပျံ Vector Animation */
 .plane-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 99999;
   display: none;
 }
 
@@ -658,33 +691,37 @@ body.dark-love-theme {
   display: block;
 }
 
-.paper-plane {
+.paper-plane-icon {
   position: absolute;
   bottom: 25%;
   left: 15%;
-  font-size: 44px;
-  transform: rotate(20deg);
+  font-size: 42px;
+  color: #ffffff;
   filter: drop-shadow(0 0 12px var(--pink-primary));
+  opacity: 0;
 }
 
-.plane-layer.animating .paper-plane {
-  animation: flyAirplane 1.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+.plane-layer.animating .paper-plane-icon {
+  animation: flyPaperPlane 1.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-@keyframes flyAirplane {
+@keyframes flyPaperPlane {
   0% {
     bottom: 25%;
     left: 15%;
-    transform: scale(0.6) rotate(15deg);
+    transform: scale(0.6) rotate(-15deg);
     opacity: 0;
   }
   20% {
     opacity: 1;
   }
+  80% {
+    opacity: 1;
+  }
   100% {
     bottom: 85%;
     left: 85%;
-    transform: scale(1.4) rotate(45deg);
+    transform: scale(1.3) rotate(35deg);
     opacity: 0;
   }
 }
@@ -717,6 +754,7 @@ body.dark-love-theme {
   font-size: 40px;
   margin-bottom: 10px;
   animation: heartBeat 1.8s infinite ease-in-out;
+  cursor: pointer;
 }
 
 .pin-card h2 {
@@ -812,6 +850,8 @@ body.dark-love-theme {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-card h4 {
@@ -921,6 +961,39 @@ canvas {
   cursor: pointer;
 }
 
+/* Photo Upload & Preview */
+.photo-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.btn-file-label {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px dashed var(--pink-primary);
+  color: var(--pink-soft);
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.preview-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1.5px solid var(--pink-primary);
+  display: none;
+  margin: 0 auto;
+}
+
 /* Emoji Pickers */
 .emoji-picker-grid {
   display: flex;
@@ -931,7 +1004,7 @@ canvas {
 }
 
 .emoji-option {
-  font-size: 24px;
+  font-size: 22px;
   cursor: pointer;
   padding: 4px;
   border-radius: 8px;
@@ -947,13 +1020,9 @@ canvas {
    ======================================= */
 body.alone-mode #col-partner,
 body.alone-mode #col-heart,
+body.alone-mode #room-sync-card,
 body.alone-mode .circle-add-member-btn,
 body.alone-mode .member-del-btn,
-body.alone-mode #family-members-container,
-body.alone-mode #friends-members-container,
-body.alone-mode #family-count-tag,
-body.alone-mode #friends-count-tag,
-body.alone-mode #send-controls-row,
 body.alone-mode #partner-edit-section {
   display: none !important;
 }
@@ -962,8 +1031,7 @@ body.alone-mode .profiles-wrapper {
   justify-content: center;
 }
 
-body.alone-mode .avatar-bubble {
-  width: 90px;
-  height: 90px;
-  font-size: 48px;
+body.alone-mode .profile-card-34 {
+  width: 120px;
+  aspect-ratio: 3 / 4;
 }
