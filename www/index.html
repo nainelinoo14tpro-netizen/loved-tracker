@@ -26,25 +26,25 @@
         </div>
 
         <div class="pin-keypad">
-          <button type="button" class="pin-key" onpointerdown="pressPin('1')">1</button>
-          <button type="button" class="pin-key" onpointerdown="pressPin('2')">2</button>
-          <button type="button" class="pin-key" onpointerdown="pressPin('3')">3</button>
-          <button type="button" class="pin-key" onpointerdown="pressPin('4')">4</button>
-          <button type="button" class="pin-key" onpointerdown="pressPin('5')">5</button>
-          <button type="button" class="pin-key" onpointerdown="pressPin('6')">6</button>
-          <button type="button" class="pin-key" onpointerdown="pressPin('7')">7</button>
-          <button type="button" class="pin-key" onpointerdown="pressPin('8')">8</button>
-          <button type="button" class="pin-key" onpointerdown="pressPin('9')">9</button>
-          <button type="button" class="pin-key action" onpointerdown="bypassPin()"><i class="fa-solid fa-fingerprint"></i></button>
-          <button type="button" class="pin-key" onpointerdown="pressPin('0')">0</button>
-          <button type="button" class="pin-key action" onpointerdown="deletePin()"><i class="fa-solid fa-delete-left"></i></button>
+          <button type="button" class="pin-key" onclick="pressPin('1')">1</button>
+          <button type="button" class="pin-key" onclick="pressPin('2')">2</button>
+          <button type="button" class="pin-key" onclick="pressPin('3')">3</button>
+          <button type="button" class="pin-key" onclick="pressPin('4')">4</button>
+          <button type="button" class="pin-key" onclick="pressPin('5')">5</button>
+          <button type="button" class="pin-key" onclick="pressPin('6')">6</button>
+          <button type="button" class="pin-key" onclick="pressPin('7')">7</button>
+          <button type="button" class="pin-key" onclick="pressPin('8')">8</button>
+          <button type="button" class="pin-key" onclick="pressPin('9')">9</button>
+          <button type="button" class="pin-key action" onclick="bypassPin()"><i class="fa-solid fa-fingerprint"></i></button>
+          <button type="button" class="pin-key" onclick="pressPin('0')">0</button>
+          <button type="button" class="pin-key action" onclick="deletePin()"><i class="fa-solid fa-delete-left"></i></button>
         </div>
       </div>
     </div>
 
-    <!-- ၂။ စက္ကူလေယာဉ် ပျံသန်းသည့် Layer -->
+    <!-- ၂။ စက္ကူလေယာဉ် ပျံသန်းသည့် Layer (Vector Icon) -->
     <div id="plane-animation-layer" class="plane-layer">
-      <div id="paper-plane" class="paper-plane">✈️</div>
+      <i class="fa-solid fa-paper-plane paper-plane-icon"></i>
     </div>
 
     <!-- ၃။ Header Bar -->
@@ -64,12 +64,19 @@
       <section id="tab-couple" class="tab-pane active">
         
         <div class="card glass-card profile-box">
-          <button class="edit-pill-btn" onclick="openProfileModal()">
-            <i class="fa-solid fa-pen"></i> Edit
-          </button>
+          <div class="profile-box-header">
+            <span class="count-tag" id="profile-status-tag">Profile Space</span>
+            <button class="edit-pill-btn" onclick="openProfileModal()">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+          </div>
+
           <div class="profiles-wrapper">
+            <!-- 3:4 Aspect Ratio Frame: Me -->
             <div class="avatar-col" id="col-me">
-              <div class="avatar-bubble" id="avatar-me">🥰</div>
+              <div class="profile-card-34" id="avatar-me">
+                <span class="placeholder-emoji">🥰</span>
+              </div>
               <span class="avatar-name" id="name-me">Me</span>
             </div>
             
@@ -80,8 +87,11 @@
               <span class="tap-hint" id="tap-hint-text">Tap me!</span>
             </div>
 
+            <!-- 3:4 Aspect Ratio Frame: You -->
             <div class="avatar-col" id="col-partner">
-              <div class="avatar-bubble" id="avatar-partner">😘</div>
+              <div class="profile-card-34" id="avatar-partner">
+                <span class="placeholder-emoji">😘</span>
+              </div>
               <span class="avatar-name" id="name-partner">You</span>
             </div>
           </div>
@@ -125,7 +135,7 @@
           </div>
 
           <div class="action-inputs-row" id="send-controls-row">
-            <input type="text" id="partner-msg-input" placeholder="ချစ်သူ့မျက်နှာပြင်ပေါ် စာပို့မည်..." class="dark-text-input">
+            <input type="text" id="partner-msg-input" placeholder="စာသား ရိုက်ထည့်ပါ..." class="dark-text-input">
             <div class="btn-group">
               <button class="btn btn-pink" onclick="sendPartnerMessage()">ပို့မည်</button>
               <button class="btn btn-purple" onclick="openCanvasModal()">🎨 ပုံဆွဲမည်</button>
@@ -183,35 +193,47 @@
 
       <!-- TAB 4: Codes / Settings Page -->
       <section id="tab-codes" class="tab-pane">
-        <div class="card glass-card">
-          <h3>🔐 လုံခြုံရေး & ချိတ်ဆက်မှု</h3>
+        
+        <!-- ကတ် (၁) - 🔐 PIN / App Security သီးသန့် ကတ် -->
+        <div class="card glass-card security-card">
+          <h3>🔐 App Security (Passcode)</h3>
+          <p class="card-desc">App ဖွင့်ချိန် လုံခြုံရေးအတွက် PIN သတ်မှတ်ပါ</p>
           
           <div class="setting-item">
-            <label>Partner Connection Code</label>
-            <div class="code-box-display">
-              <span id="my-device-code">LOVE-7892</span>
-              <button class="mini-copy-btn" onclick="alert('Copied: LOVE-7892')"><i class="fa-solid fa-copy"></i></button>
-            </div>
-          </div>
-
-          <div class="setting-item">
-            <label>Partner Code ဖြင့် ချိတ်ဆက်ရန်</label>
-            <div class="connect-input-row">
-              <input type="text" id="pair-code-input" placeholder="ကုဒ်ရိုက်ထည့်ပါ..." class="dark-text-input">
-              <button class="btn btn-pink" onclick="alert('ချိတ်ဆက်ပြီးပါပြီ!')">ချိတ်မည်</button>
-            </div>
-          </div>
-
-          <div class="setting-item">
-            <label>လုံခြုံရေး PIN ပြောင်းရန်</label>
-            <button class="btn btn-outline" onclick="resetPinSetup()">PIN အသစ်သတ်မှတ်မည်</button>
+            <button class="btn btn-outline btn-block" onclick="resetPinSetup()">
+              <i class="fa-solid fa-key"></i> PIN အသစ် ပြောင်းလဲမည်
+            </button>
           </div>
 
           <div class="setting-item danger-zone">
-            <label>Data အားလုံး ရှင်းလင်းရန် (Reset Day 0)</label>
-            <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+            <button class="btn btn-danger btn-block" onclick="clearAllData()">
+              <i class="fa-solid fa-trash"></i> Data အားလုံး ရှင်းလင်းမည် (Reset Day 0)
+            </button>
           </div>
         </div>
+
+        <!-- ကတ် (၂) - 🔗 Room / Partner Sync သီးသန့် ကတ် -->
+        <div class="card glass-card sync-card" id="room-sync-card">
+          <h3>🔗 Room & Partner Sync</h3>
+          <p class="card-desc">ချစ်သူနှင့် နှစ်ယောက်သီးသန့် ချိတ်ဆက်ရန် ကုဒ်</p>
+
+          <div class="setting-item">
+            <label>My Room Code</label>
+            <div class="code-box-display">
+              <span id="my-device-code">LOVE-7892</span>
+              <button class="mini-copy-btn" onclick="copyRoomCode()"><i class="fa-solid fa-copy"></i></button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label>Join Room Code (ချစ်သူ့ ကုဒ်ဖြင့် ချိတ်မည်)</label>
+            <div class="connect-input-row">
+              <input type="text" id="pair-code-input" placeholder="ကုဒ် ရိုက်ထည့်ပါ..." class="dark-text-input">
+              <button class="btn btn-pink" onclick="joinRoomCode()">ချိတ်မည်</button>
+            </div>
+          </div>
+        </div>
+
       </section>
 
     </main>
@@ -220,7 +242,7 @@
     <nav class="bottom-tab-bar">
       <button class="tab-btn active" onclick="switchTab('tab-couple', this)">
         <i class="fa-solid fa-heart"></i>
-        <span>Couple</span>
+        <span id="nav-couple-text">Couple</span>
       </button>
       <button class="tab-btn" onclick="switchTab('tab-family', this)">
         <i class="fa-solid fa-house-chimney"></i>
@@ -231,12 +253,14 @@
         <span>Friends</span>
       </button>
       <button class="tab-btn" onclick="switchTab('tab-codes', this)">
-        <i class="fa-solid fa-link"></i>
+        <i class="fa-solid fa-shield-halved"></i>
         <span>Codes</span>
       </button>
     </nav>
 
     <!-- ၆။ Modals -->
+
+    <!-- Note Modal -->
     <div id="note-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="note-modal-title">မှတ်စုအသစ် ရေးပါ</h4>
@@ -260,6 +284,7 @@
       </div>
     </div>
 
+    <!-- Canvas Modal -->
     <div id="canvas-modal" class="modal-backdrop">
       <div class="modal-card canvas-card">
         <div class="modal-header-row">
@@ -289,21 +314,28 @@
       </div>
     </div>
 
+    <!-- Member Modal (Gallery Upload + Emoji) -->
     <div id="member-modal" class="modal-backdrop">
       <div class="modal-card">
         <h4 id="member-modal-title">အဖွဲ့ဝင် အသစ်ထည့်မည်</h4>
         <input type="text" id="member-name-input" placeholder="အမည် ရိုက်ထည့်ပါ..." class="dark-text-input">
         
-        <label class="modal-label">Emoji ရွေးချယ်ပါ</label>
+        <label class="modal-label">ဓာတ်ပုံ သို့မဟုတ် Emoji ရွေးချယ်ပါ</label>
+        <div class="photo-upload-section">
+          <label class="btn-file-label">
+            <i class="fa-solid fa-camera"></i> ဖုန်းထဲမှ ဓာတ်ပုံရွေးမည်
+            <input type="file" id="member-photo-input" accept="image/*" style="display: none;" onchange="handleMemberPhoto(this)">
+          </label>
+          <img id="member-photo-preview" class="preview-thumb" alt="Preview">
+        </div>
+
         <div class="emoji-picker-grid" id="member-emoji-options">
           <span class="emoji-option selected" onclick="pickEmoji(this, 'member')">😊</span>
           <span class="emoji-option" onclick="pickEmoji(this, 'member')">😎</span>
           <span class="emoji-option" onclick="pickEmoji(this, 'member')">🤠</span>
-          <span class="emoji-option" onclick="pickEmoji(this, 'member')">🥳</span>
           <span class="emoji-option" onclick="pickEmoji(this, 'member')">🌸</span>
           <span class="emoji-option" onclick="pickEmoji(this, 'member')">🐱</span>
           <span class="emoji-option" onclick="pickEmoji(this, 'member')">🐶</span>
-          <span class="emoji-option" onclick="pickEmoji(this, 'member')">⭐</span>
         </div>
 
         <div class="modal-actions">
@@ -313,29 +345,44 @@
       </div>
     </div>
 
+    <!-- Profile Edit Modal (Me & You Gallery Uploads) -->
     <div id="profile-edit-modal" class="modal-backdrop">
       <div class="modal-card">
-        <h4>ပရိုဖိုင် အမည် & Emoji ပြင်ဆင်ရန်</h4>
+        <h4>Profile Frame ဓာတ်ပုံ ပြင်ဆင်ရန်</h4>
         
         <div class="profile-edit-section">
-          <h5>ငါ့အချက်အလက် (Me)</h5>
+          <h5>Me (ငါ့အချက်အလက်)</h5>
           <input type="text" id="edit-my-name" value="Me" class="dark-text-input">
+          <div class="photo-upload-section" style="margin-top: 6px;">
+            <label class="btn-file-label">
+              <i class="fa-solid fa-camera"></i> Me အတွက် ဓာတ်ပုံတင်မည်
+              <input type="file" id="me-photo-input" accept="image/*" style="display: none;" onchange="handleProfilePhoto(this, 'me')">
+            </label>
+            <img id="me-photo-preview" class="preview-thumb" alt="Preview">
+          </div>
           <div class="emoji-picker-grid" id="my-emoji-options">
             <span class="emoji-option selected" onclick="pickEmoji(this, 'me')">🥰</span>
             <span class="emoji-option" onclick="pickEmoji(this, 'me')">😎</span>
-            <span class="emoji-option" onclick="pickEmoji(this, 'me')">🤖</span>
             <span class="emoji-option" onclick="pickEmoji(this, 'me')">🦊</span>
+            <span class="emoji-option" onclick="pickEmoji(this, 'me')">🌸</span>
           </div>
         </div>
 
-        <div class="profile-edit-section" id="partner-edit-section">
-          <h5>ချစ်သူ့အချက်အလက် (You)</h5>
+        <div class="profile-edit-section" id="partner-edit-section" style="margin-top: 10px;">
+          <h5>You (ချစ်သူ့အချက်အလက်)</h5>
           <input type="text" id="edit-partner-name" value="You" class="dark-text-input">
+          <div class="photo-upload-section" style="margin-top: 6px;">
+            <label class="btn-file-label">
+              <i class="fa-solid fa-camera"></i> You အတွက် ဓာတ်ပုံတင်မည်
+              <input type="file" id="partner-photo-input" accept="image/*" style="display: none;" onchange="handleProfilePhoto(this, 'partner')">
+            </label>
+            <img id="partner-photo-preview" class="preview-thumb" alt="Preview">
+          </div>
           <div class="emoji-picker-grid" id="partner-emoji-options">
             <span class="emoji-option selected" onclick="pickEmoji(this, 'partner')">😘</span>
             <span class="emoji-option" onclick="pickEmoji(this, 'partner')">🐰</span>
-            <span class="emoji-option" onclick="pickEmoji(this, 'partner')">👑</span>
             <span class="emoji-option" onclick="pickEmoji(this, 'partner')">🎀</span>
+            <span class="emoji-option" onclick="pickEmoji(this, 'partner')">✨</span>
           </div>
         </div>
 
@@ -348,559 +395,6 @@
 
   </div>
 
-  <!-- အောက်ပါ JAVASCRIPT သည် ဖုန်းထဲတွင် CACHE ငြိစရာမလိုဘဲ တိုက်ရိုက် ၁၀၀% အလုပ်လုပ်မည် -->
-  <script>
-    const STORAGE_KEY = 'loved_tracker_data_v2';
-    const PIN_KEY = 'loved_tracker_pin';
-
-    function safeVibrate(pattern) {
-      try {
-        if (window.navigator && typeof window.navigator.vibrate === 'function') {
-          window.navigator.vibrate(pattern);
-        }
-      } catch (e) {}
-    }
-
-    function safeVoiceAlert(text) {
-      try {
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
-          const utter = new SpeechSynthesisUtterance(text);
-          utter.lang = 'en-US';
-          utter.rate = 0.95;
-          utter.pitch = 1.1;
-          window.speechSynthesis.speak(utter);
-        }
-      } catch (e) {}
-      safeVibrate(80);
-    }
-
-    let currentEnteredPin = '';
-    let pinSetupStep = 'CREATE';
-    let tempFirstPin = '';
-
-    function checkPinStatus() {
-      let savedPin = null;
-      try { savedPin = localStorage.getItem(PIN_KEY); } catch (e) {}
-
-      if (!savedPin) {
-        pinSetupStep = 'CREATE';
-        updatePinUi('New Passcode', 'PIN အသစ် သတ်မှတ်ပါ (ဂဏန်း ၄ လုံး)');
-      } else {
-        pinSetupStep = 'ENTER';
-        updatePinUi('Enter Passcode', 'လုံခြုံရေး PIN နံပါတ် ရိုက်ထည့်ပါ');
-      }
-
-      currentEnteredPin = '';
-      tempFirstPin = '';
-      renderDots();
-      const overlay = document.getElementById('pin-overlay');
-      if (overlay) overlay.style.display = 'flex';
-    }
-
-    function updatePinUi(title, sub) {
-      const t = document.getElementById('pin-title');
-      const s = document.getElementById('pin-subtitle');
-      if (t) t.textContent = title;
-      if (s) s.textContent = sub;
-    }
-
-    function renderDots() {
-      for (let i = 0; i < 4; i++) {
-        const dot = document.getElementById('dot-' + i);
-        if (dot) {
-          if (i < currentEnteredPin.length) {
-            dot.style.background = '#ff4b8b';
-            dot.style.borderColor = '#ff4b8b';
-            dot.style.boxShadow = '0 0 12px #ff4b8b';
-          } else {
-            dot.style.background = 'transparent';
-            dot.style.borderColor = '#ff4b8b';
-            dot.style.boxShadow = 'none';
-          }
-        }
-      }
-    }
-
-    function pressPin(num) {
-      if (currentEnteredPin.length < 4) {
-        currentEnteredPin += String(num);
-        safeVibrate(25);
-        renderDots();
-        if (currentEnteredPin.length === 4) {
-          setTimeout(handlePinComplete, 160);
-        }
-      }
-    }
-
-    function deletePin() {
-      currentEnteredPin = currentEnteredPin.slice(0, -1);
-      safeVibrate(25);
-      renderDots();
-    }
-
-    function bypassPin() {
-      unlockPin();
-    }
-
-    function resetPinSetup() {
-      try { localStorage.removeItem(PIN_KEY); } catch (e) {}
-      checkPinStatus();
-    }
-
-    function handlePinComplete() {
-      let savedPin = null;
-      try { savedPin = localStorage.getItem(PIN_KEY); } catch (e) {}
-
-      if (pinSetupStep === 'CREATE') {
-        tempFirstPin = currentEnteredPin;
-        currentEnteredPin = '';
-        renderDots();
-        pinSetupStep = 'CONFIRM';
-        updatePinUi('Confirm Passcode', 'အတည်ပြုရန် PIN ထပ်ရိုက်ထည့်ပါ');
-      } 
-      else if (pinSetupStep === 'CONFIRM') {
-        if (currentEnteredPin === tempFirstPin) {
-          try { localStorage.setItem(PIN_KEY, currentEnteredPin); } catch (e) {}
-          unlockPin();
-        } else {
-          safeVibrate([100, 50, 100]);
-          alert('PIN မတူညီပါ! အစကနေ ပြန်လည်ရိုက်ထည့်ပါ။');
-          pinSetupStep = 'CREATE';
-          tempFirstPin = '';
-          currentEnteredPin = '';
-          renderDots();
-          updatePinUi('New Passcode', 'PIN အသစ် သတ်မှတ်ပါ (ဂဏန်း ၄ လုံး)');
-        }
-      } 
-      else if (pinSetupStep === 'ENTER') {
-        if (currentEnteredPin === savedPin) {
-          unlockPin();
-        } else {
-          safeVibrate([100, 50, 100]);
-          alert('PIN နံပါတ် မှားယွင်းနေပါသည်!');
-          currentEnteredPin = '';
-          renderDots();
-        }
-      }
-    }
-
-    function unlockPin() {
-      const overlay = document.getElementById('pin-overlay');
-      if (overlay) overlay.style.display = 'none';
-      currentEnteredPin = '';
-      tempFirstPin = '';
-      renderDots();
-    }
-
-    // App Data State
-    const defaultData = {
-      isAloneMode: false,
-      couple: { meName: 'Me', meEmoji: '🥰', partnerName: 'You', partnerEmoji: '😘', startDate: '' },
-      familyMembers: [{ id: 1, name: 'Family 1', emoji: '😊' }, { id: 2, name: 'Family 2', emoji: '🌸' }],
-      familyNotes: [{ id: 1, text: 'ညနေစာ အတူတူစားကြမယ်နော် 🍲', date: '2026-10-04', time: '18:30' }],
-      friendsMembers: [{ id: 1, name: 'Friend 1', emoji: '😎' }, { id: 2, name: 'Friend 2', emoji: '🥳' }],
-      friendsNotes: [{ id: 1, text: 'ဒီည Mobile Legends ဆော့ကြမယ် 🎮', date: '2026-10-04', time: '20:00' }],
-      partnerBoard: null
-    };
-
-    let appData = loadAppData();
-    let currentNoteType = 'family';
-    let chosenEmojiMember = '😊';
-    let chosenEmojiMe = '🥰';
-    let chosenEmojiPartner = '😘';
-
-    function loadAppData() {
-      try {
-        const s = localStorage.getItem(STORAGE_KEY);
-        if (s) return Object.assign({}, defaultData, JSON.parse(s));
-      } catch (e) {}
-      return JSON.parse(JSON.stringify(defaultData));
-    }
-
-    function saveAppData() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch (e) {}
-    }
-
-    // UI Features
-    function triggerPlane(callback) {
-      const p = document.getElementById('plane-animation-layer');
-      if (p) {
-        p.classList.add('animating');
-        setTimeout(() => {
-          p.classList.remove('animating');
-          if (callback) callback();
-        }, 1100);
-      } else if (callback) callback();
-    }
-
-    function tapHeart() {
-      safeVoiceAlert('I love you');
-      const h = document.getElementById('main-heart-btn');
-      if (h) {
-        h.style.transform = 'scale(1.25)';
-        setTimeout(() => { h.style.transform = ''; }, 200);
-      }
-    }
-
-    function toggleAloneMode() {
-      appData.isAloneMode = !appData.isAloneMode;
-      saveAppData();
-      applyAloneUI();
-    }
-
-    function applyAloneUI() {
-      if (appData.isAloneMode) {
-        document.body.classList.add('alone-mode');
-        document.getElementById('toggle-label').textContent = 'Couple Mode သို့ပြောင်းရန်';
-        document.getElementById('mode-text').textContent = 'Alone Mode (Solo Journey)';
-        document.getElementById('mode-icon').textContent = '🪐';
-        document.getElementById('counter-title').textContent = 'ကိုယ်တိုင်နှင့်အတူ ဖြတ်သန်းခဲ့သောရက်များ';
-        document.getElementById('live-screen-title').textContent = 'My Personal Notepad';
-      } else {
-        document.body.classList.remove('alone-mode');
-        document.getElementById('toggle-label').textContent = 'Alone Mode ပြောင်းရန်';
-        document.getElementById('mode-text').textContent = 'Couple Mode';
-        document.getElementById('mode-icon').textContent = '💖';
-        document.getElementById('counter-title').textContent = 'တို့နှစ်ယောက် ချစ်သက်တမ်း';
-        document.getElementById('live-screen-title').textContent = 'Partner Live Screen';
-      }
-    }
-
-    function onDateChange(val) {
-      appData.couple.startDate = val;
-      saveAppData();
-      renderCounter();
-    }
-
-    function renderCounter() {
-      const daysEl = document.getElementById('days-count');
-      const detEl = document.getElementById('detailed-time');
-      const progEl = document.getElementById('milestone-progress');
-      const mileEl = document.getElementById('milestone-days-left');
-      const mileTit = document.getElementById('next-milestone-title');
-
-      if (!appData.couple.startDate) {
-        daysEl.textContent = '0';
-        detEl.textContent = '0 နှစ် 0 လ 0 ရက်';
-        progEl.style.width = '0%';
-        mileTit.textContent = 'ရက် ၁၀၀ ပြည့်ဖို့';
-        mileEl.textContent = '၁၀၀ ရက်လို';
-        return;
-      }
-
-      const s = new Date(appData.couple.startDate);
-      const n = new Date();
-      const diff = Math.max(0, Math.floor((n - s) / 86400000));
-      daysEl.textContent = diff;
-
-      let target = 100;
-      while (diff >= target) target += 100;
-      mileTit.textContent = `ရက် ${target} ပြည့်ဖို့`;
-      mileEl.textContent = `${target - diff} ရက်လို`;
-      progEl.style.width = `${Math.min(100, ((diff % 100) / 100) * 100)}%`;
-    }
-
-    function sendPartnerMessage() {
-      const input = document.getElementById('partner-msg-input');
-      const txt = input.value.trim();
-      if (!txt) return;
-
-      triggerPlane(() => {
-        appData.partnerBoard = { type: 'text', content: txt };
-        saveAppData();
-        input.value = '';
-        renderBoard();
-        const alerts = ['I love you', 'I miss you'];
-        safeVoiceAlert(alerts[Math.floor(Math.random() * alerts.length)]);
-      });
-    }
-
-    function renderBoard() {
-      const b = document.getElementById('partner-board-display');
-      if (!appData.partnerBoard) {
-        b.innerHTML = '<p class="placeholder-text">ချစ်သူဆီက စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>';
-        return;
-      }
-      if (appData.partnerBoard.type === 'text') {
-        b.innerHTML = `<div class="board-received-text">💌 "${appData.partnerBoard.content}"</div>`;
-      } else {
-        b.innerHTML = `<img src="${appData.partnerBoard.content}" class="board-received-img">`;
-      }
-    }
-
-    function switchTab(id, btn) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      const pane = document.getElementById(id);
-      if (pane) pane.classList.add('active');
-    }
-
-    function renderProfiles() {
-      document.getElementById('name-me').textContent = appData.couple.meName;
-      document.getElementById('avatar-me').textContent = appData.couple.meEmoji;
-      document.getElementById('name-partner').textContent = appData.couple.partnerName;
-      document.getElementById('avatar-partner').textContent = appData.couple.partnerEmoji;
-      const d = document.getElementById('love-start-date');
-      if (d) d.value = appData.couple.startDate || '';
-    }
-
-    function renderMembers() {
-      const fc = document.getElementById('family-members-container');
-      fc.innerHTML = '';
-      appData.familyMembers.forEach(m => {
-        fc.innerHTML += `
-          <div class="member-item">
-            <button class="member-del-btn" onclick="delMember('family', ${m.id})">&times;</button>
-            <div class="member-bubble">${m.emoji}</div>
-            <span class="member-title">${m.name}</span>
-          </div>`;
-      });
-      fc.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('family')">+</div>`;
-      document.getElementById('family-count-tag').textContent = `${appData.familyMembers.length} ယောက်`;
-
-      const frc = document.getElementById('friends-members-container');
-      frc.innerHTML = '';
-      appData.friendsMembers.forEach(m => {
-        frc.innerHTML += `
-          <div class="member-item">
-            <button class="member-del-btn" onclick="delMember('friends', ${m.id})">&times;</button>
-            <div class="member-bubble">${m.emoji}</div>
-            <span class="member-title">${m.name}</span>
-          </div>`;
-      });
-      frc.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('friends')">+</div>`;
-      document.getElementById('friends-count-tag').textContent = `${appData.friendsMembers.length} ယောက်`;
-    }
-
-    function renderNotes() {
-      const fn = document.getElementById('family-notes-container');
-      fn.innerHTML = '';
-      appData.familyNotes.forEach(n => {
-        fn.innerHTML += `
-          <div class="sticky-note-card">
-            <div class="note-header-line">
-              <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
-              <button class="note-del-btn" onclick="delNote('family', ${n.id})">&times;</button>
-            </div>
-            <div class="note-content-text">${n.text}</div>
-          </div>`;
-      });
-
-      const frn = document.getElementById('friends-notes-container');
-      frn.innerHTML = '';
-      appData.friendsNotes.forEach(n => {
-        frn.innerHTML += `
-          <div class="sticky-note-card">
-            <div class="note-header-line">
-              <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
-              <button class="note-del-btn" onclick="delNote('friends', ${n.id})">&times;</button>
-            </div>
-            <div class="note-content-text">${n.text}</div>
-          </div>`;
-      });
-    }
-
-    function delMember(type, id) {
-      if (type === 'family') appData.familyMembers = appData.familyMembers.filter(m => m.id !== id);
-      else appData.friendsMembers = appData.friendsMembers.filter(m => m.id !== id);
-      saveAppData();
-      renderMembers();
-    }
-
-    function delNote(type, id) {
-      if (type === 'family') appData.familyNotes = appData.familyNotes.filter(n => n.id !== id);
-      else appData.friendsNotes = appData.friendsNotes.filter(n => n.id !== id);
-      saveAppData();
-      renderNotes();
-    }
-
-    function openNoteModal(type) {
-      currentNoteType = type;
-      document.getElementById('note-modal-title').textContent = type === 'family' ? '🏡 မိသားစု မှတ်စုအသစ် ရေးပါ' : '✨ သူငယ်ချင်း မှတ်စုအသစ် ရေးပါ';
-      document.getElementById('note-text-input').value = '';
-      const now = new Date();
-      document.getElementById('note-date-input').value = now.toISOString().slice(0, 10);
-      document.getElementById('note-time-input').value = now.toTimeString().slice(0, 5);
-      document.getElementById('note-modal').classList.add('active');
-    }
-
-    function saveNote() {
-      const text = document.getElementById('note-text-input').value.trim();
-      const date = document.getElementById('note-date-input').value;
-      const time = document.getElementById('note-time-input').value;
-      if (!text) return;
-
-      const n = { id: Date.now(), text, date, time };
-      if (currentNoteType === 'family') {
-        appData.familyNotes.unshift(n);
-        safeVoiceAlert('Hello');
-      } else {
-        appData.friendsNotes.unshift(n);
-        safeVoiceAlert('Hey guys');
-      }
-      saveAppData();
-      closeModal('note-modal');
-      renderNotes();
-    }
-
-    function openMemberModal(type) {
-      currentNoteType = type;
-      document.getElementById('member-modal-title').textContent = type === 'family' ? 'မိသားစုဝင် အသစ်ထည့်မည်' : 'သူငယ်ချင်း အသစ်ထည့်မည်';
-      document.getElementById('member-name-input').value = '';
-      document.getElementById('member-modal').classList.add('active');
-    }
-
-    function saveMember() {
-      const name = document.getElementById('member-name-input').value.trim();
-      if (!name) return;
-      const m = { id: Date.now(), name, emoji: chosenEmojiMember };
-      if (currentNoteType === 'family') appData.familyMembers.push(m);
-      else appData.friendsMembers.push(m);
-      saveAppData();
-      closeModal('member-modal');
-      renderMembers();
-    }
-
-    function openProfileModal() {
-      document.getElementById('edit-my-name').value = appData.couple.meName;
-      document.getElementById('edit-partner-name').value = appData.couple.partnerName;
-      document.getElementById('profile-edit-modal').classList.add('active');
-    }
-
-    function saveProfiles() {
-      appData.couple.meName = document.getElementById('edit-my-name').value.trim() || 'Me';
-      appData.couple.partnerName = document.getElementById('edit-partner-name').value.trim() || 'You';
-      appData.couple.meEmoji = chosenEmojiMe;
-      appData.couple.partnerEmoji = chosenEmojiPartner;
-      saveAppData();
-      closeModal('profile-edit-modal');
-      renderProfiles();
-    }
-
-    function pickEmoji(el, target) {
-      el.parentElement.querySelectorAll('.emoji-option').forEach(o => o.classList.remove('selected'));
-      el.classList.add('selected');
-      const val = el.textContent.trim();
-      if (target === 'member') chosenEmojiMember = val;
-      else if (target === 'me') chosenEmojiMe = val;
-      else if (target === 'partner') chosenEmojiPartner = val;
-    }
-
-    function closeModal(id) {
-      const m = document.getElementById(id);
-      if (m) m.classList.remove('active');
-    }
-
-    function clearAllData() {
-      if (confirm('Data အားလုံးကို ရှင်းလင်းပြီး Day 0 သို့ ပြန်လည်သတ်မှတ်မည်မှာ သေချာပါသလား?')) {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem(PIN_KEY);
-        } catch(e) {}
-        location.reload();
-      }
-    }
-
-    // Canvas Logic
-    let canvas, ctx, isDrawing = false, strokeColor = '#ff4b8b', canvasHistory = [];
-
-    function openCanvasModal() {
-      document.getElementById('canvas-modal').classList.add('active');
-      if (!canvas) initCanvas();
-    }
-
-    function initCanvas() {
-      canvas = document.getElementById('drawing-canvas');
-      ctx = canvas.getContext('2d');
-      ctx.lineWidth = 4;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
-      function getPos(e) {
-        const r = canvas.getBoundingClientRect();
-        const cx = e.touches ? e.touches[0].clientX : e.clientX;
-        const cy = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: cx - r.left, y: cy - r.top };
-      }
-
-      function start(e) {
-        isDrawing = true;
-        const p = getPos(e);
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-      }
-
-      function move(e) {
-        if (!isDrawing) return;
-        const p = getPos(e);
-        ctx.strokeStyle = strokeColor;
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-      }
-
-      function stop() {
-        if (isDrawing) {
-          isDrawing = false;
-          canvasHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-        }
-      }
-
-      canvas.addEventListener('mousedown', start);
-      canvas.addEventListener('mousemove', move);
-      canvas.addEventListener('mouseup', stop);
-
-      canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
-      canvas.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); });
-      canvas.addEventListener('touchend', stop);
-
-      canvasHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-    }
-
-    function selectColor(col, el) {
-      strokeColor = col;
-      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-      el.classList.add('active');
-    }
-
-    function undoCanvas() {
-      if (canvasHistory.length > 1) {
-        canvasHistory.pop();
-        ctx.putImageData(canvasHistory[canvasHistory.length - 1], 0, 0);
-      }
-    }
-
-    function clearCanvas() {
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvasHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      }
-    }
-
-    function sendDrawing() {
-      if (!canvas) return;
-      const dataUrl = canvas.toDataURL();
-      closeModal('canvas-modal');
-      triggerPlane(() => {
-        appData.partnerBoard = { type: 'image', content: dataUrl };
-        saveAppData();
-        renderBoard();
-        const alerts = ['I love you', 'I miss you'];
-        safeVoiceAlert(alerts[Math.floor(Math.random() * alerts.length)]);
-      });
-    }
-
-    // Window Load Trigger
-    window.onload = function() {
-      checkPinStatus();
-      applyAloneUI();
-      renderProfiles();
-      renderCounter();
-      renderBoard();
-      renderMembers();
-      renderNotes();
-    };
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
