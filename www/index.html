@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Loved Tracker</title>
+  <title>Loved Tracker v1.1</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg-main: #0c0a12;
-      --bg-card: rgba(26, 20, 36, 0.88);
+      --bg-card: rgba(26, 20, 36, 0.90);
       --bg-card-border: rgba(255, 75, 139, 0.25);
       --pink-primary: #ff4b8b;
       --pink-glow: rgba(255, 75, 139, 0.45);
@@ -37,8 +37,8 @@
     body.dark-love-theme {
       background-color: var(--bg-main);
       background-image: 
-        radial-gradient(circle at 15% 10%, rgba(255, 75, 139, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 85% 80%, rgba(147, 51, 234, 0.1) 0%, transparent 40%);
+        radial-gradient(circle at 15% 10%, rgba(255, 75, 139, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(147, 51, 234, 0.12) 0%, transparent 40%);
       color: var(--text-main);
       min-height: 100vh;
       overflow: hidden;
@@ -51,8 +51,9 @@
       position: relative;
     }
 
+    /* Top Nav */
     .top-nav {
-      padding: 12px 18px;
+      padding: 14px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -62,29 +63,27 @@
       z-index: 10;
     }
 
-    .mode-badge {
-      font-size: 14px;
+    .app-brand {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--pink-soft);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 0 10px var(--pink-glow);
+    }
+
+    .version-tag {
+      font-size: 11px;
+      background: rgba(255, 75, 139, 0.15);
+      color: var(--pink-primary);
+      border: 1px solid var(--pink-primary);
+      padding: 3px 10px;
+      border-radius: 12px;
       font-weight: 600;
-      color: var(--pink-soft);
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
-    .mode-toggle-btn {
-      background: rgba(255, 75, 139, 0.12);
-      border: 1px solid var(--bg-card-border);
-      color: var(--pink-soft);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
+    /* Scroll Area */
     .content-scroll {
       flex: 1;
       overflow-y: auto;
@@ -112,7 +111,7 @@
       position: relative;
     }
 
-    /* 3:4 Aspect Ratio Profile Frames */
+    /* 3:4 Profile Frame Header */
     .profile-box-header {
       display: flex;
       justify-content: space-between;
@@ -148,8 +147,9 @@
       gap: 8px;
     }
 
+    /* 3:4 Portrait Box */
     .profile-card-34 {
-      width: 100px;
+      width: 102px;
       aspect-ratio: 3 / 4;
       background: rgba(255, 75, 139, 0.08);
       border: 2px solid var(--pink-primary);
@@ -169,7 +169,7 @@
     }
 
     .profile-card-34 .placeholder-emoji {
-      font-size: 38px;
+      font-size: 40px;
     }
 
     .avatar-name {
@@ -186,15 +186,15 @@
     }
 
     .heart-pulse-btn {
-      width: 52px;
-      height: 52px;
+      width: 54px;
+      height: 54px;
       background: radial-gradient(circle, var(--pink-primary) 0%, #d82b6b 100%);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
-      font-size: 22px;
+      font-size: 24px;
       cursor: pointer;
       box-shadow: 0 0 20px var(--pink-primary);
       animation: heartBeat 1.8s infinite ease-in-out;
@@ -211,7 +211,7 @@
       color: var(--pink-soft);
     }
 
-    /* Counter Box */
+    /* Counter */
     .counter-box {
       text-align: center;
     }
@@ -224,7 +224,7 @@
     }
 
     .big-counter {
-      font-size: 46px;
+      font-size: 48px;
       font-weight: 800;
       color: var(--pink-primary);
       text-shadow: 0 0 18px var(--pink-glow);
@@ -308,7 +308,7 @@
       margin-top: 12px;
     }
 
-    /* Live Screen Box */
+    /* Live Screen */
     .box-header {
       display: flex;
       justify-content: space-between;
@@ -369,6 +369,11 @@
       font-size: 13px;
       outline: none;
       width: 100%;
+    }
+
+    .dark-text-input:focus {
+      border-color: var(--pink-primary);
+      box-shadow: 0 0 8px var(--pink-glow);
     }
 
     .btn-group {
@@ -494,17 +499,17 @@
       min-width: 58px;
       border-radius: 50%;
       border: 2px dashed var(--pink-primary);
-      background: rgba(255, 75, 139, 0.06);
+      background: rgba(255, 75, 139, 0.08);
       color: var(--pink-primary);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 24px;
       cursor: pointer;
       margin-bottom: 22px;
     }
 
-    /* Sticky Notes */
+    /* Notes */
     .notes-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -561,8 +566,8 @@
       cursor: pointer;
     }
 
-    /* Security & Room Sync Separate Cards */
-    .security-card, .sync-card {
+    /* Separate Room Cards */
+    .sync-card {
       margin-bottom: 14px;
     }
 
@@ -599,10 +604,16 @@
       letter-spacing: 1px;
     }
 
-    .mini-copy-btn {
+    .code-action-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .mini-icon-btn {
       background: none;
       border: none;
       color: var(--text-muted);
+      font-size: 14px;
       cursor: pointer;
     }
 
@@ -661,7 +672,7 @@
       text-shadow: 0 0 10px var(--pink-glow);
     }
 
-    /* Origami Paper Airplane SVG Animation */
+    /* Origami Paper Airplane SVG */
     .plane-layer {
       position: fixed;
       inset: 0;
@@ -705,7 +716,7 @@
       }
     }
 
-    /* PIN Lock Screen */
+    /* PIN Overlay */
     .pin-overlay {
       position: fixed;
       inset: 0;
@@ -742,6 +753,7 @@
       font-size: 12px;
       color: var(--text-muted);
       margin-bottom: 24px;
+      text-align: center;
     }
 
     .pin-dots {
@@ -939,7 +951,7 @@
       cursor: pointer;
     }
 
-    /* Photo Upload UI */
+    /* Photo Upload */
     .photo-upload-section {
       display: flex;
       flex-direction: column;
@@ -991,32 +1003,13 @@
       background: rgba(255, 75, 139, 0.3);
       border: 1px solid var(--pink-primary);
     }
-
-    /* Forever Alone Mode */
-    body.alone-mode #col-partner,
-    body.alone-mode #col-heart,
-    body.alone-mode #room-sync-card,
-    body.alone-mode .circle-add-member-btn,
-    body.alone-mode .member-del-btn,
-    body.alone-mode #partner-edit-section {
-      display: none !important;
-    }
-
-    body.alone-mode .profiles-wrapper {
-      justify-content: center;
-    }
-
-    body.alone-mode .profile-card-34 {
-      width: 125px;
-      aspect-ratio: 3 / 4;
-    }
   </style>
 </head>
 <body class="dark-love-theme">
 
   <div id="app" class="no-select">
 
-    <!-- ၁။ လုံခြုံရေး PIN Code Screen -->
+    <!-- ၁။ လုံခြုံရေး PIN Code Screen (Decoy Skip & Old PIN Verification Supported) -->
     <div id="pin-overlay" class="pin-overlay">
       <div class="pin-card">
         <div class="pin-heart-icon" onclick="resetPinSetup()">💖</div>
@@ -1040,16 +1033,17 @@
           <button type="button" class="pin-key" onclick="pressPin('7')">7</button>
           <button type="button" class="pin-key" onclick="pressPin('8')">8</button>
           <button type="button" class="pin-key" onclick="pressPin('9')">9</button>
-          <button type="button" class="pin-key action" onclick="unlockPin()"><i class="fa-solid fa-fingerprint"></i></button>
+          <button type="button" class="pin-key action" onclick="pressDecoySkip()"><i class="fa-solid fa-fingerprint"></i></button>
           <button type="button" class="pin-key" onclick="pressPin('0')">0</button>
           <button type="button" class="pin-key action" onclick="deletePin()"><i class="fa-solid fa-delete-left"></i></button>
         </div>
 
-        <button type="button" class="pin-skip-btn" onclick="unlockPin()">လောလောဆယ် ကျော်မည် (Skip)</button>
+        <!-- Zero Data / Day 0 Decoy Login -->
+        <button type="button" class="pin-skip-btn" onclick="pressDecoySkip()">လောလောဆယ် ကျော်မည် (Skip)</button>
       </div>
     </div>
 
-    <!-- ၂။ စက္ကူလေယာဉ် ပျံသန်းသည့် Layer (Origami Vector SVG) -->
+    <!-- ၂။ စက္ကူလေယာဉ် ပျံသန်းသည့် SVG Layer -->
     <div id="plane-animation-layer" class="plane-layer">
       <svg class="paper-plane-svg" viewBox="0 0 24 24">
         <path d="M1.5 12.5l21-9.5-9 20-3-8.5-9-2z" fill="#ff4b8b" stroke="#ffffff" stroke-width="1.5"/>
@@ -1057,20 +1051,18 @@
       </svg>
     </div>
 
-    <!-- ၃။ Header Bar -->
+    <!-- ၃။ Header Bar (Alone Mode ခလုတ် အပြီးဖယ်ရှားပြီးဖြစ်သည်) -->
     <header class="top-nav">
-      <div class="mode-badge" id="current-mode-indicator">
-        <span id="mode-icon">💖</span> <span id="mode-text">Couple Mode</span>
+      <div class="app-brand">
+        <span>💖</span> Loved Tracker
       </div>
-      <button class="mode-toggle-btn" id="alone-mode-toggle" onclick="toggleAloneMode()">
-        <i class="fa-solid fa-user-astronaut"></i> <span id="toggle-label">Alone Mode ပြောင်းရန်</span>
-      </button>
+      <div class="version-tag">v1.1</div>
     </header>
 
     <!-- ၄။ Main Content Pages -->
     <main class="content-scroll">
 
-      <!-- TAB 1: Couple / Solo Page -->
+      <!-- TAB 1: Couple Page -->
       <section id="tab-couple" class="tab-pane active">
         
         <div class="card glass-card profile-box">
@@ -1083,22 +1075,22 @@
 
           <div class="profiles-wrapper">
             <!-- 3:4 Frame Me -->
-            <div class="avatar-col" id="col-me">
+            <div class="avatar-col">
               <div class="profile-card-34" id="avatar-me">
                 <span class="placeholder-emoji">🥰</span>
               </div>
               <span class="avatar-name" id="name-me">Me</span>
             </div>
             
-            <div class="heart-center-col" id="col-heart">
+            <div class="heart-center-col">
               <div class="heart-pulse-btn" id="main-heart-btn" onclick="tapHeart()">
                 <i class="fa-solid fa-heart"></i>
               </div>
-              <span class="tap-hint" id="tap-hint-text">Tap me!</span>
+              <span class="tap-hint">Tap me!</span>
             </div>
 
             <!-- 3:4 Frame You -->
-            <div class="avatar-col" id="col-partner">
+            <div class="avatar-col">
               <div class="profile-card-34" id="avatar-partner">
                 <span class="placeholder-emoji">😘</span>
               </div>
@@ -1108,7 +1100,7 @@
         </div>
 
         <div class="card glass-card counter-box">
-          <h3 id="counter-title">တို့နှစ်ယောက် ချစ်သက်တမ်း</h3>
+          <h3>တို့နှစ်ယောက် ချစ်သက်တမ်း</h3>
           <div class="big-counter">
             <span id="days-count">0</span> <span class="unit">ရက်မြောက်</span>
           </div>
@@ -1119,7 +1111,7 @@
             <input type="date" id="love-start-date" class="dark-input-date" onchange="onDateChange(this.value)">
           </div>
 
-          <div class="milestone-container" id="milestone-box">
+          <div class="milestone-container">
             <div class="milestone-info">
               <span id="next-milestone-title">ရက် ၁၀၀ ပြည့်ဖို့</span>
               <span id="milestone-days-left">၁၀၀ ရက်လို</span>
@@ -1130,22 +1122,22 @@
           </div>
 
           <div class="voice-alert-badge">
-            <i class="fa-solid fa-bell"></i> Voice Alert Ready
+            <i class="fa-solid fa-bell"></i> Real-time Audio Ready
           </div>
         </div>
 
         <div class="card glass-card live-screen-box">
           <div class="box-header">
-            <h4><i class="fa-regular fa-envelope"></i> <span id="live-screen-title">Partner Live Screen</span></h4>
+            <h4><i class="fa-regular fa-envelope"></i> Partner Live Screen</h4>
             <span class="status-dot"></span>
           </div>
           
           <div class="screen-board" id="partner-board-display">
-            <p class="placeholder-text" id="board-empty-text">စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>
+            <p class="placeholder-text">ချစ်သူဆီက စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>
           </div>
 
-          <div class="action-inputs-row" id="send-controls-row">
-            <input type="text" id="partner-msg-input" placeholder="စာသား ရိုက်ထည့်ပါ..." class="dark-text-input">
+          <div class="action-inputs-row">
+            <input type="text" id="partner-msg-input" placeholder="ချစ်သူ့ထံ စာပို့မည်..." class="dark-text-input">
             <div class="btn-group">
               <button class="btn btn-pink" onclick="sendPartnerMessage()">ပို့မည်</button>
               <button class="btn btn-purple" onclick="openCanvasModal()">🎨 ပုံဆွဲမည်</button>
@@ -1159,8 +1151,8 @@
       <section id="tab-family" class="tab-pane">
         <div class="card glass-card">
           <div class="section-title-row">
-            <h3 id="family-section-title">🏡 မိသားစုဝင်များ</h3>
-            <span class="count-tag" id="family-count-tag">2 ယောက်</span>
+            <h3>🏡 မိသားစုဝင်များ</h3>
+            <span class="count-tag" id="family-count-tag">0 ယောက်</span>
           </div>
 
           <div class="members-horizontal-list" id="family-members-container"></div>
@@ -1168,7 +1160,7 @@
 
         <div class="card glass-card fridge-board">
           <div class="section-title-row">
-            <h4>📌 <span id="family-fridge-title">Family Fridge Board</span></h4>
+            <h4>📌 Family Fridge Board</h4>
           </div>
           <div class="notes-grid" id="family-notes-container"></div>
           
@@ -1182,8 +1174,8 @@
       <section id="tab-friends" class="tab-pane">
         <div class="card glass-card">
           <div class="section-title-row">
-            <h3 id="friends-section-title">✨ Squad Members</h3>
-            <span class="count-tag" id="friends-count-tag">2 ယောက်</span>
+            <h3>✨ Squad Members</h3>
+            <span class="count-tag" id="friends-count-tag">0 ယောက်</span>
           </div>
 
           <div class="members-horizontal-list" id="friends-members-container"></div>
@@ -1191,7 +1183,7 @@
 
         <div class="card glass-card squad-hub">
           <div class="section-title-row">
-            <h4>💬 <span id="friends-hub-title">Friends Hub</span></h4>
+            <h4>💬 Friends Hub</h4>
           </div>
           <div class="notes-grid" id="friends-notes-container"></div>
 
@@ -1201,16 +1193,16 @@
         </div>
       </section>
 
-      <!-- TAB 4: Codes / Settings Page -->
+      <!-- TAB 4: Codes / Settings Page (Separate Rooms & Old PIN Verification) -->
       <section id="tab-codes" class="tab-pane">
         
         <!-- ကတ် (၁) - 🔐 PIN Security သီးသန့် ကတ် -->
-        <div class="card glass-card security-card">
+        <div class="card glass-card">
           <h3>🔐 App Security (Passcode)</h3>
           <p class="card-desc">App ဖွင့်ချိန် လုံခြုံရေးအတွက် PIN သတ်မှတ်ပါ</p>
           
           <div class="setting-item">
-            <button class="btn btn-outline btn-block" onclick="resetPinSetup()">
+            <button class="btn btn-outline btn-block" onclick="startChangePinProcess()">
               <i class="fa-solid fa-key"></i> PIN အသစ် ပြောင်းလဲမည်
             </button>
           </div>
@@ -1222,24 +1214,77 @@
           </div>
         </div>
 
-        <!-- ကတ် (၂) - 🔗 Room / Partner Sync သီးသန့် ကတ် -->
-        <div class="card glass-card sync-card" id="room-sync-card">
-          <h3>🔗 Room & Partner Sync</h3>
-          <p class="card-desc">ချစ်သူနှင့် နှစ်ယောက်သီးသန့် ချိတ်ဆက်ရန် ကုဒ်</p>
+        <!-- ကတ် (၂) - 💑 Couple Room Sync -->
+        <div class="card glass-card sync-card">
+          <h3>💑 Couple Room Sync</h3>
+          <p class="card-desc">ချစ်သူနှင့် နှစ်ယောက်သီးသန့် ချိတ်ဆက်ရန် အခန်း</p>
 
           <div class="setting-item">
-            <label>My Room Code</label>
+            <label>My Couple Code</label>
             <div class="code-box-display">
-              <span id="my-device-code">LOVE-7892</span>
-              <button class="mini-copy-btn" onclick="copyRoomCode()"><i class="fa-solid fa-copy"></i></button>
+              <span id="code-disp-couple">LOVE-7892</span>
+              <div class="code-action-btns">
+                <button class="mini-icon-btn" onclick="editCustomRoomCode('couple')" title="Edit Code"><i class="fa-solid fa-pen"></i></button>
+                <button class="mini-icon-btn" onclick="copyCode('couple')" title="Copy Code"><i class="fa-solid fa-copy"></i></button>
+              </div>
             </div>
           </div>
 
           <div class="setting-item">
-            <label>Join Room Code (ချစ်သူ့ ကုဒ်ဖြင့် ချိတ်မည်)</label>
+            <label>Join Partner Code</label>
             <div class="connect-input-row">
-              <input type="text" id="pair-code-input" placeholder="ကုဒ် ရိုက်ထည့်ပါ..." class="dark-text-input">
-              <button class="btn btn-pink" onclick="joinRoomCode()">ချိတ်မည်</button>
+              <input type="text" id="join-couple-input" placeholder="ချစ်သူ့ ကုဒ် ရိုက်ထည့်ပါ..." class="dark-text-input">
+              <button class="btn btn-pink" onclick="joinRoom('couple')">ချိတ်မည်</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ကတ် (၃) - 🏡 Family Room Sync -->
+        <div class="card glass-card sync-card">
+          <h3>🏡 Family Room Sync</h3>
+          <p class="card-desc">မိသားစုဝင်များ သီးသန့် ချိတ်ဆက်ရန် အခန်း</p>
+
+          <div class="setting-item">
+            <label>My Family Code</label>
+            <div class="code-box-display">
+              <span id="code-disp-family">HOME-3321</span>
+              <div class="code-action-btns">
+                <button class="mini-icon-btn" onclick="editCustomRoomCode('family')" title="Edit Code"><i class="fa-solid fa-pen"></i></button>
+                <button class="mini-icon-btn" onclick="copyCode('family')" title="Copy Code"><i class="fa-solid fa-copy"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label>Join Family Code</label>
+            <div class="connect-input-row">
+              <input type="text" id="join-family-input" placeholder="မိသားစု ကုဒ် ရိုက်ထည့်ပါ..." class="dark-text-input">
+              <button class="btn btn-pink" onclick="joinRoom('family')">ချိတ်မည်</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ကတ် (၄) - ✨ Friends Room Sync -->
+        <div class="card glass-card sync-card">
+          <h3>✨ Friends Squad Room</h3>
+          <p class="card-desc">သူငယ်ချင်းများ Group ချိတ်ဆက်ရန် အခန်း</p>
+
+          <div class="setting-item">
+            <label>My Friends Code</label>
+            <div class="code-box-display">
+              <span id="code-disp-friends">SQUAD-9904</span>
+              <div class="code-action-btns">
+                <button class="mini-icon-btn" onclick="editCustomRoomCode('friends')" title="Edit Code"><i class="fa-solid fa-pen"></i></button>
+                <button class="mini-icon-btn" onclick="copyCode('friends')" title="Copy Code"><i class="fa-solid fa-copy"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label>Join Squad Code</label>
+            <div class="connect-input-row">
+              <input type="text" id="join-friends-input" placeholder="သူငယ်ချင်း ကုဒ် ရိုက်ထည့်ပါ..." class="dark-text-input">
+              <button class="btn btn-pink" onclick="joinRoom('friends')">ချိတ်မည်</button>
             </div>
           </div>
         </div>
@@ -1252,7 +1297,7 @@
     <nav class="bottom-tab-bar">
       <button class="tab-btn active" onclick="switchTab('tab-couple', this)">
         <i class="fa-solid fa-heart"></i>
-        <span id="nav-couple-text">Couple</span>
+        <span>Couple</span>
       </button>
       <button class="tab-btn" onclick="switchTab('tab-family', this)">
         <i class="fa-solid fa-house-chimney"></i>
@@ -1326,7 +1371,7 @@
         <h4 id="member-modal-title">အဖွဲ့ဝင် အသစ်ထည့်မည်</h4>
         <input type="text" id="member-name-input" placeholder="အမည် ရိုက်ထည့်ပါ..." class="dark-text-input">
         
-        <label class="modal-label">ဓာတ်ပုံ သို့မဟုတ် Emoji ရွေးချယ်ပါ</label>
+        <label class="modal-label" style="font-size: 11px; color: var(--text-muted);">ဓာတ်ပုံ သို့မဟုတ် Emoji ရွေးချယ်ပါ</label>
         <div class="photo-upload-section">
           <label class="btn-file-label">
             <i class="fa-solid fa-camera"></i> ဖုန်းထဲမှ ဓာတ်ပုံရွေးမည်
@@ -1373,7 +1418,7 @@
           </div>
         </div>
 
-        <div class="profile-edit-section" id="partner-edit-section" style="margin-top: 10px;">
+        <div class="profile-edit-section" style="margin-top: 10px;">
           <h5>You (ချစ်သူ့အချက်အလက်)</h5>
           <input type="text" id="edit-partner-name" value="You" class="dark-text-input">
           <div class="photo-upload-section" style="margin-top: 6px;">
@@ -1400,26 +1445,46 @@
 
   </div>
 
-  <!-- JAVASCRIPT LOGIC (100% INLINE FAIL-SAFE) -->
+  <!-- JAVASCRIPT LOGIC V1.1 -->
   <script>
     const STORAGE_KEY = 'loved_tracker_data_v2';
     const PIN_KEY = 'loved_tracker_pin';
 
-    function safeVibrate(p) {
-      try { if (window.navigator && typeof window.navigator.vibrate === 'function') window.navigator.vibrate(p); } catch (e) {}
-    }
-
-    function safeVoiceAlert(text) {
+    function safeVibrate(pattern) {
       try {
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
-          const utter = new SpeechSynthesisUtterance(text);
-          utter.lang = 'en-US';
-          utter.rate = 0.95;
-          window.speechSynthesis.speak(utter);
+        if (window.navigator && typeof window.navigator.vibrate === 'function') {
+          window.navigator.vibrate(pattern);
         }
       } catch (e) {}
-      safeVibrate(80);
+    }
+
+    // Web Audio Synthesizer (ချစ်စရာကောင်းသော Pop / Sweet Chime အသံ ၁၀၀% မြည်စေသော စနစ်)
+    function playHeartChimeSound() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          if (ctx.state === 'suspended') ctx.resume();
+
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'sine';
+          const now = ctx.currentTime;
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12); // A5
+
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.35);
+        }
+      } catch (e) {}
+      safeVibrate([50, 30, 80]);
     }
 
     function renderFrameContent(val) {
@@ -1454,9 +1519,55 @@
       reader.readAsDataURL(file);
     }
 
-    // PIN LOCK SYSTEM
+    // DATA STATE (Real vs Decoy)
+    const defaultData = {
+      couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'You', partnerAvatar: '😘', startDate: '' },
+      familyMembers: [{ id: 1, name: 'Family 1', avatar: '😊' }, { id: 2, name: 'Family 2', avatar: '🌸' }],
+      familyNotes: [{ id: 1, text: 'ညနေစာ အတူတူစားကြမယ်နော် 🍲', date: '2026-10-04', time: '18:30' }],
+      friendsMembers: [{ id: 1, name: 'Friend 1', avatar: '😎' }, { id: 2, name: 'Friend 2', avatar: '🥳' }],
+      friendsNotes: [{ id: 1, text: 'ဒီည Mobile Legends ဆော့ကြမယ် 🎮', date: '2026-10-04', time: '20:00' }],
+      rooms: { couple: 'LOVE-7892', family: 'HOME-3321', friends: 'SQUAD-9904' },
+      partnerBoard: null
+    };
+
+    const decoyData = {
+      couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'You', partnerAvatar: '😘', startDate: '' },
+      familyMembers: [],
+      familyNotes: [],
+      friendsMembers: [],
+      friendsNotes: [],
+      rooms: { couple: 'LOVE-0000', family: 'HOME-0000', friends: 'SQUAD-0000' },
+      partnerBoard: null
+    };
+
+    let appData = loadAppData();
+    let isDecoyMode = false;
+    let activeNoteType = 'family';
+    let chosenAvatarMember = '😊';
+    let chosenAvatarMe = '🥰';
+    let chosenAvatarPartner = '😘';
+
+    function loadAppData() {
+      try {
+        const s = localStorage.getItem(STORAGE_KEY);
+        if (s) {
+          const parsed = JSON.parse(s);
+          parsed.rooms = Object.assign({ couple: 'LOVE-7892', family: 'HOME-3321', friends: 'SQUAD-9904' }, parsed.rooms || {});
+          return Object.assign({}, defaultData, parsed);
+        }
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(defaultData));
+    }
+
+    function saveAppData() {
+      if (!isDecoyMode) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch (e) {}
+      }
+    }
+
+    // PIN LOCK LOGIC (Old PIN -> New PIN -> Confirm & Decoy Skip)
     let currentEnteredPin = '';
-    let pinSetupStep = 'CREATE';
+    let pinSetupStep = 'CREATE'; // CREATE, CONFIRM, ENTER, VERIFY_OLD, CREATE_NEW, CONFIRM_NEW
     let tempFirstPin = '';
 
     function checkPinStatus() {
@@ -1519,12 +1630,12 @@
       updatePinDots();
     }
 
-    function unlockPin() {
-      const overlay = document.getElementById('pin-overlay');
-      if (overlay) overlay.style.display = 'none';
-      currentEnteredPin = '';
-      tempFirstPin = '';
-      updatePinDots();
+    // Decoy Mode Login (Zero Date & Data)
+    function pressDecoySkip() {
+      isDecoyMode = true;
+      appData = JSON.parse(JSON.stringify(decoyData));
+      unlockPinUi();
+      refreshAllUi();
     }
 
     function resetPinSetup() {
@@ -1532,10 +1643,31 @@
       checkPinStatus();
     }
 
+    // Old PIN စစ်ဆေးပြီးမှ New PIN ပြောင်းလဲခွင့် ပြုခြင်း
+    function startChangePinProcess() {
+      let savedPin = null;
+      try { savedPin = localStorage.getItem(PIN_KEY); } catch (e) {}
+      const overlay = document.getElementById('pin-overlay');
+
+      if (!savedPin) {
+        pinSetupStep = 'CREATE';
+        updatePinUiText('New Passcode', 'PIN အသစ် သတ်မှတ်ပါ (ဂဏန်း ၄ လုံး)');
+      } else {
+        pinSetupStep = 'VERIFY_OLD';
+        updatePinUiText('Verify Old Passcode', 'မူလ PIN အဟောင်းကို အရင်ရိုက်ထည့်ပါ');
+      }
+
+      currentEnteredPin = '';
+      tempFirstPin = '';
+      updatePinDots();
+      if (overlay) overlay.style.display = 'flex';
+    }
+
     function handlePinComplete() {
       let savedPin = null;
       try { savedPin = localStorage.getItem(PIN_KEY); } catch (e) {}
 
+      // Initial Create
       if (pinSetupStep === 'CREATE') {
         tempFirstPin = currentEnteredPin;
         currentEnteredPin = '';
@@ -1546,20 +1678,26 @@
       else if (pinSetupStep === 'CONFIRM') {
         if (currentEnteredPin === tempFirstPin) {
           try { localStorage.setItem(PIN_KEY, currentEnteredPin); } catch (e) {}
-          unlockPin();
+          isDecoyMode = false;
+          appData = loadAppData();
+          unlockPinUi();
+          refreshAllUi();
         } else {
           safeVibrate([100, 50, 100]);
           alert('PIN မတူညီပါ! အစကနေ ပြန်လည်ရိုက်ထည့်ပါ။');
           pinSetupStep = 'CREATE';
-          tempFirstPin = '';
           currentEnteredPin = '';
           updatePinDots();
           updatePinUiText('New Passcode', 'PIN အသစ် သတ်မှတ်ပါ (ဂဏန်း ၄ လုံး)');
         }
-      } 
+      }
+      // Login Enter
       else if (pinSetupStep === 'ENTER') {
         if (currentEnteredPin === savedPin) {
-          unlockPin();
+          isDecoyMode = false;
+          appData = loadAppData();
+          unlockPinUi();
+          refreshAllUi();
         } else {
           safeVibrate([100, 50, 100]);
           alert('PIN နံပါတ် မှားယွင်းနေပါသည်!');
@@ -1567,48 +1705,49 @@
           updatePinDots();
         }
       }
-    }
-
-    // DATA STATE
-    const defaultData = {
-      isAloneMode: false,
-      couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'You', partnerAvatar: '😘', startDate: '' },
-      familyMembers: [{ id: 1, name: 'Family 1', avatar: '😊' }, { id: 2, name: 'Family 2', avatar: '🌸' }],
-      familyNotes: [{ id: 1, text: 'ညနေစာ အတူတူစားကြမယ်နော် 🍲', date: '2026-10-04', time: '18:30' }],
-      friendsMembers: [{ id: 1, name: 'Friend 1', avatar: '😎' }, { id: 2, name: 'Friend 2', avatar: '🥳' }],
-      friendsNotes: [{ id: 1, text: 'ဒီည Mobile Legends ဆော့ကြမယ် 🎮', date: '2026-10-04', time: '20:00' }],
-      partnerBoard: null
-    };
-
-    let appData = loadAppData();
-    let activeNoteType = 'family';
-    let chosenAvatarMember = '😊';
-    let chosenAvatarMe = '🥰';
-    let chosenAvatarPartner = '😘';
-
-    function loadAppData() {
-      try {
-        const s = localStorage.getItem(STORAGE_KEY);
-        if (s) {
-          const parsed = JSON.parse(s);
-          if (parsed.couple) {
-            parsed.couple.meAvatar = parsed.couple.meAvatar || parsed.couple.meEmoji || '🥰';
-            parsed.couple.partnerAvatar = parsed.couple.partnerAvatar || parsed.couple.partnerEmoji || '😘';
-          }
-          if (parsed.familyMembers) {
-            parsed.familyMembers.forEach(m => { m.avatar = m.avatar || m.emoji || '😊'; });
-          }
-          if (parsed.friendsMembers) {
-            parsed.friendsMembers.forEach(m => { m.avatar = m.avatar || m.emoji || '😎'; });
-          }
-          return Object.assign({}, defaultData, parsed);
+      // Old PIN Verification
+      else if (pinSetupStep === 'VERIFY_OLD') {
+        if (currentEnteredPin === savedPin) {
+          pinSetupStep = 'CREATE_NEW';
+          currentEnteredPin = '';
+          updatePinDots();
+          updatePinUiText('Enter New Passcode', 'PIN အသစ် (ဂဏန်း ၄ လုံး) ရိုက်ထည့်ပါ');
+        } else {
+          safeVibrate([100, 50, 100]);
+          alert('PIN အဟောင်း မှားယွင်းနေပါသည်!');
+          currentEnteredPin = '';
+          updatePinDots();
         }
-      } catch (e) {}
-      return JSON.parse(JSON.stringify(defaultData));
+      }
+      else if (pinSetupStep === 'CREATE_NEW') {
+        tempFirstPin = currentEnteredPin;
+        currentEnteredPin = '';
+        updatePinDots();
+        pinSetupStep = 'CONFIRM_NEW';
+        updatePinUiText('Confirm New Passcode', 'PIN အသစ်ကို အတည်ပြုရန် ထပ်ရိုက်ပါ');
+      }
+      else if (pinSetupStep === 'CONFIRM_NEW') {
+        if (currentEnteredPin === tempFirstPin) {
+          try { localStorage.setItem(PIN_KEY, currentEnteredPin); } catch (e) {}
+          alert('PIN အသစ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ!');
+          unlockPinUi();
+        } else {
+          safeVibrate([100, 50, 100]);
+          alert('PIN မတူညီပါ! New PIN ကို အစကနေ ပြန်ရိုက်ပါ။');
+          pinSetupStep = 'CREATE_NEW';
+          currentEnteredPin = '';
+          updatePinDots();
+          updatePinUiText('Enter New Passcode', 'PIN အသစ် (ဂဏန်း ၄ လုံး) ရိုက်ထည့်ပါ');
+        }
+      }
     }
 
-    function saveAppData() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch (e) {}
+    function unlockPinUi() {
+      const overlay = document.getElementById('pin-overlay');
+      if (overlay) overlay.style.display = 'none';
+      currentEnteredPin = '';
+      tempFirstPin = '';
+      updatePinDots();
     }
 
     // AIRPLANE ANIMATION
@@ -1624,45 +1763,11 @@
     }
 
     function tapHeart() {
-      safeVoiceAlert('I love you');
+      playHeartChimeSound();
       const h = document.getElementById('main-heart-btn');
       if (h) {
-        h.style.transform = 'scale(1.25)';
+        h.style.transform = 'scale(1.28)';
         setTimeout(() => { h.style.transform = ''; }, 200);
-      }
-    }
-
-    function toggleAloneMode() {
-      appData.isAloneMode = !appData.isAloneMode;
-      saveAppData();
-      applyAloneModeUI();
-    }
-
-    function applyAloneModeUI() {
-      const isAlone = appData.isAloneMode;
-      const toggleLabel = document.getElementById('toggle-label');
-      const modeText = document.getElementById('mode-text');
-      const modeIcon = document.getElementById('mode-icon');
-      const counterTitle = document.getElementById('counter-title');
-      const liveTitle = document.getElementById('live-screen-title');
-      const navCoupleText = document.getElementById('nav-couple-text');
-
-      if (isAlone) {
-        document.body.classList.add('alone-mode');
-        if (toggleLabel) toggleLabel.textContent = 'Couple Mode သို့ပြောင်းရန်';
-        if (modeText) modeText.textContent = 'Alone Mode (Solo Journey)';
-        if (modeIcon) modeIcon.textContent = '🪐';
-        if (counterTitle) counterTitle.textContent = 'ကိုယ်တိုင်နှင့်အတူ ဖြတ်သန်းခဲ့သောရက်များ';
-        if (liveTitle) liveTitle.textContent = 'My Personal Notepad';
-        if (navCoupleText) navCoupleText.textContent = 'Solo';
-      } else {
-        document.body.classList.remove('alone-mode');
-        if (toggleLabel) toggleLabel.textContent = 'Alone Mode ပြောင်းရန်';
-        if (modeText) modeText.textContent = 'Couple Mode';
-        if (modeIcon) modeIcon.textContent = '💖';
-        if (counterTitle) counterTitle.textContent = 'တို့နှစ်ယောက် ချစ်သက်တမ်း';
-        if (liveTitle) liveTitle.textContent = 'Partner Live Screen';
-        if (navCoupleText) navCoupleText.textContent = 'Couple';
       }
     }
 
@@ -1799,7 +1904,7 @@
       if (sd) sd.value = appData.couple.startDate || '';
     }
 
-    // PARTNER MESSAGES
+    // PARTNER LIVE SCREEN
     function sendPartnerMessage() {
       const input = document.getElementById('partner-msg-input');
       const msg = input.value.trim();
@@ -1810,9 +1915,7 @@
         saveAppData();
         input.value = '';
         renderBoard();
-
-        const alerts = ['I love you', 'I miss you'];
-        safeVoiceAlert(alerts[Math.floor(Math.random() * alerts.length)]);
+        playHeartChimeSound();
       });
     }
 
@@ -1820,7 +1923,7 @@
       const b = document.getElementById('partner-board-display');
       if (!b) return;
       if (!appData.partnerBoard) {
-        b.innerHTML = '<p class="placeholder-text">စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>';
+        b.innerHTML = '<p class="placeholder-text">ချစ်သူဆီက စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>';
         return;
       }
       if (appData.partnerBoard.type === 'text') {
@@ -1920,13 +2023,9 @@
       if (!text) return;
 
       const n = { id: Date.now(), text, date, time };
-      if (activeNoteType === 'family') {
-        appData.familyNotes.unshift(n);
-        safeVoiceAlert('Hello');
-      } else {
-        appData.friendsNotes.unshift(n);
-        safeVoiceAlert('Hey guys');
-      }
+      if (activeNoteType === 'family') appData.familyNotes.unshift(n);
+      else appData.friendsNotes.unshift(n);
+      playHeartChimeSound();
       saveAppData();
       closeModal('note-modal');
       renderNotes();
@@ -1971,18 +2070,38 @@
       }
     }
 
-    // CODES & ROOM CONNECTION
-    function copyRoomCode() {
-      const code = document.getElementById('my-device-code').textContent;
-      if (navigator.clipboard) navigator.clipboard.writeText(code);
-      alert(`Room Code ကူးယူပြီးပါပြီ: ${code}`);
+    // ၃ ခု သီးသန့် ROOM CODES & CUSTOM EDIT
+    function renderRoomCodes() {
+      const c = document.getElementById('code-disp-couple');
+      const f = document.getElementById('code-disp-family');
+      const fr = document.getElementById('code-disp-friends');
+      if (c) c.textContent = appData.rooms.couple;
+      if (f) f.textContent = appData.rooms.family;
+      if (fr) fr.textContent = appData.rooms.friends;
     }
 
-    function joinRoomCode() {
-      const input = document.getElementById('pair-code-input');
+    function editCustomRoomCode(type) {
+      const current = appData.rooms[type];
+      const custom = prompt(`စိတ်ကြိုက် ${type.toUpperCase()} Room Code အသစ် သတ်မှတ်ပါ:`, current);
+      if (custom && custom.trim()) {
+        appData.rooms[type] = custom.trim().toUpperCase();
+        saveAppData();
+        renderRoomCodes();
+        alert(`Room Code အသစ် ပြောင်းလဲပြီးပါပြီ: ${appData.rooms[type]}`);
+      }
+    }
+
+    function copyCode(type) {
+      const code = appData.rooms[type];
+      if (navigator.clipboard) navigator.clipboard.writeText(code);
+      alert(`${type.toUpperCase()} Code ကူးယူပြီးပါပြီ: ${code}`);
+    }
+
+    function joinRoom(type) {
+      const input = document.getElementById(`join-${type}-input`);
       const val = input.value.trim();
       if (val) {
-        alert(`Room Code "${val}" ဖြင့် ချိတ်ဆက်ပြီးပါပြီ!`);
+        alert(`${type.toUpperCase()} Room "${val}" သို့ အောင်မြင်စွာ Join ပြီးပါပြီ!`);
         input.value = '';
       } else {
         alert('Room Code ရိုက်ထည့်ပါ!');
@@ -2083,12 +2202,11 @@
         appData.partnerBoard = { type: 'image', content: dataUrl };
         saveAppData();
         renderBoard();
-        const alerts = ['I love you', 'I miss you'];
-        safeVoiceAlert(alerts[Math.floor(Math.random() * alerts.length)]);
+        playHeartChimeSound();
       });
     }
 
-    // HELPERS & TABS
+    // TABS & MODALS
     function switchTab(id, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
@@ -2118,15 +2236,19 @@
       if (m) m.classList.remove('active');
     }
 
-    // INITIALIZATION
-    window.onload = function() {
-      checkPinStatus();
-      applyAloneModeUI();
+    function refreshAllUi() {
       renderProfiles();
       renderCounter();
       renderBoard();
       renderMembers();
       renderNotes();
+      renderRoomCodes();
+    }
+
+    // INITIAL LOAD
+    window.onload = function() {
+      checkPinStatus();
+      refreshAllUi();
     };
   </script>
 </body>
