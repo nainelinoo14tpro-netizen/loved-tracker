@@ -1,74 +1,81 @@
 const STORAGE_KEY = 'loved_tracker_data_v2';
 const PIN_KEY = 'loved_tracker_pin';
 
-function getTodayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function safeVibrate(p) {
+  try {
+    if (window.navigator && typeof window.navigator.vibrate === 'function') {
+      window.navigator.vibrate(p);
+    }
+  } catch (e) {}
 }
 
-function getCurrentTimeStr() {
-  const d = new Date();
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+function safeVoiceAlert(text) {
+  try {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-US';
+      utter.rate = 0.95;
+      utter.pitch = 1.1;
+      window.speechSynthesis.speak(utter);
+    }
+  } catch (e) {}
+  safeVibrate(80);
 }
 
-function escapeHtml(str) {
-  return str.replace(/[&<>'"]/g, tag => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-  }[tag] || tag));
+function renderFrameContent(val) {
+  if (!val) return '<span class="placeholder-emoji">🥰</span>';
+  if (val.startsWith('data:image') || val.startsWith('http')) {
+    return `<img src="${val}" alt="Photo">`;
+  }
+  return `<span class="placeholder-emoji">${val}</span>`;
 }
 
-const defaultState = {
-  isAloneMode: false,
-  couple: {
-    meName: 'Me',
-    meEmoji: '🥰',
-    partnerName: 'You',
-    partnerEmoji: '😘',
-    startDate: ''
-  },
-  familyMembers: [
-    { id: 1, name: 'Family 1', emoji: '😊' },
-    { id: 2, name: 'Family 2', emoji: '🌸' }
-  ],
-  familyNotes: [
-    { id: 1, text: 'ညနေစာ အတူတူစားကြမယ်နော် 🍲', date: getTodayStr(), time: '18:30' }
-  ],
-  friendsMembers: [
-    { id: 1, name: 'Friend 1', emoji: '😎' },
-    { id: 2, name: 'Friend 2', emoji: '🥳' }
-  ],
-  friendsNotes: [
-    { id: 1, text: 'ဒီည Mobile Legends ဆော့ကြမယ် 🎮', date: getTodayStr(), time: '20:00' }
-  ],
-  partnerBoard: null
-};
+function compressImage(file, callback) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const maxDim = 320;
+      let w = img.width, h = img.height;
+      if (w > h) {
+        if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+      } else {
+        if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', 0.8));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 
-let appState = loadState();
+// ------------------------------------------
+// 1. PIN LOCK LOGIC (New Passcode -> Confirm)
+// ------------------------------------------
 let currentEnteredPin = '';
 let pinSetupStep = 'CREATE';
 let tempFirstPin = '';
-let activeNoteTarget = 'family';
-let selectedMemberEmoji = '😊';
-let selectedMyEmoji = '🥰';
-let selectedPartnerEmoji = '😘';
 
-// ------------------------------------------
-// PIN LOCK FUNCTIONS (GLOBAL)
-// ------------------------------------------
 window.pressPin = function(num) {
   if (currentEnteredPin.length < 4) {
     currentEnteredPin += String(num);
-    if (navigator.vibrate) navigator.vibrate(25);
+    safeVibrate(25);
     updatePinDots();
     if (currentEnteredPin.length === 4) {
-      setTimeout(handlePinComplete, 150);
+      setTimeout(handlePinComplete, 160);
     }
   }
 };
 
 window.deletePin = function() {
   currentEnteredPin = currentEnteredPin.slice(0, -1);
-  if (navigator.vibrate) navigator.vibrate(25);
+  safeVibrate(25);
   updatePinDots();
 };
 
@@ -83,7 +90,7 @@ window.resetPinSetup = function() {
 
 function checkPinStatus() {
   const savedPin = localStorage.getItem(PIN_KEY);
-  const pinOverlay = document.getElementById('pin-overlay');
+  const overlay = document.getElementById('pin-overlay');
 
   if (!savedPin) {
     pinSetupStep = 'CREATE';
@@ -96,14 +103,14 @@ function checkPinStatus() {
   currentEnteredPin = '';
   tempFirstPin = '';
   updatePinDots();
-  if (pinOverlay) pinOverlay.classList.remove('hidden');
+  if (overlay) overlay.classList.remove('hidden');
 }
 
-function updatePinUiText(title, subtitle) {
+function updatePinUiText(title, sub) {
   const t = document.getElementById('pin-title');
   const s = document.getElementById('pin-subtitle');
   if (t) t.textContent = title;
-  if (s) s.textContent = subtitle;
+  if (s) s.textContent = sub;
 }
 
 function updatePinDots() {
@@ -131,7 +138,7 @@ function handlePinComplete() {
       localStorage.setItem(PIN_KEY, currentEnteredPin);
       unlockPinScreen();
     } else {
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      safeVibrate([100, 50, 100]);
       alert('PIN မတူညီပါ! အစကနေ ပြန်လည်ရိုက်ထည့်ပါ။');
       pinSetupStep = 'CREATE';
       tempFirstPin = '';
@@ -144,7 +151,7 @@ function handlePinComplete() {
     if (currentEnteredPin === savedPin) {
       unlockPinScreen();
     } else {
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      safeVibrate([100, 50, 100]);
       alert('PIN နံပါတ် မှားယွင်းနေပါသည်!');
       currentEnteredPin = '';
       updatePinDots();
@@ -161,76 +168,89 @@ function unlockPinScreen() {
 }
 
 // ------------------------------------------
-// AUDIO & TTS
+// 2. DATA STATE & STORAGE
 // ------------------------------------------
-function playVoiceAlert(text) {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'en-US';
-    utter.rate = 0.95;
-    utter.pitch = 1.1;
-    window.speechSynthesis.speak(utter);
-  }
-  if (navigator.vibrate) navigator.vibrate(80);
+const defaultData = {
+  isAloneMode: false,
+  couple: { meName: 'Me', meAvatar: '🥰', partnerName: 'You', partnerAvatar: '😘', startDate: '' },
+  familyMembers: [{ id: 1, name: 'Family 1', avatar: '😊' }, { id: 2, name: 'Family 2', avatar: '🌸' }],
+  familyNotes: [{ id: 1, text: 'ညနေစာ အတူတူစားကြမယ်နော် 🍲', date: '2026-10-04', time: '18:30' }],
+  friendsMembers: [{ id: 1, name: 'Friend 1', avatar: '😎' }, { id: 2, name: 'Friend 2', avatar: '🥳' }],
+  friendsNotes: [{ id: 1, text: 'ဒီည Mobile Legends ဆော့ကြမယ် 🎮', date: '2026-10-04', time: '20:00' }],
+  partnerBoard: null
+};
+
+let appData = loadAppData();
+let activeNoteType = 'family';
+let chosenAvatarMember = '😊';
+let chosenAvatarMe = '🥰';
+let chosenAvatarPartner = '😘';
+
+function loadAppData() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) {
+      const parsed = JSON.parse(s);
+      if (parsed.couple) {
+        parsed.couple.meAvatar = parsed.couple.meAvatar || parsed.couple.meEmoji || '🥰';
+        parsed.couple.partnerAvatar = parsed.couple.partnerAvatar || parsed.couple.partnerEmoji || '😘';
+      }
+      if (parsed.familyMembers) {
+        parsed.familyMembers.forEach(m => { m.avatar = m.avatar || m.emoji || '😊'; });
+      }
+      if (parsed.friendsMembers) {
+        parsed.friendsMembers.forEach(m => { m.avatar = m.avatar || m.emoji || '😎'; });
+      }
+      return Object.assign({}, defaultData, parsed);
+    }
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(defaultData));
+}
+
+function saveAppData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
 }
 
 // ------------------------------------------
-// AIRPLANE ANIMATION
+// 3. PAPER AIRPLANE ANIMATION
 // ------------------------------------------
-function triggerAirplane(onComplete) {
+function triggerPaperPlane(callback) {
   const layer = document.getElementById('plane-animation-layer');
   if (layer) {
     layer.classList.add('animating');
     setTimeout(() => {
       layer.classList.remove('animating');
-      if (onComplete) onComplete();
+      if (callback) callback();
     }, 1100);
-  } else if (onComplete) {
-    onComplete();
-  }
+  } else if (callback) callback();
 }
 
 // ------------------------------------------
-// INITIALIZE APPLICATION
+// 4. COUPLE & FOREVER ALONE MODE
 // ------------------------------------------
-function startApp() {
-  checkPinStatus();
-  initNavigation();
-  initAloneMode();
-  initCoupleSection();
-  initMembersAndNotes();
-  initCanvasDrawing();
-  initSettings();
-  renderAll();
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', startApp);
-} else {
-  startApp();
-}
-
-// Alone Mode
-function initAloneMode() {
-  const toggleBtn = document.getElementById('alone-mode-toggle');
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      appState.isAloneMode = !appState.isAloneMode;
-      saveState();
-      applyAloneModeUI();
-    });
+window.tapHeart = function() {
+  safeVoiceAlert('I love you');
+  const h = document.getElementById('main-heart-btn');
+  if (h) {
+    h.style.transform = 'scale(1.25)';
+    setTimeout(() => { h.style.transform = ''; }, 200);
   }
+};
+
+window.toggleAloneMode = function() {
+  appData.isAloneMode = !appData.isAloneMode;
+  saveAppData();
   applyAloneModeUI();
-}
+};
 
 function applyAloneModeUI() {
-  const isAlone = appState.isAloneMode;
+  const isAlone = appData.isAloneMode;
   const toggleLabel = document.getElementById('toggle-label');
   const modeText = document.getElementById('mode-text');
   const modeIcon = document.getElementById('mode-icon');
   const counterTitle = document.getElementById('counter-title');
   const liveTitle = document.getElementById('live-screen-title');
+  const navCoupleText = document.getElementById('nav-couple-text');
 
   if (isAlone) {
     document.body.classList.add('alone-mode');
@@ -239,6 +259,7 @@ function applyAloneModeUI() {
     if (modeIcon) modeIcon.textContent = '🪐';
     if (counterTitle) counterTitle.textContent = 'ကိုယ်တိုင်နှင့်အတူ ဖြတ်သန်းခဲ့သောရက်များ';
     if (liveTitle) liveTitle.textContent = 'My Personal Notepad';
+    if (navCoupleText) navCoupleText.textContent = 'Solo';
   } else {
     document.body.classList.remove('alone-mode');
     if (toggleLabel) toggleLabel.textContent = 'Alone Mode ပြောင်းရန်';
@@ -246,543 +267,494 @@ function applyAloneModeUI() {
     if (modeIcon) modeIcon.textContent = '💖';
     if (counterTitle) counterTitle.textContent = 'တို့နှစ်ယောက် ချစ်သက်တမ်း';
     if (liveTitle) liveTitle.textContent = 'Partner Live Screen';
+    if (navCoupleText) navCoupleText.textContent = 'Couple';
   }
 }
 
-// Couple Section
-function initCoupleSection() {
-  const heartBtn = document.getElementById('main-heart-btn');
-  if (heartBtn) {
-    heartBtn.addEventListener('click', () => {
-      playVoiceAlert('I love you');
-      heartBtn.style.transform = 'scale(1.25)';
-      setTimeout(() => { heartBtn.style.transform = ''; }, 200);
-    });
-  }
+// ------------------------------------------
+// 5. ACCURATE DATE CALCULATION
+// ------------------------------------------
+window.onDateChange = function(val) {
+  appData.couple.startDate = val;
+  saveAppData();
+  renderCounter();
+};
 
-  const dateInput = document.getElementById('love-start-date');
-  if (dateInput) {
-    dateInput.value = appState.couple.startDate || '';
-    dateInput.addEventListener('change', (e) => {
-      appState.couple.startDate = e.target.value;
-      saveState();
-      updateCounter();
-    });
-  }
-
-  const editModal = document.getElementById('profile-edit-modal');
-  const editBtn = document.getElementById('edit-profiles-btn');
-  if (editBtn && editModal) {
-    editBtn.addEventListener('click', () => {
-      document.getElementById('edit-my-name').value = appState.couple.meName;
-      document.getElementById('edit-partner-name').value = appState.couple.partnerName;
-      selectedMyEmoji = appState.couple.meEmoji;
-      selectedPartnerEmoji = appState.couple.partnerEmoji;
-      highlightEmojiSelection('my-emoji-options', selectedMyEmoji);
-      highlightEmojiSelection('partner-emoji-options', selectedPartnerEmoji);
-      editModal.classList.add('active');
-    });
-  }
-
-  setupEmojiPicker('my-emoji-options', (emoji) => { selectedMyEmoji = emoji; });
-  setupEmojiPicker('partner-emoji-options', (emoji) => { selectedPartnerEmoji = emoji; });
-
-  const closeProfileBtn = document.getElementById('close-profile-modal-btn');
-  if (closeProfileBtn && editModal) {
-    closeProfileBtn.addEventListener('click', () => {
-      editModal.classList.remove('active');
-    });
-  }
-
-  const saveProfileBtn = document.getElementById('save-profiles-btn');
-  if (saveProfileBtn && editModal) {
-    saveProfileBtn.addEventListener('click', () => {
-      appState.couple.meName = document.getElementById('edit-my-name').value.trim() || 'Me';
-      appState.couple.partnerName = document.getElementById('edit-partner-name').value.trim() || 'You';
-      appState.couple.meEmoji = selectedMyEmoji;
-      appState.couple.partnerEmoji = selectedPartnerEmoji;
-      saveState();
-      editModal.classList.remove('active');
-      renderProfiles();
-    });
-  }
-
-  const sendMsgBtn = document.getElementById('send-msg-btn');
-  if (sendMsgBtn) {
-    sendMsgBtn.addEventListener('click', () => {
-      const textInput = document.getElementById('partner-msg-input');
-      const msg = textInput.value.trim();
-      if (!msg) return;
-
-      triggerAirplane(() => {
-        appState.partnerBoard = { type: 'text', content: msg };
-        saveState();
-        textInput.value = '';
-        renderPartnerBoard();
-
-        const coupleAlerts = ['I love you', 'I miss you'];
-        playVoiceAlert(coupleAlerts[Math.floor(Math.random() * coupleAlerts.length)]);
-      });
-    });
-  }
-}
-
-function updateCounter() {
+function renderCounter() {
   const daysEl = document.getElementById('days-count');
   const detailedEl = document.getElementById('detailed-time');
   const progressEl = document.getElementById('milestone-progress');
-  const milestoneDaysLeft = document.getElementById('milestone-days-left');
-  const milestoneTitle = document.getElementById('next-milestone-title');
+  const daysLeftEl = document.getElementById('milestone-days-left');
+  const nextMileEl = document.getElementById('next-milestone-title');
 
   if (!daysEl) return;
 
-  if (!appState.couple.startDate) {
+  if (!appData.couple.startDate) {
     daysEl.textContent = '0';
     if (detailedEl) detailedEl.textContent = '0 နှစ် 0 လ 0 ရက်';
     if (progressEl) progressEl.style.width = '0%';
-    if (milestoneTitle) milestoneTitle.textContent = 'ရက် ၁၀၀ ပြည့်ဖို့';
-    if (milestoneDaysLeft) milestoneDaysLeft.textContent = '၁၀၀ ရက်လို';
+    if (nextMileEl) nextMileEl.textContent = 'ရက် ၁၀၀ ပြည့်ဖို့';
+    if (daysLeftEl) daysLeftEl.textContent = '၁၀၀ ရက်လို';
     return;
   }
 
-  const start = new Date(appState.couple.startDate);
+  const start = new Date(appData.couple.startDate);
   const now = new Date();
-  const diffTime = now - start;
-  const days = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+  start.setHours(0, 0, 0, 0);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  daysEl.textContent = days;
+  const diffTime = today - start;
+  if (diffTime < 0) {
+    daysEl.textContent = '0';
+    if (detailedEl) detailedEl.textContent = 'စတင်ရန် ရက်လိုသေးသည်';
+    return;
+  }
 
-  let years = now.getFullYear() - start.getFullYear();
-  let months = now.getMonth() - start.getMonth();
-  let remainingDays = now.getDate() - start.getDate();
+  const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  daysEl.textContent = totalDays;
 
-  if (remainingDays < 0) {
+  // နှစ်၊ လ၊ ရက် အတိအကျ တွက်ချက်ခြင်း
+  let years = today.getFullYear() - start.getFullYear();
+  let months = today.getMonth() - start.getMonth();
+  let days = today.getDate() - start.getDate();
+
+  if (days < 0) {
     months--;
-    remainingDays += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    const prevMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+    days += prevMonthLastDay;
   }
   if (months < 0) {
     years--;
     months += 12;
   }
-  if (detailedEl) {
-    detailedEl.textContent = `${Math.max(0, years)} နှစ် ${Math.max(0, months)} လ ${Math.max(0, remainingDays)} ရက်`;
-  }
+  if (years < 0) { years = 0; months = 0; days = 0; }
 
+  if (detailedEl) detailedEl.textContent = `${years} နှစ် ${months} လ ${days} ရက်`;
+
+  // Milestone တွက်ချက်ခြင်း
   let target = 100;
-  while (days >= target) target += 100;
-  const daysLeft = target - days;
-  const percentage = Math.min(100, ((days % 100) / 100) * 100);
+  while (totalDays >= target) target += 100;
+  const daysLeft = target - totalDays;
+  const percentage = Math.min(100, ((totalDays % 100) / 100) * 100);
 
-  if (milestoneTitle) milestoneTitle.textContent = `ရက် ${target} ပြည့်ဖို့`;
-  if (milestoneDaysLeft) milestoneDaysLeft.textContent = `${daysLeft} ရက်လို`;
+  if (nextMileEl) nextMileEl.textContent = `ရက် ${target} ပြည့်ဖို့`;
+  if (daysLeftEl) daysLeftEl.textContent = `${daysLeft} ရက်လို`;
   if (progressEl) progressEl.style.width = `${percentage}%`;
 }
 
-// Members & Notes
-function initMembersAndNotes() {
-  const noteModal = document.getElementById('note-modal');
-  const memberModal = document.getElementById('member-modal');
+// ------------------------------------------
+// 6. PROFILES & GALLERY PHOTO UPLOADS
+// ------------------------------------------
+window.openProfileModal = function() {
+  document.getElementById('edit-my-name').value = appData.couple.meName;
+  document.getElementById('edit-partner-name').value = appData.couple.partnerName;
+  chosenAvatarMe = appData.couple.meAvatar;
+  chosenAvatarPartner = appData.couple.partnerAvatar;
 
-  const addFamNote = document.getElementById('add-family-note-btn');
-  if (addFamNote) {
-    addFamNote.addEventListener('click', () => {
-      activeNoteTarget = 'family';
-      openNoteModal('🏡 မိသားစု မှတ်စုအသစ် ရေးပါ');
-    });
-  }
+  const pMe = document.getElementById('me-photo-preview');
+  if (chosenAvatarMe.startsWith('data:image')) {
+    pMe.src = chosenAvatarMe;
+    pMe.style.display = 'block';
+  } else { pMe.style.display = 'none'; }
 
-  const addFriNote = document.getElementById('add-friends-note-btn');
-  if (addFriNote) {
-    addFriNote.addEventListener('click', () => {
-      activeNoteTarget = 'friends';
-      openNoteModal('✨ သူငယ်ချင်း မှတ်စုအသစ် ရေးပါ');
-    });
-  }
+  const pPart = document.getElementById('partner-photo-preview');
+  if (chosenAvatarPartner.startsWith('data:image')) {
+    pPart.src = chosenAvatarPartner;
+    pPart.style.display = 'block';
+  } else { pPart.style.display = 'none'; }
 
-  function openNoteModal(title) {
-    document.getElementById('note-modal-title').textContent = title;
-    document.getElementById('note-text-input').value = '';
-    document.getElementById('note-date-input').value = getTodayStr();
-    document.getElementById('note-time-input').value = getCurrentTimeStr();
-    if (noteModal) noteModal.classList.add('active');
-  }
-
-  const closeNoteBtn = document.getElementById('close-note-modal-btn');
-  if (closeNoteBtn && noteModal) {
-    closeNoteBtn.addEventListener('click', () => {
-      noteModal.classList.remove('active');
-    });
-  }
-
-  const saveNoteBtn = document.getElementById('save-note-btn');
-  if (saveNoteBtn && noteModal) {
-    saveNoteBtn.addEventListener('click', () => {
-      const text = document.getElementById('note-text-input').value.trim();
-      const date = document.getElementById('note-date-input').value || getTodayStr();
-      const time = document.getElementById('note-time-input').value || getCurrentTimeStr();
-
-      if (!text) return;
-
-      const newNote = { id: Date.now(), text, date, time };
-      if (activeNoteTarget === 'family') {
-        appState.familyNotes.unshift(newNote);
-        playVoiceAlert('Hello');
-      } else {
-        appState.friendsNotes.unshift(newNote);
-        playVoiceAlert('Hey guys');
-      }
-
-      saveState();
-      noteModal.classList.remove('active');
-      renderNotes();
-    });
-  }
-
-  setupEmojiPicker('member-emoji-options', (emoji) => { selectedMemberEmoji = emoji; });
-
-  const closeMemberBtn = document.getElementById('close-member-modal-btn');
-  if (closeMemberBtn && memberModal) {
-    closeMemberBtn.addEventListener('click', () => {
-      memberModal.classList.remove('active');
-    });
-  }
-
-  const saveMemberBtn = document.getElementById('save-member-btn');
-  if (saveMemberBtn && memberModal) {
-    saveMemberBtn.addEventListener('click', () => {
-      const name = document.getElementById('member-name-input').value.trim();
-      if (!name) return;
-
-      const newMember = { id: Date.now(), name, emoji: selectedMemberEmoji };
-      if (activeNoteTarget === 'family') {
-        appState.familyMembers.push(newMember);
-      } else {
-        appState.friendsMembers.push(newMember);
-      }
-
-      saveState();
-      memberModal.classList.remove('active');
-      renderMembers();
-    });
-  }
-}
-
-window.openMemberModal = function(target) {
-  activeNoteTarget = target;
-  document.getElementById('member-name-input').value = '';
-  document.getElementById('member-modal-title').textContent = target === 'family' ? 'မိသားစုဝင် အသစ်ထည့်မည်' : 'သူငယ်ချင်း အသစ်ထည့်မည်';
-  const memberModal = document.getElementById('member-modal');
-  if (memberModal) memberModal.classList.add('active');
+  document.getElementById('profile-edit-modal').classList.add('active');
 };
 
-// Canvas Drawing
-function initCanvasDrawing() {
-  const canvas = document.getElementById('drawing-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const canvasModal = document.getElementById('canvas-modal');
-  let isDrawing = false;
-  let currentColor = '#ff4b8b';
-  let historyStack = [];
-
-  ctx.lineWidth = 4;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  const openCanvasBtn = document.getElementById('open-canvas-btn');
-  if (openCanvasBtn && canvasModal) {
-    openCanvasBtn.addEventListener('click', () => {
-      canvasModal.classList.add('active');
-      saveCanvasState();
-    });
-  }
-
-  const closeCanvasBtn = document.getElementById('close-canvas-modal-btn');
-  if (closeCanvasBtn && canvasModal) {
-    closeCanvasBtn.addEventListener('click', () => {
-      canvasModal.classList.remove('active');
-    });
-  }
-
-  document.querySelectorAll('.color-dot').forEach(dot => {
-    dot.addEventListener('click', () => {
-      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-      dot.classList.add('active');
-      currentColor = dot.getAttribute('data-color');
-    });
-  });
-
-  function saveCanvasState() {
-    historyStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-  }
-
-  const undoBtn = document.getElementById('canvas-undo-btn');
-  if (undoBtn) {
-    undoBtn.addEventListener('click', () => {
-      if (historyStack.length > 1) {
-        historyStack.pop();
-        ctx.putImageData(historyStack[historyStack.length - 1], 0, 0);
+window.handleProfilePhoto = function(input, type) {
+  if (input.files && input.files[0]) {
+    compressImage(input.files[0], (dataUrl) => {
+      if (type === 'me') {
+        chosenAvatarMe = dataUrl;
+        const p = document.getElementById('me-photo-preview');
+        p.src = dataUrl;
+        p.style.display = 'block';
+        document.querySelectorAll('#my-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
+      } else {
+        chosenAvatarPartner = dataUrl;
+        const p = document.getElementById('partner-photo-preview');
+        p.src = dataUrl;
+        p.style.display = 'block';
+        document.querySelectorAll('#partner-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
       }
     });
   }
+};
 
-  const clearBtn = document.getElementById('canvas-clear-btn');
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      saveCanvasState();
-    });
-  }
-
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
-  }
-
-  function startDraw(e) {
-    isDrawing = true;
-    const pos = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-  }
-
-  function drawMove(e) {
-    if (!isDrawing) return;
-    const pos = getPos(e);
-    ctx.strokeStyle = currentColor;
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-  }
-
-  function stopDraw() {
-    if (isDrawing) {
-      isDrawing = false;
-      saveCanvasState();
-    }
-  }
-
-  canvas.addEventListener('mousedown', startDraw);
-  canvas.addEventListener('mousemove', drawMove);
-  canvas.addEventListener('mouseup', stopDraw);
-
-  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
-  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawMove(e); });
-  canvas.addEventListener('touchend', stopDraw);
-
-  const sendDrawingBtn = document.getElementById('send-drawing-btn');
-  if (sendDrawingBtn && canvasModal) {
-    sendDrawingBtn.addEventListener('click', () => {
-      const dataUrl = canvas.toDataURL();
-      canvasModal.classList.remove('active');
-
-      triggerAirplane(() => {
-        appState.partnerBoard = { type: 'image', content: dataUrl };
-        saveState();
-        renderPartnerBoard();
-
-        const coupleAlerts = ['I love you', 'I miss you'];
-        playVoiceAlert(coupleAlerts[Math.floor(Math.random() * coupleAlerts.length)]);
-      });
-    });
-  }
-}
-
-// Navigation & Settings
-function initNavigation() {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-
-      btn.classList.add('active');
-      const targetTab = btn.getAttribute('data-tab');
-      const targetEl = document.getElementById(targetTab);
-      if (targetEl) targetEl.classList.add('active');
-    });
-  });
-}
-
-function initSettings() {
-  const clearBtn = document.getElementById('clear-all-data-btn');
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      if (confirm('Data အားလုံးကို ရှင်းလင်းပြီး Day 0 သို့ ပြန်လည်သတ်မှတ်မည်မှာ သေချာပါသလား?')) {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(PIN_KEY);
-        appState = JSON.parse(JSON.stringify(defaultState));
-        saveState();
-        location.reload();
-      }
-    });
-  }
-
-  const changePinBtn = document.getElementById('change-pin-btn');
-  if (changePinBtn) {
-    changePinBtn.addEventListener('click', () => {
-      localStorage.removeItem(PIN_KEY);
-      checkPinStatus();
-    });
-  }
-}
-
-// Render Functions
-function renderAll() {
+window.saveProfiles = function() {
+  appData.couple.meName = document.getElementById('edit-my-name').value.trim() || 'Me';
+  appData.couple.partnerName = document.getElementById('edit-partner-name').value.trim() || 'You';
+  appData.couple.meAvatar = chosenAvatarMe;
+  appData.couple.partnerAvatar = chosenAvatarPartner;
+  saveAppData();
+  closeModal('profile-edit-modal');
   renderProfiles();
-  updateCounter();
-  renderPartnerBoard();
-  renderMembers();
-  renderNotes();
-}
+};
 
 function renderProfiles() {
   const nm = document.getElementById('name-me');
   const am = document.getElementById('avatar-me');
   const np = document.getElementById('name-partner');
   const ap = document.getElementById('avatar-partner');
-  if (nm) nm.textContent = appState.couple.meName;
-  if (am) am.textContent = appState.couple.meEmoji;
-  if (np) np.textContent = appState.couple.partnerName;
-  if (ap) ap.textContent = appState.couple.partnerEmoji;
+  const sd = document.getElementById('love-start-date');
+
+  if (nm) nm.textContent = appData.couple.meName;
+  if (am) am.innerHTML = renderFrameContent(appData.couple.meAvatar);
+  if (np) np.textContent = appData.couple.partnerName;
+  if (ap) ap.innerHTML = renderFrameContent(appData.couple.partnerAvatar);
+  if (sd) sd.value = appData.couple.startDate || '';
 }
 
-function renderPartnerBoard() {
-  const display = document.getElementById('partner-board-display');
-  if (!display) return;
-  if (!appState.partnerBoard) {
-    display.innerHTML = `<p class="placeholder-text" id="board-empty-text">ချစ်သူဆီက စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>`;
+// ------------------------------------------
+// 7. PARTNER LIVE SCREEN & SENDING
+// ------------------------------------------
+window.sendPartnerMessage = function() {
+  const input = document.getElementById('partner-msg-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  triggerPaperPlane(() => {
+    appData.partnerBoard = { type: 'text', content: msg };
+    saveAppData();
+    input.value = '';
+    renderBoard();
+
+    const alerts = ['I love you', 'I miss you'];
+    safeVoiceAlert(alerts[Math.floor(Math.random() * alerts.length)]);
+  });
+};
+
+function renderBoard() {
+  const b = document.getElementById('partner-board-display');
+  if (!b) return;
+  if (!appData.partnerBoard) {
+    b.innerHTML = '<p class="placeholder-text">စာသား သို့မဟုတ် ပုံဆွဲ မရောက်သေးပါ...</p>';
     return;
   }
-
-  if (appState.partnerBoard.type === 'text') {
-    display.innerHTML = `<div class="board-received-text">💌 "${escapeHtml(appState.partnerBoard.content)}"</div>`;
-  } else if (appState.partnerBoard.type === 'image') {
-    display.innerHTML = `<img src="${appState.partnerBoard.content}" class="board-received-img" alt="Drawing">`;
-  }
-}
-
-function renderMembers() {
-  const famContainer = document.getElementById('family-members-container');
-  if (famContainer) {
-    famContainer.innerHTML = '';
-    appState.familyMembers.forEach(m => {
-      famContainer.innerHTML += `
-        <div class="member-item">
-          <button class="member-del-btn" onclick="deleteMember('family', ${m.id})">&times;</button>
-          <div class="member-bubble">${m.emoji}</div>
-          <span class="member-title">${escapeHtml(m.name)}</span>
-        </div>
-      `;
-    });
-    famContainer.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('family')">+</div>`;
-    const fTag = document.getElementById('family-count-tag');
-    if (fTag) fTag.textContent = `${appState.familyMembers.length} ယောက်`;
-  }
-
-  const friContainer = document.getElementById('friends-members-container');
-  if (friContainer) {
-    friContainer.innerHTML = '';
-    appState.friendsMembers.forEach(m => {
-      friContainer.innerHTML += `
-        <div class="member-item">
-          <button class="member-del-btn" onclick="deleteMember('friends', ${m.id})">&times;</button>
-          <div class="member-bubble">${m.emoji}</div>
-          <span class="member-title">${escapeHtml(m.name)}</span>
-        </div>
-      `;
-    });
-    friContainer.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('friends')">+</div>`;
-    const frTag = document.getElementById('friends-count-tag');
-    if (frTag) frTag.textContent = `${appState.friendsMembers.length} ယောက်`;
-  }
-}
-
-function renderNotes() {
-  const famNotes = document.getElementById('family-notes-container');
-  if (famNotes) {
-    famNotes.innerHTML = '';
-    appState.familyNotes.forEach(n => {
-      famNotes.innerHTML += `
-        <div class="sticky-note-card">
-          <div class="note-header-line">
-            <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
-            <button class="note-del-btn" onclick="deleteNote('family', ${n.id})">&times;</button>
-          </div>
-          <div class="note-content-text">${escapeHtml(n.text)}</div>
-        </div>
-      `;
-    });
-  }
-
-  const friNotes = document.getElementById('friends-notes-container');
-  if (friNotes) {
-    friNotes.innerHTML = '';
-    appState.friendsNotes.forEach(n => {
-      friNotes.innerHTML += `
-        <div class="sticky-note-card">
-          <div class="note-header-line">
-            <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
-            <button class="note-del-btn" onclick="deleteNote('friends', ${n.id})">&times;</button>
-          </div>
-          <div class="note-content-text">${escapeHtml(n.text)}</div>
-        </div>
-      `;
-    });
-  }
-}
-
-window.deleteMember = function(type, id) {
-  if (type === 'family') {
-    appState.familyMembers = appState.familyMembers.filter(m => m.id !== id);
+  if (appData.partnerBoard.type === 'text') {
+    b.innerHTML = `<div class="board-received-text">💌 "${appData.partnerBoard.content}"</div>`;
   } else {
-    appState.friendsMembers = appState.friendsMembers.filter(m => m.id !== id);
+    b.innerHTML = `<img src="${appData.partnerBoard.content}" class="board-received-img">`;
   }
-  saveState();
+}
+
+// ------------------------------------------
+// 8. MEMBERS & STICKY NOTES WITH DATE/TIME
+// ------------------------------------------
+window.openMemberModal = function(type) {
+  activeNoteType = type;
+  document.getElementById('member-modal-title').textContent = type === 'family' ? 'မိသားစုဝင် အသစ်ထည့်မည်' : 'သူငယ်ချင်း အသစ်ထည့်မည်';
+  document.getElementById('member-name-input').value = '';
+  document.getElementById('member-photo-input').value = '';
+  document.getElementById('member-photo-preview').style.display = 'none';
+  chosenAvatarMember = '😊';
+  document.getElementById('member-modal').classList.add('active');
+};
+
+window.handleMemberPhoto = function(input) {
+  if (input.files && input.files[0]) {
+    compressImage(input.files[0], (dataUrl) => {
+      chosenAvatarMember = dataUrl;
+      const prev = document.getElementById('member-photo-preview');
+      prev.src = dataUrl;
+      prev.style.display = 'block';
+      document.querySelectorAll('#member-emoji-options .emoji-option').forEach(o => o.classList.remove('selected'));
+    });
+  }
+};
+
+window.saveMember = function() {
+  const name = document.getElementById('member-name-input').value.trim();
+  if (!name) return;
+  const m = { id: Date.now(), name, avatar: chosenAvatarMember };
+  if (activeNoteType === 'family') appData.familyMembers.push(m);
+  else appData.friendsMembers.push(m);
+  saveAppData();
+  closeModal('member-modal');
   renderMembers();
 };
 
-window.deleteNote = function(type, id) {
-  if (type === 'family') {
-    appState.familyNotes = appState.familyNotes.filter(n => n.id !== id);
-  } else {
-    appState.friendsNotes = appState.friendsNotes.filter(n => n.id !== id);
+window.delMember = function(type, id) {
+  if (type === 'family') appData.familyMembers = appData.familyMembers.filter(m => m.id !== id);
+  else appData.friendsMembers = appData.friendsMembers.filter(m => m.id !== id);
+  saveAppData();
+  renderMembers();
+};
+
+function renderMembers() {
+  const fc = document.getElementById('family-members-container');
+  if (fc) {
+    fc.innerHTML = '';
+    appData.familyMembers.forEach(m => {
+      fc.innerHTML += `
+        <div class="member-item">
+          <button class="member-del-btn" onclick="delMember('family', ${m.id})">&times;</button>
+          <div class="member-bubble">${renderFrameContent(m.avatar)}</div>
+          <span class="member-title">${m.name}</span>
+        </div>`;
+    });
+    fc.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('family')">+</div>`;
+    document.getElementById('family-count-tag').textContent = `${appData.familyMembers.length} ယောက်`;
   }
-  saveState();
+
+  const frc = document.getElementById('friends-members-container');
+  if (frc) {
+    frc.innerHTML = '';
+    appData.friendsMembers.forEach(m => {
+      frc.innerHTML += `
+        <div class="member-item">
+          <button class="member-del-btn" onclick="delMember('friends', ${m.id})">&times;</button>
+          <div class="member-bubble">${renderFrameContent(m.avatar)}</div>
+          <span class="member-title">${m.name}</span>
+        </div>`;
+    });
+    frc.innerHTML += `<div class="circle-add-member-btn" onclick="openMemberModal('friends')">+</div>`;
+    document.getElementById('friends-count-tag').textContent = `${appData.friendsMembers.length} ယောက်`;
+  }
+}
+
+// Notes
+window.openNoteModal = function(type) {
+  activeNoteType = type;
+  document.getElementById('note-modal-title').textContent = type === 'family' ? '🏡 မိသားစု မှတ်စုအသစ် ရေးပါ' : '✨ သူငယ်ချင်း မှတ်စုအသစ် ရေးပါ';
+  document.getElementById('note-text-input').value = '';
+  const now = new Date();
+  document.getElementById('note-date-input').value = now.toISOString().slice(0, 10);
+  document.getElementById('note-time-input').value = now.toTimeString().slice(0, 5);
+  document.getElementById('note-modal').classList.add('active');
+};
+
+window.saveNote = function() {
+  const text = document.getElementById('note-text-input').value.trim();
+  const date = document.getElementById('note-date-input').value;
+  const time = document.getElementById('note-time-input').value;
+  if (!text) return;
+
+  const n = { id: Date.now(), text, date, time };
+  if (activeNoteType === 'family') {
+    appData.familyNotes.unshift(n);
+    safeVoiceAlert('Hello');
+  } else {
+    appData.friendsNotes.unshift(n);
+    safeVoiceAlert('Hey guys');
+  }
+  saveAppData();
+  closeModal('note-modal');
   renderNotes();
 };
 
-function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return JSON.parse(JSON.stringify(defaultState));
-  try {
-    return { ...defaultState, ...JSON.parse(saved) };
-  } catch(e) {
-    return JSON.parse(JSON.stringify(defaultState));
+window.delNote = function(type, id) {
+  if (type === 'family') appData.familyNotes = appData.familyNotes.filter(n => n.id !== id);
+  else appData.friendsNotes = appData.friendsNotes.filter(n => n.id !== id);
+  saveAppData();
+  renderNotes();
+};
+
+function renderNotes() {
+  const fn = document.getElementById('family-notes-container');
+  if (fn) {
+    fn.innerHTML = '';
+    appData.familyNotes.forEach(n => {
+      fn.innerHTML += `
+        <div class="sticky-note-card">
+          <div class="note-header-line">
+            <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
+            <button class="note-del-btn" onclick="delNote('family', ${n.id})">&times;</button>
+          </div>
+          <div class="note-content-text">${n.text}</div>
+        </div>`;
+    });
+  }
+
+  const frn = document.getElementById('friends-notes-container');
+  if (frn) {
+    frn.innerHTML = '';
+    appData.friendsNotes.forEach(n => {
+      frn.innerHTML += `
+        <div class="sticky-note-card">
+          <div class="note-header-line">
+            <span class="note-datetime"><i class="fa-regular fa-clock"></i> ${n.date} ${n.time}</span>
+            <button class="note-del-btn" onclick="delNote('friends', ${n.id})">&times;</button>
+          </div>
+          <div class="note-content-text">${n.text}</div>
+        </div>`;
+    });
   }
 }
 
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+// ------------------------------------------
+// 9. CODES & ROOM CONNECTION
+// ------------------------------------------
+window.copyRoomCode = function() {
+  const code = document.getElementById('my-device-code').textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code);
+  }
+  alert(`Room Code ကူးယူပြီးပါပြီ: ${code}`);
+};
+
+window.joinRoomCode = function() {
+  const input = document.getElementById('pair-code-input');
+  const val = input.value.trim();
+  if (val) {
+    alert(`Room Code "${val}" ဖြင့် အောင်မြင်စွာ ချိတ်ဆက်ပြီးပါပြီ!`);
+    input.value = '';
+  } else {
+    alert('Room Code ရိုက်ထည့်ပေးပါ!');
+  }
+};
+
+window.clearAllData = function() {
+  if (confirm('Data အားလုံးကို ရှင်းလင်းပြီး Day 0 သို့ ပြန်လည်သတ်မှတ်မည်မှာ သေချာပါသလား?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(PIN_KEY);
+    location.reload();
+  }
+};
+
+// ------------------------------------------
+// 10. CANVAS DRAWING
+// ------------------------------------------
+let canvas, ctx, isDrawing = false, strokeColor = '#ff4b8b', canvasHistory = [];
+
+window.openCanvasModal = function() {
+  document.getElementById('canvas-modal').classList.add('active');
+  if (!canvas) initCanvas();
+};
+
+function initCanvas() {
+  canvas = document.getElementById('drawing-canvas');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: cx - r.left, y: cy - r.top };
+  }
+
+  function start(e) {
+    isDrawing = true;
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  }
+
+  function move(e) {
+    if (!isDrawing) return;
+    const p = getPos(e);
+    ctx.strokeStyle = strokeColor;
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  }
+
+  function stop() {
+    if (isDrawing) {
+      isDrawing = false;
+      canvasHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    }
+  }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', stop);
+
+  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
+  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawMove(e); });
+  canvas.addEventListener('touchend', stop);
+
+  canvasHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
 }
 
-function setupEmojiPicker(containerId, onSelect) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.querySelectorAll('.emoji-option').forEach(opt => {
-    opt.addEventListener('click', () => {
-      container.querySelectorAll('.emoji-option').forEach(o => o.classList.remove('selected'));
-      opt.classList.add('selected');
-      onSelect(opt.textContent.trim());
-    });
+window.selectColor = function(col, el) {
+  strokeColor = col;
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+};
+
+window.undoCanvas = function() {
+  if (canvasHistory.length > 1) {
+    canvasHistory.pop();
+    ctx.putImageData(canvasHistory[canvasHistory.length - 1], 0, 0);
+  }
+};
+
+window.clearCanvas = function() {
+  if (ctx) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvasHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+  }
+};
+
+window.sendDrawing = function() {
+  if (!canvas) return;
+  const dataUrl = canvas.toDataURL();
+  closeModal('canvas-modal');
+  triggerPaperPlane(() => {
+    appData.partnerBoard = { type: 'image', content: dataUrl };
+    saveAppData();
+    renderBoard();
+    const alerts = ['I love you', 'I miss you'];
+    safeVoiceAlert(alerts[Math.floor(Math.random() * alerts.length)]);
   });
+};
+
+// ------------------------------------------
+// 11. GENERAL HELPERS & NAVIGATION
+// ------------------------------------------
+window.switchTab = function(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const pane = document.getElementById(id);
+  if (pane) pane.classList.add('active');
+};
+
+window.pickEmoji = function(el, target) {
+  el.parentElement.querySelectorAll('.emoji-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  const val = el.textContent.trim();
+  if (target === 'member') {
+    chosenAvatarMember = val;
+    document.getElementById('member-photo-preview').style.display = 'none';
+  } else if (target === 'me') {
+    chosenAvatarMe = val;
+    document.getElementById('me-photo-preview').style.display = 'none';
+  } else if (target === 'partner') {
+    chosenAvatarPartner = val;
+    document.getElementById('partner-photo-preview').style.display = 'none';
+  }
+};
+
+window.closeModal = function(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.remove('active');
+};
+
+// ------------------------------------------
+// 12. APP INITIALIZATION
+// ------------------------------------------
+function initApp() {
+  checkPinStatus();
+  applyAloneModeUI();
+  renderProfiles();
+  renderCounter();
+  renderBoard();
+  renderMembers();
+  renderNotes();
 }
 
-function highlightEmojiSelection(containerId, currentEmoji) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.querySelectorAll('.emoji-option').forEach(opt => {
-    if (opt.textContent.trim() === currentEmoji) opt.classList.add('selected');
-    else opt.classList.remove('selected');
-  });
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
 }
